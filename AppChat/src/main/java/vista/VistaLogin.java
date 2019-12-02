@@ -1,7 +1,5 @@
 package vista;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
@@ -11,14 +9,12 @@ import java.awt.Dimension;
 import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 
-import controlador.Controlador;
-
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.Color;
 
+@SuppressWarnings("serial")
 public class VistaLogin extends JPanel{
 
 	private JTextField txtNombre;
@@ -78,25 +74,26 @@ public class VistaLogin extends JPanel{
 		btnLogin.setBackground(Color.LIGHT_GRAY);
 		btnLogin.setActionCommand("btnLogin");
 		panel_6.add(btnLogin);
-		
-		JButton btnRegister = new JButton("Register");
-		btnRegister.setBackground(Color.LIGHT_GRAY);
-		btnRegister.setForeground(Color.DARK_GRAY);
-		panel_6.add(btnRegister);
 		btnLogin.addActionListener(e -> {
-			String user = txtNombre.getText();
+			JOptionPane.showMessageDialog(new JFrame(),"Logeado correctamente", "Login",JOptionPane.INFORMATION_MESSAGE);
+			/*String user = txtNombre.getText();
 			String passwd = txtPasswd.getText();
 				boolean login = Controlador.getUnicaInstancia().login(user,passwd);
 				if (login){
 					removeAll();
 				}
 				else {//Popup
-				}	
-				/*
-				frmLogin.frame.setContentPane(new PagExplorar());
-				frmLogin.frame.revalidate();
-				frmLogin.frame.repaint();
-				*/
+				}*/
+		});
+		JButton btnRegister = new JButton("Register");
+		btnRegister.setBackground(Color.LIGHT_GRAY);
+		btnRegister.setForeground(Color.DARK_GRAY);
+		panel_6.add(btnRegister);
+		btnRegister.addActionListener(e -> {
+				Ventana.frame.getContentPane().removeAll();
+				Ventana.frame.setContentPane(new VistaRegistro());
+				Ventana.frame.revalidate();
+				Ventana.frame.repaint();
 		});
 		
 		JPanel panel_7 = new JPanel();
