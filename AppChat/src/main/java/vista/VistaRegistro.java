@@ -14,13 +14,15 @@ import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
 import javax.swing.border.LineBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import com.toedter.calendar.JDateChooser;
 
 public class VistaRegistro {
 
 	private JFrame frmRegister;
 	private JTextField textField;
 	private JTextField textField_1;
-	private JTextField textField_2;
 	private JTextField textField_3;
 	private JTextField textField_4;
 
@@ -120,7 +122,7 @@ public class VistaRegistro {
 		
 		textField_3 = new JTextField();
 		panel_15.add(textField_3);
-		textField_3.setColumns(11);
+		textField_3.setColumns(12);
 		
 		JPanel panel_11 = new JPanel();
 		panel_11.setBackground(Color.GRAY);
@@ -132,7 +134,7 @@ public class VistaRegistro {
 		
 		textField = new JTextField();
 		panel_11.add(textField);
-		textField.setColumns(11);
+		textField.setColumns(12);
 		
 		JPanel panel_12 = new JPanel();
 		panel_12.setBackground(Color.GRAY);
@@ -142,9 +144,8 @@ public class VistaRegistro {
 		lblBirthday.setForeground(Color.BLACK);
 		panel_12.add(lblBirthday);
 		
-		textField_2 = new JTextField();
-		panel_12.add(textField_2);
-		textField_2.setColumns(10);
+		JDateChooser dateChooser = new JDateChooser();
+		panel_12.add(dateChooser);
 		
 		JPanel panel_6 = new JPanel();
 		splitPane.setRightComponent(panel_6);
@@ -170,13 +171,29 @@ public class VistaRegistro {
 		panel_14.setBackground(Color.GRAY);
 		panel_9.add(panel_14, BorderLayout.NORTH);
 		
-		JButton btnSubmit = new JButton("Submit");
+		JButton btnSubmit = new JButton("Back");
+		btnSubmit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		btnSubmit.setRequestFocusEnabled(false);
 		btnSubmit.setRolloverEnabled(false);
 		btnSubmit.setForeground(Color.DARK_GRAY);
 		btnSubmit.setBackground(Color.LIGHT_GRAY);
 		btnSubmit.setPreferredSize(new Dimension(80, 23));
 		panel_14.add(btnSubmit);
+		
+		JButton button = new JButton("Submit");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		button.setRolloverEnabled(false);
+		button.setRequestFocusEnabled(false);
+		button.setPreferredSize(new Dimension(80, 23));
+		button.setForeground(Color.DARK_GRAY);
+		button.setBackground(Color.LIGHT_GRAY);
+		panel_14.add(button);
 		
 		JPanel panel_10 = new JPanel();
 		panel_10.setBackground(Color.GRAY);

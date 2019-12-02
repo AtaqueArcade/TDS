@@ -78,6 +78,11 @@ public class VistaLogin extends JPanel{
 		btnLogin.setBackground(Color.LIGHT_GRAY);
 		btnLogin.setActionCommand("btnLogin");
 		panel_6.add(btnLogin);
+		
+		JButton btnRegister = new JButton("Register");
+		btnRegister.setBackground(Color.LIGHT_GRAY);
+		btnRegister.setForeground(Color.DARK_GRAY);
+		panel_6.add(btnRegister);
 		btnLogin.addActionListener(e -> {
 			String user = txtNombre.getText();
 			String passwd = txtPasswd.getText();
