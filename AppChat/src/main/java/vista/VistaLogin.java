@@ -76,6 +76,11 @@ public class VistaLogin extends JPanel{
 		panel_6.add(btnLogin);
 		btnLogin.addActionListener(e -> {
 			JOptionPane.showMessageDialog(new JFrame(),"Logeado correctamente", "Login",JOptionPane.INFORMATION_MESSAGE);
+			Ventana.frame.getContentPane().removeAll();
+			Ventana.frame.setContentPane(new VistaPrincipal());
+			Ventana.frame.revalidate();
+			Ventana.frame.repaint();
+
 			/*String user = txtNombre.getText();
 			String passwd = txtPasswd.getText();
 				boolean login = Controlador.getUnicaInstancia().login(user,passwd);
