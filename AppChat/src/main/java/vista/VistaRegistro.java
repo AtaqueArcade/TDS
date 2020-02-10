@@ -3,6 +3,8 @@ package vista;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.Box;
@@ -10,6 +12,7 @@ import java.awt.Dimension;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.border.LineBorder;
 import com.toedter.calendar.JDateChooser;
 
@@ -155,8 +158,9 @@ public class VistaRegistro extends JPanel{
 		
 		JButton btnSubmit = new JButton("Submit");
 		btnSubmit.addActionListener(e -> {
+			JOptionPane.showMessageDialog(new JFrame(),"Registrado correctamente.\n", "Login",JOptionPane.INFORMATION_MESSAGE);
 			Ventana.frame.getContentPane().removeAll();
-			Ventana.frame.setContentPane(new VistaRegistro());
+			Ventana.frame.setContentPane(new VistaLogin());
 			Ventana.frame.revalidate();
 			Ventana.frame.repaint();
 		});
