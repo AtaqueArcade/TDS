@@ -12,8 +12,6 @@ public class Ventana {
 			public void run() {
 				try {
 					Ventana window = new Ventana();
-					frame.setContentPane(new VistaLogin());
-					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -21,10 +19,25 @@ public class Ventana {
 		});
 	}
 	public Ventana() {
+			//Loads the acces view by default
+			frame = new JFrame();
+			frame.setTitle("AppChat: User access");
+			frame.setSize(new Dimension(400, 250));
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setContentPane(new LoginView());
+			frame.setVisible(true);
+	}
+	public static void loadAppView(){
+		//Frees the loaded panel
+		frame.getContentPane().removeAll();
+		frame.setVisible(false);
+		frame.dispose();
+		//Loads the main interface
 		frame = new JFrame();
 		frame.setTitle("AppChat");
-		frame.getContentPane().setSize(new Dimension(800, 250));
-		frame.setSize(new Dimension(400, 250));
+		frame.setSize(new Dimension(1000, 750));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setContentPane(new MainView());
+		frame.setVisible(true);
 	}
 }
