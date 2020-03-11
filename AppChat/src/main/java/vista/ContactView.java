@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ContactView extends JPanel {
     private JList list;
@@ -11,8 +13,8 @@ public class ContactView extends JPanel {
 
     private static final String hireString = "Hire";
     private static final String fireString = "Fire";
-    private JButton fireButton;
-    private JTextField employeeName;
+    private JButton addButton;
+    private JTextField searchText;
 
     public ContactView() {
         super(new BorderLayout());
@@ -29,14 +31,14 @@ public class ContactView extends JPanel {
         list.setVisibleRowCount(5);
         JScrollPane listScrollPane = new JScrollPane(list);
 
-        JButton hireButton = new JButton(hireString);
-        hireButton.setActionCommand(hireString);
-        hireButton.setEnabled(false);
+        addButton = new JButton("Add");
+        addButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        	}
+        });
+        addButton.setActionCommand("Add");;
 
-        fireButton = new JButton(fireString);
-        fireButton.setActionCommand(fireString);;
-
-        employeeName = new JTextField(10);
+        searchText = new JTextField(10);
         String name = listModel.getElementAt(
                               list.getSelectedIndex()).toString();
 
@@ -44,12 +46,11 @@ public class ContactView extends JPanel {
         JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new BoxLayout(buttonPane,
                                            BoxLayout.LINE_AXIS));
-        buttonPane.add(fireButton);
+        buttonPane.add(addButton);
         buttonPane.add(Box.createHorizontalStrut(5));
         buttonPane.add(new JSeparator(SwingConstants.VERTICAL));
         buttonPane.add(Box.createHorizontalStrut(5));
-        buttonPane.add(employeeName);
-        buttonPane.add(hireButton);
+        buttonPane.add(searchText);
         buttonPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         add(listScrollPane, BorderLayout.CENTER);

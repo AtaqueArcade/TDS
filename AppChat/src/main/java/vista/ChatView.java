@@ -49,7 +49,7 @@ public class ChatView extends JPanel {
 		
 		textField = new JTextField();
 		panel.add(textField);
-		textField.setColumns(10);
+		textField.setColumns(35);
 		
 		JPanel panel_1 = new JPanel();
 		tray.add(panel_1);

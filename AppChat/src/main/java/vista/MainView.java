@@ -20,6 +20,9 @@ public class MainView extends JPanel {
 		JPanel toolbar = new JPanel();
 		add(toolbar, BorderLayout.NORTH);
 		
+		JButton btnNewButton_3 = new JButton("New button");
+		toolbar.add(btnNewButton_3);
+		
 		JButton btnNewButton = new JButton("New button");
 		toolbar.add(btnNewButton);
 		

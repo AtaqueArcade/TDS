@@ -16,13 +16,16 @@ import javax.swing.JFrame;
 import javax.swing.border.LineBorder;
 import com.toedter.calendar.JDateChooser;
 
+import controlador.Controlador;
+
 @SuppressWarnings("serial")
 public class SignUpView extends JPanel {
 
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_3;
-	private JTextField textField_4;
+	private JTextField nameTextField;
+	private JTextField userTextField;
+	private JTextField passwordTextField;
+	private JTextField phonTextField;
+	private JLabel errorLabel;
 
 	/**
 	 * Create the application.
@@ -44,7 +47,7 @@ public class SignUpView extends JPanel {
 		panel_1.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_2 = new JPanel();
-		add(panel_2);
+		panel_1.add(panel_2, BorderLayout.NORTH);
 		panel_2.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_3 = new JPanel();
@@ -91,9 +94,9 @@ public class SignUpView extends JPanel {
 		lblPhone.setForeground(Color.BLACK);
 		panel_15.add(lblPhone);
 
-		textField_3 = new JTextField();
-		panel_15.add(textField_3);
-		textField_3.setColumns(12);
+		phonTextField = new JTextField();
+		panel_15.add(phonTextField);
+		phonTextField.setColumns(12);
 
 		JPanel panel_11 = new JPanel();
 		panel_11.setBackground(Color.GRAY);
@@ -103,9 +106,9 @@ public class SignUpView extends JPanel {
 		lblNewLabel_4.setForeground(Color.BLACK);
 		panel_11.add(lblNewLabel_4);
 
-		textField = new JTextField();
-		panel_11.add(textField);
-		textField.setColumns(12);
+		nameTextField = new JTextField();
+		panel_11.add(nameTextField);
+		nameTextField.setColumns(12);
 
 		JPanel panel_12 = new JPanel();
 		panel_12.setBackground(Color.GRAY);
@@ -115,8 +118,8 @@ public class SignUpView extends JPanel {
 		lblBirthday.setForeground(Color.BLACK);
 		panel_12.add(lblBirthday);
 
-		JDateChooser dateChooser = new JDateChooser();
-		panel_12.add(dateChooser);
+		JDateChooser birthdayDateChooser = new JDateChooser();
+		panel_12.add(birthdayDateChooser);
 
 		JPanel panel_6 = new JPanel();
 		splitPane.setRightComponent(panel_6);
@@ -130,9 +133,9 @@ public class SignUpView extends JPanel {
 		lblNewLabel_2.setForeground(Color.BLACK);
 		panel_8.add(lblNewLabel_2);
 
-		textField_1 = new JTextField();
-		panel_8.add(textField_1);
-		textField_1.setColumns(13);
+		userTextField = new JTextField();
+		panel_8.add(userTextField);
+		userTextField.setColumns(13);
 
 		JPanel panel_9 = new JPanel();
 		panel_6.add(panel_9, BorderLayout.SOUTH);
@@ -157,14 +160,25 @@ public class SignUpView extends JPanel {
 		panel_14.add(btnBack);
 
 		JButton btnSubmit = new JButton("Submit");
-		btnSubmit.addActionListener(e -> {
-			JOptionPane.showMessageDialog(new JFrame(), "Registrado correctamente.\n", "Login",
-					JOptionPane.INFORMATION_MESSAGE);
-			Ventana.frame.getContentPane().removeAll();
-			Ventana.frame.setContentPane(new LoginView());
-			Ventana.frame.revalidate();
-			Ventana.frame.repaint();
+
+		btnSubmit.addActionListener(ev -> {
+			if (fieldCheck()) {
+				if (Controlador.getInstance().register(nameTextField.getText().trim(), userTextField.getText().trim(),
+						passwordTextField.getText().trim(), phonTextField.getText().trim())) {
+					JOptionPane.showMessageDialog(new JFrame(), "Registrado correctamente.\n", "Login",
+							JOptionPane.INFORMATION_MESSAGE);
+					Ventana.frame.getContentPane().removeAll();
+					Ventana.frame.setContentPane(new LoginView());
+					Ventana.frame.revalidate();
+					Ventana.frame.repaint();
+
+				} else {
+					JOptionPane.showMessageDialog(new JFrame(), "No se ha podido registrar ese usuario.\n", "Login",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
 		});
+
 		btnSubmit.setRolloverEnabled(false);
 		btnSubmit.setRequestFocusEnabled(false);
 		btnSubmit.setPreferredSize(new Dimension(80, 23));
@@ -180,12 +194,36 @@ public class SignUpView extends JPanel {
 		lblNewLabel_1.setForeground(Color.BLACK);
 		panel_10.add(lblNewLabel_1);
 
-		textField_4 = new JTextField();
-		panel_10.add(textField_4);
-		textField_4.setColumns(10);
+		passwordTextField = new JTextField();
+		panel_10.add(passwordTextField);
+		passwordTextField.setColumns(10);
 
 		Component verticalStrut_3 = Box.createVerticalStrut(20);
 		verticalStrut_3.setPreferredSize(new Dimension(0, 40));
 		panel_4.add(verticalStrut_3);
+
+		JPanel panel_13 = new JPanel();
+		panel_13.setBackground(Color.GRAY);
+		panel_1.add(panel_13, BorderLayout.SOUTH);
+		panel_13.setLayout(new BorderLayout(0, 0));
+
+		JPanel panel_16 = new JPanel();
+		panel_16.setBackground(Color.GRAY);
+		panel_1.add(panel_16, BorderLayout.CENTER);
+
+		errorLabel = new JLabel("Please, complete all the fields to register!");
+		errorLabel.setForeground(Color.RED);
+		panel_16.add(errorLabel);
+		errorLabel.setVisible(false);
+	}
+
+	private boolean fieldCheck() {
+		errorLabel.setVisible(false);
+		if (nameTextField.getText().trim().isEmpty() || userTextField.getText().trim().isEmpty()
+				|| passwordTextField.getText().trim().isEmpty() || phonTextField.getText().trim().isEmpty()) {
+			errorLabel.setVisible(true);
+			return false;
+		}
+		return true;
 	}
 }
