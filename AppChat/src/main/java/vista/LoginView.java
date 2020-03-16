@@ -111,5 +111,15 @@ public class LoginView extends JPanel{
 		txtPasswd = new JTextField();
 		txtPasswd.setColumns(10);
 		panel_7.add(txtPasswd);
+		
+		JPanel panel_8 = new JPanel();
+		panel_8.setBackground(Color.GRAY);
+		panel_5.add(panel_8, BorderLayout.CENTER);
+		
+		JLabel lblPleaseCompleteAll = new JLabel("Please, complete all the fields to log in!");
+		lblPleaseCompleteAll.setForeground(Color.RED);
+		lblPleaseCompleteAll.setBackground(Color.GRAY);
+		lblPleaseCompleteAll.setVisible(false);
+		panel_8.add(lblPleaseCompleteAll);
 	}
 }
