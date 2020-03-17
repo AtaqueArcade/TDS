@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
+import java.util.Date;
+
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
@@ -27,9 +29,6 @@ public class SignUpView extends JPanel {
 	private JTextField phonTextField;
 	private JLabel errorLabel;
 
-	/**
-	 * Create the application.
-	 */
 	public SignUpView() {
 		setBackground(Color.GRAY);
 		setLayout(new BorderLayout(0, 0));
@@ -163,8 +162,9 @@ public class SignUpView extends JPanel {
 
 		btnSubmit.addActionListener(ev -> {
 			if (fieldCheck()) {
-				if (Controlador.getInstance().register(nameTextField.getText().trim(), userTextField.getText().trim(),
-						passwordTextField.getText().trim(), phonTextField.getText().trim())) {
+				if (Controlador.getInstance().register(nameTextField.getText().trim(), birthdayDateChooser.getDate(),
+						Integer.parseInt(phonTextField.getText()), userTextField.getText().trim(),
+						passwordTextField.getText().trim())) {
 					JOptionPane.showMessageDialog(new JFrame(), "Registrado correctamente.\n", "Login",
 							JOptionPane.INFORMATION_MESSAGE);
 					Ventana.frame.getContentPane().removeAll();

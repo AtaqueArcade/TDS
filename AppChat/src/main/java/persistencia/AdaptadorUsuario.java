@@ -1,4 +1,4 @@
-package presistencia;
+package persistencia;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,7 +50,6 @@ public class AdaptadorUsuario implements DAOusuario {
 				new Propiedad("picture", Integer.toString(user.getPicture())),
 				new Propiedad("premium", String.valueOf(user.isPremium())),
 				new Propiedad("contacts", getAllIds(user.getContacts())))));
-
 		eUser = server.registrarEntidad(eUser);
 		user.setId(eUser.getId());
 	}
@@ -64,6 +63,7 @@ public class AdaptadorUsuario implements DAOusuario {
 	}
 
 	public void deleteUser(Usuario usuario) {
+		
 	}
 
 	public void modifyUser(Usuario usuario) {
