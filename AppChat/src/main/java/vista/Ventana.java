@@ -6,18 +6,6 @@ import javax.swing.JFrame;
 
 public class Ventana {
 	public static JFrame frame;
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					Ventana window = new Ventana();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 	public Ventana() {
 			//Loads the acces view by default
 			frame = new JFrame();

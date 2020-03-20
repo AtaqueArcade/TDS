@@ -25,6 +25,12 @@ public class Usuario {
 		premium = false;
 		contacts = new ArrayList<Contacto>();
 	}
+	public Usuario(String name, Date birthday, int phone, String username, String password, int picture, boolean premium, ArrayList<Contacto> contacts){
+		this(name, birthday, phone, username, password);
+		this.picture = picture;
+		this.premium = premium;
+		this.contacts = contacts;
+	}
 	public String getName() {
 		return name;
 	}

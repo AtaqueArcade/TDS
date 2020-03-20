@@ -12,8 +12,8 @@ public class Controlador {
 	private Usuario currentuser; // TODO
 
 	private FactoriaDAO dao;
-	private DAOusuario adaptadorUsuario;
-	private CatalogoUsuarios catalogoUsuarios;
+	private DAOusuario userAdapter;
+	private CatalogoUsuarios userCatalog;
 
 	public static Controlador getInstance() {
 		if (instance == null) {
@@ -25,22 +25,25 @@ public class Controlador {
 
 	private void initialize() {
 		dao = FactoriaDAO.getInstance();
-		adaptadorUsuario = dao.getDAOusuario();
-		catalogoUsuarios = CatalogoUsuarios.getInstance();
+		userAdapter = dao.getDAOusuario();
+		userCatalog = CatalogoUsuarios.getInstance();
 	}
 
 	public boolean register(String name, Date birthday, int phone, String username, String password) {
-		if (!catalogoUsuarios.isUser(username)) {
+		if (!userCatalog.isUser(username)) {
 			Usuario user = new Usuario(name, birthday, phone, username, password);
-			adaptadorUsuario.registerUser(user);
-			catalogoUsuarios.addUser(username, user);
-			currentuser = user;
+			userAdapter.registerUser(user);
+			userCatalog.addUser(username, user);
 			return true;
 		}
 		return false;
 	}
 
-	public boolean login(String nombre, String password) { //TODO
-		return true;
+	public boolean login(String username, String password) { // TODO
+		if (userCatalog.match(username, password)) {
+			currentuser = userCatalog.getUser(username);
+			return true;
+		}
+		return false;
 	}
 }

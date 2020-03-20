@@ -27,7 +27,19 @@ public class CatalogoUsuarios {
 		return (catalog.remove(username) != null);
 	}
 
-	public boolean isUser(String user) {
-		return catalog.containsKey(user);
+	public boolean isUser(String username) {
+		return catalog.containsKey(username);
+	}
+
+	public Usuario getUser(String username) {
+		return catalog.get(username);
+	}
+
+	public boolean match(String username, String password) {
+		Usuario user = catalog.get(username);
+		if (user != null)
+			if (user.getPassword().equals(password))
+				return true;
+		return false;
 	}
 }

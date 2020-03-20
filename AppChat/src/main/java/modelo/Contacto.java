@@ -8,8 +8,16 @@ public abstract class Contacto {
 	public Contacto(String name) {
 		id = Id.generateUniqueId();
 		this.name = name;
+		this.picture = 0;
 	}
-
+	public Contacto(String name,int picture) {
+		this(name);
+		this.picture = picture;
+	}
+	public Contacto(int id, String name,int picture) {
+		this(name, picture);
+		this.id = id;
+	}
 	public int getId() {
 		return id;
 	}

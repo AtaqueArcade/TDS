@@ -1,13 +1,14 @@
 package TDS.AppChat;
+import vista.Ventana;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
-    }
+public class App {
+	//Open the program
+	public static void main(String[] args) {
+		try {
+			Ventana window = new Ventana();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 }
