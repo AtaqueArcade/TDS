@@ -3,6 +3,7 @@ package vista;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 public class Ventana {
 	public static JFrame frame;
@@ -14,6 +15,11 @@ public class Ventana {
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setContentPane(new LoginView());
 			frame.setVisible(true);
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 	public static void loadAppView(){
 		//Frees the loaded panel

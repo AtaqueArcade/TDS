@@ -46,4 +46,7 @@ public class Controlador {
 		}
 		return false;
 	}
+	public String getCurrentUser(){
+		return currentuser.getName();
+	}
 }
