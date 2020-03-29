@@ -2,9 +2,7 @@ package vista;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
+import java.awt.GridLayout;
 
 import javax.swing.*;
 
@@ -14,34 +12,16 @@ import tds.BubbleText;
 
 @SuppressWarnings("serial")
 public class ChatView extends JPanel {
-	private JTextField textField;
-	private int emoji;
+	private JTextField inputTextField;
+	private JPanel chat;
 
 	public ChatView() {
+		chat = new JPanel();
 		setLayout(new BorderLayout(0, 0));
-
-		JPanel chat = new JPanel();
 		chat.setLayout(new BoxLayout(chat, BoxLayout.Y_AXIS));
 		chat.setSize(400, 700);
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportView(chat);
-		emoji = -1;
-		/*
-		 * BubbleText burbuja; burbuja = new BubbleText(chat, "Hola grupo!!",
-		 * Color.GREEN, "J.Ramón", BubbleText.SENT); chat.add(burbuja);
-		 * 
-		 * BubbleText burbuja2; burbuja2 = new BubbleText(chat,
-		 * "Hola, ¿Está seguro de que la burbuja usa varias lineas si es necesario?"
-		 * , Color.LIGHT_GRAY, "Alumno", BubbleText.RECEIVED);
-		 * chat.add(burbuja2);
-		 * 
-		 * BubbleText burbuja3; burbuja3 = new BubbleText(chat,
-		 * "No estoy seguro", Color.GREEN, "J.Ramón", BubbleText.SENT, 24);
-		 * chat.add(burbuja3);
-		 * 
-		 * BubbleText burbujaEmoji = new BubbleText(chat, 1, Color.GREEN,
-		 * "J.Ramón", BubbleText.SENT, 18); chat.add(burbujaEmoji);
-		 */
 		JPanel contactsPanel = new JPanel();
 		add(contactsPanel, BorderLayout.WEST);
 		JPanel toolbarPanel = new JPanel();
@@ -49,35 +29,96 @@ public class ChatView extends JPanel {
 
 		JPanel tray = new JPanel();
 		add(tray, BorderLayout.SOUTH);
-		JPanel trayPanel = new JPanel();
-		tray.add(trayPanel);
+		JPanel inputPanel = new JPanel();
+		tray.add(inputPanel);
 
 		JButton btnEmoji = new JButton("Emoji");
 		btnEmoji.addActionListener(ev -> {
 			abrirSelectorEmojis();
 		});
-		trayPanel.add(btnEmoji);
+		inputPanel.add(btnEmoji);
 
-		textField = new JTextField();
-		trayPanel.add(textField);
-		textField.setColumns(35);
+		inputTextField = new JTextField();
+		inputPanel.add(inputTextField);
+		inputTextField.setColumns(35);
 
-		JPanel panel_1 = new JPanel();
-		tray.add(panel_1);
+		JPanel sendPanel = new JPanel();
+		tray.add(sendPanel);
 
 		JButton btnSend = new JButton("Send");
-		panel_1.add(btnSend);
+		sendPanel.add(btnSend);
 		btnSend.addActionListener(e -> {
 			// TODO añadir persistencia de mensajes
-			Mensaje message = new Mensaje(textField.getText(), 0);
-			BubbleText bubble;
-			bubble = new BubbleText(chat, textField.getText(), Color.LIGHT_GRAY,
-					Controlador.getInstance().getCurrentUser(), BubbleText.RECEIVED);
-			chat.add(bubble);
+			if (inputTextField.getText() != "") {
+				Mensaje message = new Mensaje(inputTextField.getText(), 0);
+				BubbleText bubble;
+				bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
+						Controlador.getInstance().getCurrentUser(), BubbleText.SENT);
+				chat.add(bubble);
+				inputTextField.setText("");
+			}
+		});
+		inputTextField.addActionListener(e -> {
+			btnSend.doClick();
 		});
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
 	private void abrirSelectorEmojis() {
+		JFrame frame = new JFrame("Select an emoji to send.");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		JPanel testPane = new JPanel();
+		testPane.setLayout(new GridLayout((int) Math.sqrt(BubbleText.MAXICONO), (int) Math.sqrt(BubbleText.MAXICONO)));
+		int currentemoji = 0;
+		for (int row = 0; row < BubbleText.MAXICONO / 2; row++) {
+			if (currentemoji < BubbleText.MAXICONO) {
+				JButton x = new JButton();
+				x.setIcon(BubbleText.getEmoji(currentemoji));
+				int n = currentemoji;
+				x.addActionListener(e -> {
+					Mensaje message = new Mensaje(null, n);
+					BubbleText bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
+							Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
+
+					chat.add(bubble);
+					frame.dispose();
+				});
+				testPane.add(x);
+				currentemoji++;
+			}
+			for (int col = 0; col < BubbleText.MAXICONO / 2; col++) {
+				if (currentemoji < BubbleText.MAXICONO) {
+					JButton y = new JButton();
+					y.setIcon(BubbleText.getEmoji(currentemoji));
+					int n = currentemoji;
+					y.addActionListener(e -> {
+						Mensaje message = new Mensaje(null, n);
+						System.out.println(n);
+						BubbleText bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
+								Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
+
+						chat.add(bubble);
+						frame.dispose();
+					});
+					testPane.add(y);
+					currentemoji++;
+				}
+			}
+		}
+		frame.getContentPane().add(testPane);
+		{
+			JPanel panel = new JPanel();
+			frame.getContentPane().add(panel, BorderLayout.NORTH);
+			{
+				JButton btnCancel = new JButton("Cancel");
+				btnCancel.addActionListener(e -> {
+					frame.dispose();
+				});
+				panel.add(btnCancel);
+			}
+		}
+		frame.pack();
+		frame.setVisible(true);
 	}
 }

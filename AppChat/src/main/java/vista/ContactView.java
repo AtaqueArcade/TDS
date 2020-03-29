@@ -1,59 +1,73 @@
 package vista;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.awt.Color;
 
 public class ContactView extends JPanel {
-    private JList list;
-    private DefaultListModel listModel;
+	private final Map<String, ImageIcon> imageMap;
 
-    private static final String hireString = "Hire";
-    private static final String fireString = "Fire";
-    private JButton addButton;
-    private JTextField searchText;
+	public ContactView() {
+		super(new BorderLayout());
+		// TODO recuperar lista de contactos para mostrarla
+		String[] nameList = { "Bojack", "Diane", "Caroline", "Todd", "Peanutbutter" };
+		imageMap = createImageMap(nameList);
+		JList list = new JList(nameList);
+		list.setSelectedIndex(0);
+		list.setBackground(Color.LIGHT_GRAY);
+		list.setCellRenderer(new ListRenderer());
 
-    public ContactView() {
-        super(new BorderLayout());
+		list.addListSelectionListener(e -> {
+			//TODO cargar mensajes de cada chat
+			System.out.println(list.getSelectedValue());
+		});
+		
+		JScrollPane scroll = new JScrollPane(list);
+		scroll.setPreferredSize(new Dimension(300, 400));
+		this.add(scroll);
+		this.setVisible(true);
 
-        listModel = new DefaultListModel();
-        listModel.addElement("Jane Doe");
-        listModel.addElement("John Smith");
-        listModel.addElement("Kathy Green");
+	}
 
-        //Create the list and put it in a scroll pane.
-        list = new JList(listModel);
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        list.setSelectedIndex(0);
-        list.setVisibleRowCount(5);
-        JScrollPane listScrollPane = new JScrollPane(list);
+	public class ListRenderer extends DefaultListCellRenderer {
 
-        addButton = new JButton("Add");
-        addButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent arg0) {
-        	}
-        });
-        addButton.setActionCommand("Add");;
+		Font font = new Font("helvitica", Font.PLAIN, 16);
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+				boolean cellHasFocus) {
 
-        searchText = new JTextField(10);
-        String name = listModel.getElementAt(
-                              list.getSelectedIndex()).toString();
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			label.setIcon(imageMap.get((String) value));
+			label.setHorizontalTextPosition(JLabel.RIGHT);
+			label.setFont(font);
+			return label;
+		}
+	}
 
-        //Create a panel that uses BoxLayout.
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new BoxLayout(buttonPane,
-                                           BoxLayout.LINE_AXIS));
-        buttonPane.add(addButton);
-        buttonPane.add(Box.createHorizontalStrut(5));
-        buttonPane.add(new JSeparator(SwingConstants.VERTICAL));
-        buttonPane.add(Box.createHorizontalStrut(5));
-        buttonPane.add(searchText);
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-
-        add(listScrollPane, BorderLayout.CENTER);
-        add(buttonPane, BorderLayout.PAGE_END);
-    }
+	private Map<String, ImageIcon> createImageMap(String[] list) {
+		//TODO loop for contacts
+		Map<String, ImageIcon> map = new HashMap<>();
+		try {
+			ImageIcon imageIcon = new ImageIcon(new URL("https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+			Image image = imageIcon.getImage();
+			Image newimg = image.getScaledInstance(64, 64,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+			imageIcon = new ImageIcon(newimg);
+			map.put("Bojack", imageIcon);
+			map.put("Diane", imageIcon);
+			map.put("Caroline", imageIcon);
+			map.put("Todd", imageIcon);
+			map.put("Peanutbutter", imageIcon);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return map;
+	}
 }
