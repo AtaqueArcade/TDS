@@ -86,7 +86,12 @@ public class LoginView extends JPanel {
 					Ventana.frame.getContentPane().removeAll();
 					Ventana.frame.setVisible(false);
 					Ventana.frame.dispose();
-					Ventana.loadAppView();
+					try {
+						Ventana.loadAppView();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				} else {
 					JOptionPane.showMessageDialog(new JFrame(), "No se ha podido iniciar sesión con ese usuario.\n",
 							"Login", JOptionPane.ERROR_MESSAGE);

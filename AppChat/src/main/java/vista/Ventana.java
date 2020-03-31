@@ -2,6 +2,8 @@ package vista;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
@@ -21,7 +23,7 @@ public class Ventana {
 				e.printStackTrace();
 			}
 	}
-	public static void loadAppView(){
+	public static void loadAppView() throws MalformedURLException{
 		//Frees the loaded panel
 		frame.getContentPane().removeAll();
 		frame.setVisible(false);

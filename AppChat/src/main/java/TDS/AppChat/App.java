@@ -8,6 +8,6 @@ public class App {
 			Ventana window = new Ventana();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		} 
 	}
 }
