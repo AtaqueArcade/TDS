@@ -5,62 +5,66 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+
+import controlador.Controlador;
+
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
+import java.awt.Component;
+import javax.swing.Box;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ProfileSettingsView extends JPanel {
 	public ProfileSettingsView() throws MalformedURLException {
-		Border blackline = BorderFactory.createLineBorder(Color.black);
-		setBorder(blackline);
+		setPreferredSize(new Dimension(200, 250));
 		setBorder(new EmptyBorder(50, 50, 50, 50));
-		setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridwidth = GridBagConstraints.REMAINDER;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		Component verticalStrut = Box.createVerticalStrut(5);
+		add(verticalStrut);
 
-		JPanel panel = new JPanel();
-		add(panel, gbc);
+		JLabel lblNombredelusuario = new JLabel(Controlador.getInstance().getCurrentUser());
+		lblNombredelusuario.setAlignmentX(Component.CENTER_ALIGNMENT);
+		add(lblNombredelusuario);
 
-		JLabel lblNombredelusuario = new JLabel("Nombre_del_usuario");
-		panel.add(lblNombredelusuario);
+		JPanel panel_2 = new JPanel();
+		add(panel_2);
 
-		JPanel panel_2 = new JPanel() {
-			@Override
-			public Dimension getMaximumSize() {
-				return getPreferredSize();
-			}
-		};
-
-		add(panel_2, gbc);
-
-		JLabel label = new JLabel("New label");
+		JLabel lblCurrentPicture = new JLabel("Profile picture");
 		ImageIcon imageIcon = new ImageIcon(new URL(
 				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
 		Image image = imageIcon.getImage();
 		Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 		imageIcon = new ImageIcon(newimg);
-		label.setIcon(imageIcon);
-		panel_2.add(label);
+		lblCurrentPicture.setIcon(imageIcon);
+		panel_2.add(lblCurrentPicture);
 
-		JButton button = new JButton("Change picture");
-		panel_2.add(button);
+		JButton btnChangeYourPicture = new JButton("Change your picture");
+		panel_2.add(btnChangeYourPicture);
+
+		Border blackline = BorderFactory.createLineBorder(Color.black);
+		this.setBorder(blackline);
 		
-		JPanel panel_1 = new JPanel();
-		add(panel_1, gbc);
+		MultiLineLabel label = new MultiLineLabel("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", Component.CENTER_ALIGNMENT);
+		add(label);
+		
+		Component verticalStrut_2 = Box.createVerticalStrut(10);
+		add(verticalStrut_2);
+		
+		JButton button = new JButton("Change quote");
+		button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		add(button);
+		
+		Component verticalStrut_1 = Box.createVerticalStrut(60);
+		add(verticalStrut_1);
 
-		JLabel lblfraseEscogidaPor = new JLabel("\"Frase escogida por el usuaio para mostrar en su perfil\"");
-		panel_1.add(lblfraseEscogidaPor);
-
-		JButton button_1 = new JButton("Change quote");
-		panel_1.add(button_1);
 	}
 }

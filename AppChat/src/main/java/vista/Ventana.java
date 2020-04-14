@@ -35,5 +35,6 @@ public class Ventana {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(new MainView());
 		frame.setVisible(true);
+		frame.pack();
 	}
 }

@@ -1,12 +1,13 @@
 package vista;
 
-import java.awt.Image;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.*;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ToolBarView extends JPanel {
 	private Popup po;
@@ -35,6 +36,8 @@ public class ToolBarView extends JPanel {
 		btnProfile.setIcon(imageIcon);
 		leftPanel.add(btnProfile);
 		btnProfile.addActionListener(e -> {
+			po = pf.getPopup(this, profileSettingsJPanel, (int) getLocationOnScreen().getX() + 20,
+					(int) getLocationOnScreen().getY() + 20);
 			po.show();
 		});
 
@@ -62,6 +65,8 @@ public class ToolBarView extends JPanel {
 		imageGlass = new ImageIcon(newimg);
 		JButton btnGlass = new JButton();
 		btnGlass.setIcon(imageGlass);
+		btnGlass.addActionListener(e -> {
+		});
 		rightPanel.add(btnGlass);
 
 		ImageIcon imageHam = new ImageIcon(
@@ -74,15 +79,14 @@ public class ToolBarView extends JPanel {
 		rightPanel.add(btnHam);
 		//
 		profileSettingsJPanel = new ProfileSettingsView();
-		JButton bok = new JButton("OK");
-		// add action listener
-		//TODO hacer rutas relativas
-		bok.addActionListener(e -> {
+		JButton profileSettingsJPanelButton = new JButton("Close");
+		profileSettingsJPanelButton.addActionListener(e -> {
 			po.hide();
-			po = pf.getPopup(this, profileSettingsJPanel, 200, 200);
 		});
-		profileSettingsJPanel.add(bok);
-		
-		po = pf.getPopup(this, profileSettingsJPanel, 200, 200);
+		profileSettingsJPanelButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+		profileSettingsJPanel.add(profileSettingsJPanelButton);
+		Component verticalStrut = Box.createVerticalStrut(5);
+		profileSettingsJPanel.add(verticalStrut);
+
 	}
 }
