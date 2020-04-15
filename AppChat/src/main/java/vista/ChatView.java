@@ -9,6 +9,7 @@ import javax.swing.*;
 import modelo.Mensaje;
 import controlador.Controlador;
 import tds.BubbleText;
+import java.awt.Component;
 
 @SuppressWarnings("serial")
 public class ChatView extends JPanel {
@@ -62,6 +63,9 @@ public class ChatView extends JPanel {
 			btnSend.doClick();
 		});
 		add(scrollPane, BorderLayout.CENTER);
+		
+		Component horizontalStrut = Box.createHorizontalStrut(5);
+		add(horizontalStrut, BorderLayout.EAST);
 	}
 
 	private void abrirSelectorEmojis() {
@@ -119,6 +123,7 @@ public class ChatView extends JPanel {
 			}
 		}
 		frame.pack();
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 }

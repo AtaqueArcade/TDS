@@ -49,4 +49,9 @@ public class Controlador {
 	public String getCurrentUser(){
 		return currentuser.getName();
 	}
+
+	public void logOut() {
+		// TODO Auto-generated method stub
+		
+	}
 }
