@@ -14,9 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ToolBarView extends JPanel {
-	private Popup poProfileSettings, poToolbarMenu;
-	private JPanel profileSettingsJPanel;
-	private JPanel toolbarMenuJPanel;
+	private Popup poProfileSettings, poToolbarMenu, poCurrentContact;
+	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel;
 	private PopupFactory pf = new PopupFactory();
 
 	public ToolBarView() throws MalformedURLException {
@@ -69,6 +68,13 @@ public class ToolBarView extends JPanel {
 		imageContact = new ImageIcon(newimg);
 		JButton btnContact = new JButton("Judah");
 		btnContact.setIcon(imageContact);
+		btnContact.addActionListener(e -> {
+			btnContact.setEnabled(false);
+			poCurrentContact = pf.getPopup(this, currentContactJPanel,
+					(int) btnContact.getLocationOnScreen().getX() + 20,
+					(int) btnContact.getLocationOnScreen().getY() + 20);
+			poCurrentContact.show();
+		});
 		midPanel.add(btnContact);
 
 		ImageIcon imageGlass = new ImageIcon(new URL(
@@ -91,8 +97,9 @@ public class ToolBarView extends JPanel {
 		btnHam.setIcon(imageHam);
 		rightPanel.add(btnHam);
 		//
-		profileSettingsJPanel = ProfileSettingsView(imageIcon);
-		toolbarMenuJPanel = ToolbarMenuView();
+		profileSettingsJPanel = profileSettingsView(imageIcon);
+		currentContactJPanel = currentContactView(imageIcon, "");
+		toolbarMenuJPanel = toolbarMenuView();
 
 		JButton btnProfileSettingsJPanel = new JButton("Close");
 		btnProfileSettingsJPanel.addActionListener(e -> {
@@ -120,9 +127,21 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut2 = Box.createVerticalStrut(10);
 		toolbarMenuJPanel.add(verticalStrut2);
 
+		JButton btnCurrentContactJPanel = new JButton("Close");
+		btnCurrentContactJPanel.addActionListener(e -> {
+			poCurrentContact.hide();
+			btnContact.setEnabled(true);
+		});
+		btnCurrentContactJPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnCurrentContactJPanel.setPreferredSize(new Dimension(140, 30));
+		btnCurrentContactJPanel.setMinimumSize(new Dimension(140, 30));
+		btnCurrentContactJPanel.setMaximumSize(new Dimension(140, 30));
+		currentContactJPanel.add(btnCurrentContactJPanel);
+		Component verticalStrut3 = Box.createVerticalStrut(10);
+		currentContactJPanel.add(verticalStrut3);
 	}
 
-	private JPanel ProfileSettingsView(ImageIcon imageIcon) {
+	private JPanel profileSettingsView(ImageIcon imageIcon) {
 		JPanel profileSettingsView = new JPanel();
 		profileSettingsView.setPreferredSize(new Dimension(200, 280));
 		profileSettingsView.setBorder(new EmptyBorder(50, 50, 50, 50));
@@ -173,7 +192,7 @@ public class ToolBarView extends JPanel {
 		return (profileSettingsView);
 	}
 
-	private JPanel ToolbarMenuView() {
+	private JPanel toolbarMenuView() {
 		JPanel toolbarMenuView = new JPanel();
 		toolbarMenuView.setPreferredSize(new Dimension(200, 280));
 		toolbarMenuView.setBorder(new EmptyBorder(50, 50, 50, 50));
@@ -187,7 +206,7 @@ public class ToolBarView extends JPanel {
 
 		JButton btnContactSettings = new JButton("Contact Settings");
 		btnContactSettings.addActionListener(ev -> {
-			ContactSettingsView();
+			contactSettingsView();
 		});
 		btnContactSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnContactSettings.setPreferredSize(new Dimension(140, 30));
@@ -200,7 +219,7 @@ public class ToolBarView extends JPanel {
 
 		JButton btnGroupSettings = new JButton("Group Settings");
 		btnGroupSettings.addActionListener(ev -> {
-			GroupSettingsView();
+			groupSettingsView();
 		});
 		btnGroupSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnGroupSettings.setPreferredSize(new Dimension(140, 30));
@@ -213,7 +232,7 @@ public class ToolBarView extends JPanel {
 
 		JButton btnUserStatistics = new JButton("User Statistics");
 		btnUserStatistics.addActionListener(ev -> {
-			StatisticsView();
+			statisticsView();
 		});
 		btnUserStatistics.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnUserStatistics.setPreferredSize(new Dimension(140, 30));
@@ -255,7 +274,46 @@ public class ToolBarView extends JPanel {
 		return (toolbarMenuView);
 	}
 
-	private void ContactSettingsView() {
+	private JPanel currentContactView(ImageIcon imageIcon, String phone) {
+		JPanel currentContactView = new JPanel();
+		currentContactView.setPreferredSize(new Dimension(200, 280));
+		currentContactView.setBorder(new EmptyBorder(50, 50, 50, 50));
+		currentContactView.setLayout(new BoxLayout(currentContactView, BoxLayout.Y_AXIS));
+
+		Component verticalStrut = Box.createVerticalStrut(10);
+		currentContactView.add(verticalStrut);
+
+		// load contact info
+		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUser());
+		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
+		currentContactView.add(lblUserName);
+
+		JPanel panel_2 = new JPanel();
+		currentContactView.add(panel_2);
+
+		JLabel lblCurrentPicture = new JLabel();
+		lblCurrentPicture.setIcon(imageIcon);
+		panel_2.add(lblCurrentPicture);
+
+		Border blackline = BorderFactory.createLineBorder(Color.black);
+		currentContactView.setBorder(blackline);
+
+		Component verticalStrut_3 = Box.createVerticalStrut(10);
+		currentContactView.add(verticalStrut_3);
+
+		MultiLineLabel label = new MultiLineLabel("Teléfono del contacto", Component.CENTER_ALIGNMENT);
+		currentContactView.add(label);
+
+		Component verticalStrut_2 = Box.createVerticalStrut(10);
+		currentContactView.add(verticalStrut_2);
+
+		Component verticalStrut_1 = Box.createVerticalStrut(40);
+		currentContactView.add(verticalStrut_1);
+		return (currentContactView);
+	}
+
+	private void contactSettingsView() {
 		JFrame frame = new JFrame("Contact settings");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
@@ -378,7 +436,7 @@ public class ToolBarView extends JPanel {
 		frame.setVisible(true);
 	}
 
-	private void StatisticsView() {
+	private void statisticsView() {
 		JFrame frame = new JFrame("AppChat statistics");
 		JPanel panel = new JPanel();
 		frame.add(panel);
@@ -388,7 +446,7 @@ public class ToolBarView extends JPanel {
 		frame.setVisible(true);
 	}
 
-	private void GroupSettingsView() {
+	private void groupSettingsView() {
 		JTextField textFieldGroupName;
 		JTextField textField;
 		JFrame frame = new JFrame("Group settings");
