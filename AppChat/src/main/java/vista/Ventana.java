@@ -31,7 +31,7 @@ public class Ventana {
 		}
 	}
 
-	public static void loadAppView() throws MalformedURLException {
+	public static void loadAppView() throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		// Frees the loaded panel
 		frame.getContentPane().removeAll();
 		frame.setVisible(false);

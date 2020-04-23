@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,13 +19,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import controlador.Controlador;
+import modelo.Usuario;
+
 public class ContactSettingsView {
-	public ContactSettingsView(){}
-	
-	/**
-	 * @wbp.parser.entryPoint
-	 */
-	public void show() {
+	public ContactSettingsView() {
+	}
+
+	public void show() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		//
+		HashMap<String, Usuario> Userlist = Controlador.getInstance().getUserMap(null);
+		//
 		JFrame frame = new JFrame("Contact settings");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();

@@ -19,7 +19,7 @@ public class ToolBarView extends JPanel {
 	JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
 	private PopupFactory pf = new PopupFactory();
 
-	public ToolBarView() throws MalformedURLException {
+	public ToolBarView() throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		ImageIcon imageIcon = new ImageIcon(new URL(
 				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
 		Image image = imageIcon.getImage();
@@ -118,7 +118,7 @@ public class ToolBarView extends JPanel {
 		rightPanel.add(btnDelete);
 	}
 
-	private JPanel profileSettingsView(ImageIcon imageIcon) {
+	private JPanel profileSettingsView(ImageIcon imageIcon) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel profileSettingsView = new JPanel();
 		profileSettingsView.setPreferredSize(new Dimension(200, 280));
 		profileSettingsView.setBorder(new EmptyBorder(50, 50, 50, 50));
@@ -194,7 +194,12 @@ public class ToolBarView extends JPanel {
 		toolbarMenuView.add(verticalStrut);
 		JButton btnContactSettings = new JButton("Contact Settings");
 		btnContactSettings.addActionListener(ev -> {
-			contactSettingsView.show();
+			try {
+				contactSettingsView.show();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		btnContactSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnContactSettings.setPreferredSize(new Dimension(140, 30));
@@ -265,7 +270,7 @@ public class ToolBarView extends JPanel {
 		return (toolbarMenuView);
 	}
 
-	private JPanel currentContactView(ImageIcon imageIcon, String phone) {
+	private JPanel currentContactView(ImageIcon imageIcon, String phone) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel currentContactView = new JPanel();
 		currentContactView.setPreferredSize(new Dimension(200, 280));
 		currentContactView.setBorder(new EmptyBorder(50, 50, 50, 50));

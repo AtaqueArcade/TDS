@@ -53,17 +53,22 @@ public class ChatView extends JPanel {
 			if (inputTextField.getText() != "") {
 				Mensaje message = new Mensaje(inputTextField.getText(), 0);
 				BubbleText bubble;
-				bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
-						Controlador.getInstance().getCurrentUser(), BubbleText.SENT);
-				chat.add(bubble);
-				inputTextField.setText("");
+				try {
+					bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
+							Controlador.getInstance().getCurrentUser(), BubbleText.SENT);
+					chat.add(bubble);
+					inputTextField.setText("");
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		inputTextField.addActionListener(e -> {
 			btnSend.doClick();
 		});
 		add(scrollPane, BorderLayout.CENTER);
-		
+
 		Component horizontalStrut = Box.createHorizontalStrut(5);
 		add(horizontalStrut, BorderLayout.EAST);
 	}
@@ -82,11 +87,16 @@ public class ChatView extends JPanel {
 				int n = currentemoji;
 				x.addActionListener(e -> {
 					Mensaje message = new Mensaje(null, n);
-					BubbleText bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-							Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
-
-					chat.add(bubble);
-					frame.dispose();
+					BubbleText bubble;
+					try {
+						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getCurrentUser(),
+								BubbleText.SENT, 18);
+						chat.add(bubble);
+						frame.dispose();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				});
 				testPane.add(x);
 				currentemoji++;
@@ -99,11 +109,16 @@ public class ChatView extends JPanel {
 					y.addActionListener(e -> {
 						Mensaje message = new Mensaje(null, n);
 						System.out.println(n);
-						BubbleText bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-								Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
-
-						chat.add(bubble);
-						frame.dispose();
+						BubbleText bubble;
+						try {
+							bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
+									Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
+							chat.add(bubble);
+							frame.dispose();
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					});
 					testPane.add(y);
 					currentemoji++;

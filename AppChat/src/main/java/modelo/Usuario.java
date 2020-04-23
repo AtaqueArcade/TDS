@@ -2,6 +2,7 @@ package modelo;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Usuario {
 	private int id;
@@ -12,8 +13,8 @@ public class Usuario {
 	private String password;
 	private int picture;
 	private boolean premium;
-	private ArrayList<Contacto> contacts;
-	
+	private List<Contacto> contacts;
+
 	public Usuario(String name, Date birthday, int phone, String username, String password) {
 		id = Id.generateUniqueId();
 		this.name = name;
@@ -25,69 +26,90 @@ public class Usuario {
 		premium = false;
 		contacts = new ArrayList<Contacto>();
 	}
-	public Usuario(String name, Date birthday, int phone, String username, String password, int picture, boolean premium, ArrayList<Contacto> contacts){
+
+	public Usuario(String name, Date birthday, int phone, String username, String password, int picture,
+			boolean premium, List<Contacto> contacts2) {
 		this(name, birthday, phone, username, password);
 		this.picture = picture;
 		this.premium = premium;
-		this.contacts = contacts;
+		this.contacts = contacts2;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public Date getBirthday() {
 		return birthday;
 	}
+
 	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
 	}
+
 	public int getPhone() {
 		return phone;
 	}
+
 	public void setPhone(int phone) {
 		this.phone = phone;
 	}
+
 	public String getPassword() {
 		return password;
 	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	public int getPicture() {
 		return picture;
 	}
+
 	public void setPicture(int picture) {
 		this.picture = picture;
 	}
+
 	public boolean isPremium() {
 		return premium;
 	}
+
 	public void setPremium(boolean premium) {
 		this.premium = premium;
 	}
-	public ArrayList<Contacto> getContacts() {
+
+	public List<Contacto> getContacts() {
 		return contacts;
 	}
+
 	public void setContacts(ArrayList<Contacto> contacts) {
 		this.contacts = contacts;
 	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public boolean isUser(String username, String password) {
 		if (this.username.equals(username) && this.password.equals(password))
 			return true;
 		return false;
 	}
+
 	public String getUsername() {
 		return username;
 	}
-	public int getId(){
+
+	public int getId() {
 		return id;
 	}
 }

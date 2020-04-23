@@ -79,22 +79,27 @@ public class LoginView extends JPanel {
 		panel_6.add(btnLogin);
 		btnLogin.addActionListener(e -> {
 			if (fieldCheck()) {
-				if (Controlador.getInstance().login(nameTextField.getText().trim(),
-						passwordTextField.getText().trim())) {
-					JOptionPane.showMessageDialog(new JFrame(), "Logeado correctamente", "Login",
-							JOptionPane.INFORMATION_MESSAGE);
-					Ventana.frame.getContentPane().removeAll();
-					Ventana.frame.setVisible(false);
-					Ventana.frame.dispose();
-					try {
-						Ventana.loadAppView();
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+				try {
+					if (Controlador.getInstance().login(nameTextField.getText().trim(),
+							passwordTextField.getText().trim())) {
+						JOptionPane.showMessageDialog(new JFrame(), "Logeado correctamente", "Login",
+								JOptionPane.INFORMATION_MESSAGE);
+						Ventana.frame.getContentPane().removeAll();
+						Ventana.frame.setVisible(false);
+						Ventana.frame.dispose();
+						try {
+							Ventana.loadAppView();
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else {
+						JOptionPane.showMessageDialog(new JFrame(), "No se ha podido iniciar sesión con ese usuario.\n",
+								"Login", JOptionPane.ERROR_MESSAGE);
 					}
-				} else {
-					JOptionPane.showMessageDialog(new JFrame(), "No se ha podido iniciar sesión con ese usuario.\n",
-							"Login", JOptionPane.ERROR_MESSAGE);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});

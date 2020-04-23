@@ -162,19 +162,23 @@ public class SignUpView extends JPanel {
 
 		btnSubmit.addActionListener(ev -> {
 			if (fieldCheck()) {
-				if (Controlador.getInstance().register(nameTextField.getText().trim(), birthdayDateChooser.getDate(),
-						Integer.parseInt(phonTextField.getText()), userTextField.getText().trim(),
-						passwordTextField.getText().trim())) {
-					JOptionPane.showMessageDialog(new JFrame(), "Registrado correctamente.\n", "Login",
-							JOptionPane.INFORMATION_MESSAGE);
-					Ventana.frame.getContentPane().removeAll();
-					Ventana.frame.setContentPane(new LoginView());
-					Ventana.frame.revalidate();
-					Ventana.frame.repaint();
-
-				} else {
-					JOptionPane.showMessageDialog(new JFrame(), "No se ha podido registrar ese usuario.\n", "Login",
-							JOptionPane.ERROR_MESSAGE);
+				try {
+					if (Controlador.getInstance().register(nameTextField.getText().trim(),
+							birthdayDateChooser.getDate(), Integer.parseInt(phonTextField.getText()),
+							userTextField.getText().trim(), passwordTextField.getText().trim())) {
+						JOptionPane.showMessageDialog(new JFrame(), "Registered succesfully!\n", "Login",
+								JOptionPane.INFORMATION_MESSAGE);
+						Ventana.frame.getContentPane().removeAll();
+						Ventana.frame.setContentPane(new LoginView());
+						Ventana.frame.revalidate();
+						Ventana.frame.repaint();
+					} else {
+						JOptionPane.showMessageDialog(new JFrame(), "Error: username '"+nameTextField.getText().trim()+"' is not available.\n", "Login",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});

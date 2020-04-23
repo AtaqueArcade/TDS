@@ -1,6 +1,7 @@
 package controlador;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import modelo.Usuario;
 import persistencia.DAOusuario;
@@ -15,7 +16,7 @@ public class Controlador {
 	private DAOusuario userAdapter;
 	private CatalogoUsuarios userCatalog;
 
-	public static Controlador getInstance() {
+	public static Controlador getInstance() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		if (instance == null) {
 			instance = new Controlador();
 			instance.initialize();
@@ -23,7 +24,7 @@ public class Controlador {
 		return instance;
 	}
 
-	private void initialize() {
+	private void initialize() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		dao = FactoriaDAO.getInstance();
 		userAdapter = dao.getDAOusuario();
 		userCatalog = CatalogoUsuarios.getInstance();
@@ -46,12 +47,16 @@ public class Controlador {
 		}
 		return false;
 	}
-	public String getCurrentUser(){
+
+	public String getCurrentUser() {
 		return currentuser.getName();
 	}
 
 	public void logOut() {
 		// TODO Auto-generated method stub
-		
+	}
+
+	public HashMap<String, Usuario> getUserMap(String filter) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		return CatalogoUsuarios.getInstance().getByFilter(filter);
 	}
 }

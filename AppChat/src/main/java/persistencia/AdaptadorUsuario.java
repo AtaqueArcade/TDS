@@ -1,5 +1,6 @@
 package persistencia;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,7 +8,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import beans.Entidad;
 import beans.Propiedad;
@@ -51,7 +54,8 @@ public class AdaptadorUsuario implements DAOusuario {
 		eUser.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("name", user.getName()),
 				new Propiedad("birthday", user.getBirthday().toString()),
 				new Propiedad("phone", Integer.toString(user.getPhone())),
-				new Propiedad("username", user.getUsername()), new Propiedad("nombre", user.getPassword()),
+				new Propiedad("username", user.getUsername()),
+				new Propiedad("password", user.getPassword()),
 				new Propiedad("picture", Integer.toString(user.getPicture())),
 				new Propiedad("premium", String.valueOf(user.isPremium())),
 				new Propiedad("contacts", getAllIds(user.getContacts())))));
@@ -59,7 +63,7 @@ public class AdaptadorUsuario implements DAOusuario {
 		user.setId(eUser.getId());
 	}
 
-	private String getAllIds(ArrayList<Contacto> list) {
+	private String getAllIds(List<Contacto> list) {
 		String result = "";
 		for (Contacto c : list) {
 			result += c.getId() + " ";
@@ -70,9 +74,10 @@ public class AdaptadorUsuario implements DAOusuario {
 	public Usuario getUser(int id) {
 		Entidad eUser = server.recuperarEntidad(id);
 		String name = server.recuperarPropiedadEntidad(eUser, "name");
+		SimpleDateFormat parser = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy", Locale.UK);
 		Date birthday = null;
 		try {
-			birthday = new SimpleDateFormat("dd/MM/yyyy").parse(server.recuperarPropiedadEntidad(eUser, "birthday"));
+			birthday = parser.parse(server.recuperarPropiedadEntidad(eUser, "birthday"));
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -82,17 +87,16 @@ public class AdaptadorUsuario implements DAOusuario {
 		String password = server.recuperarPropiedadEntidad(eUser, "password");
 		int picture = Integer.parseInt(server.recuperarPropiedadEntidad(eUser, "picture"));
 		boolean premium = Boolean.parseBoolean(server.recuperarPropiedadEntidad(eUser, "premium"));
-		ArrayList<String> idListString = (ArrayList<String>) Arrays
-				.asList(server.recuperarPropiedadEntidad(eUser, "contacts").split("\\s"));
-		ArrayList<Integer> idList = (ArrayList<Integer>) idListString.stream().map(Integer::parseInt)
-				.collect(Collectors.toList());
-		ArrayList<Contacto> contacts = getAsContacts(idList);
-
+		String idListString = server.recuperarPropiedadEntidad(eUser, "contacts");
+		List<Integer> idList = new ArrayList<Integer>();
+		if (!idListString.equals(""))
+			idList = Arrays.stream(idListString.split(" ")).map(Integer::valueOf).collect(Collectors.toList());
+		List<Contacto> contacts = getAsContacts(idList);
 		Usuario user = new Usuario(name, birthday, phone, username, password, picture, premium, contacts);
 		return user;
 	}
 
-	public ArrayList<Contacto> getAsContacts(ArrayList<Integer> idList) {
+	public ArrayList<Contacto> getAsContacts(List<Integer> idList) {
 		ArrayList<Contacto> result = new ArrayList<Contacto>();
 		for (int id : idList) {
 			Entidad eUser = server.recuperarEntidad(id);

@@ -13,7 +13,7 @@ import javax.swing.JButton;
 @SuppressWarnings("serial")
 public class MainView extends JPanel {
 
-	public MainView() throws MalformedURLException {
+	public MainView() throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		setLayout(new BorderLayout(0, 0));
 
 		ContactView sidebar = new ContactView();
