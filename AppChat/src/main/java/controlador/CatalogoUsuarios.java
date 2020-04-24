@@ -1,5 +1,4 @@
 package controlador;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,12 +55,8 @@ public class CatalogoUsuarios {
 		return false;
 	}
 
-	public HashMap<String, Usuario> getByFilter(String filter) {
-		if (filter == null)
-			return catalog;
-		HashMap<String, Usuario> result = (HashMap<String, Usuario>) catalog.entrySet().stream()
-				.filter(map -> map.getKey().contains(filter))
-				.collect(Collectors.toMap(map -> map.getKey(), map -> map.getValue()));
+	public List<String> getByFilter(String filter) {
+		List<String> result = catalog.keySet().stream().filter(username -> username.contains(filter)).collect(Collectors.toList());
 		return result;
 	}
 }

@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.border.LineBorder;
 import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.demo.BirthdayEvaluator;
 
 import controlador.Controlador;
 
@@ -24,9 +25,10 @@ import controlador.Controlador;
 public class SignUpView extends JPanel {
 
 	private JTextField nameTextField;
+	private JDateChooser birthdayDateChooser;
 	private JTextField userTextField;
 	private JTextField passwordTextField;
-	private JTextField phonTextField;
+	private JTextField phoneTextField;
 	private JLabel errorLabel;
 
 	public SignUpView() {
@@ -93,9 +95,9 @@ public class SignUpView extends JPanel {
 		lblPhone.setForeground(Color.BLACK);
 		panel_15.add(lblPhone);
 
-		phonTextField = new JTextField();
-		panel_15.add(phonTextField);
-		phonTextField.setColumns(12);
+		phoneTextField = new JTextField();
+		panel_15.add(phoneTextField);
+		phoneTextField.setColumns(12);
 
 		JPanel panel_11 = new JPanel();
 		panel_11.setBackground(Color.GRAY);
@@ -117,7 +119,7 @@ public class SignUpView extends JPanel {
 		lblBirthday.setForeground(Color.BLACK);
 		panel_12.add(lblBirthday);
 
-		JDateChooser birthdayDateChooser = new JDateChooser();
+		birthdayDateChooser = new JDateChooser();
 		panel_12.add(birthdayDateChooser);
 
 		JPanel panel_6 = new JPanel();
@@ -164,16 +166,17 @@ public class SignUpView extends JPanel {
 			if (fieldCheck()) {
 				try {
 					if (Controlador.getInstance().register(nameTextField.getText().trim(),
-							birthdayDateChooser.getDate(), Integer.parseInt(phonTextField.getText()),
+							birthdayDateChooser.getDate(), Integer.parseInt(phoneTextField.getText()),
 							userTextField.getText().trim(), passwordTextField.getText().trim())) {
-						JOptionPane.showMessageDialog(new JFrame(), "Registered succesfully!\n", "Login",
+						JOptionPane.showMessageDialog(new JFrame(), "Registered succesfully!\n", "Sign up",
 								JOptionPane.INFORMATION_MESSAGE);
 						Ventana.frame.getContentPane().removeAll();
 						Ventana.frame.setContentPane(new LoginView());
 						Ventana.frame.revalidate();
 						Ventana.frame.repaint();
 					} else {
-						JOptionPane.showMessageDialog(new JFrame(), "Error: username '"+nameTextField.getText().trim()+"' is not available.\n", "Login",
+						JOptionPane.showMessageDialog(new JFrame(),
+								"Error: username '" + nameTextField.getText().trim() + "' is not available.\n", "Sign up",
 								JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Exception e1) {
@@ -219,12 +222,25 @@ public class SignUpView extends JPanel {
 		errorLabel.setForeground(Color.RED);
 		panel_16.add(errorLabel);
 		errorLabel.setVisible(false);
+		
+		nameTextField.addActionListener(e -> {
+			userTextField.requestFocusInWindow();
+		});
+		userTextField.addActionListener(e -> {
+			passwordTextField.requestFocusInWindow();
+		});
+		passwordTextField.addActionListener(e -> {
+			phoneTextField.requestFocusInWindow();
+		});
+		phoneTextField.addActionListener(e -> {
+			btnSubmit.doClick();
+		});
 	}
 
 	private boolean fieldCheck() {
 		errorLabel.setVisible(false);
 		if (nameTextField.getText().trim().isEmpty() || userTextField.getText().trim().isEmpty()
-				|| passwordTextField.getText().trim().isEmpty() || phonTextField.getText().trim().isEmpty()) {
+				|| passwordTextField.getText().trim().isEmpty() || phoneTextField.getText().trim().isEmpty()) {
 			errorLabel.setVisible(true);
 			return false;
 		}

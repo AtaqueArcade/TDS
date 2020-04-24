@@ -5,68 +5,110 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import javax.swing.Timer;
 import javax.swing.*;
+
+import controlador.Controlador;
+import modelo.Contacto;
+
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.awt.Color;
 
 public class ContactView extends JPanel {
-	private final Map<String, ImageIcon> imageMap;
+	private static final int DELAY = 1000;
+	private Map<String, ImageIcon> imageMap;
+	private DefaultListModel listModel;
+	private JList list;
 
-	public ContactView() {
+	public ContactView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		super(new BorderLayout());
-		// TODO recuperar lista de contactos para mostrarla
-		String[] nameList = { "Bojack", "Diane", "Caroline", "Todd", "Peanutbutter" };
-		imageMap = createImageMap(nameList);
-		JList list = new JList(nameList);
-		list.setSelectedIndex(0);
+		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
+		list = new JList();
+		listModel = new DefaultListModel();
+		for (int i = 0; i < contacts.size(); i++)
+			listModel.addElement(contacts.get(i));
+		list.setModel(listModel);
+		imageMap = createImageMap(contacts);
 		list.setBackground(Color.LIGHT_GRAY);
 		list.setCellRenderer(new ListRenderer());
 
-		list.addListSelectionListener(e -> {
-			//TODO cargar mensajes de cada chat
-			System.out.println(list.getSelectedValue());
+		list.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				JList list = (JList) evt.getSource();
+				int index = list.locationToIndex(evt.getPoint());
+				if (index >= 0 && index <= list.getModel().getSize()) {
+					Contacto c = (Contacto) list.getModel().getElementAt(index);
+					System.out.println("Cargando: " + c.getName());
+					try {
+						Controlador.getInstance().setCurrentChat(c);
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 		});
-		
+
 		JScrollPane scroll = new JScrollPane(list);
 		scroll.setPreferredSize(new Dimension(300, 400));
 		this.add(scroll);
 		this.setVisible(true);
-
+		Timer timer = new Timer(DELAY, new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				repaint();
+				listModel.clear();
+				listModel = new DefaultListModel();
+				for (int i = 0; i < contacts.size(); i++)
+					listModel.addElement(contacts.get(i));
+				list.setModel(listModel);
+				imageMap = createImageMap(contacts);
+			}
+		});
+		timer.start();
 	}
 
 	public class ListRenderer extends DefaultListCellRenderer {
-
 		Font font = new Font("helvitica", Font.PLAIN, 16);
+
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
-
-			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			label.setIcon(imageMap.get((String) value));
+			Contacto c = (Contacto) value;
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, c.getName(), index, isSelected,
+					cellHasFocus);
+			label.setIcon(imageMap.get(c.getName()));
 			label.setHorizontalTextPosition(JLabel.RIGHT);
 			label.setFont(font);
 			return label;
 		}
+
 	}
 
-	private Map<String, ImageIcon> createImageMap(String[] list) {
-		//TODO loop for contacts
+	private Map<String, ImageIcon> createImageMap(List<Contacto> contacts) {
 		Map<String, ImageIcon> map = new HashMap<>();
-		try {
-			ImageIcon imageIcon = new ImageIcon(new URL("https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+		ImageIcon imageIcon = null;
+		for (Contacto c : contacts) {
+			try {
+				imageIcon = new ImageIcon(new URL(
+						"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			Image image = imageIcon.getImage();
-			Image newimg = image.getScaledInstance(64, 64,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+			Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 			imageIcon = new ImageIcon(newimg);
-			map.put("Bojack", imageIcon);
-			map.put("Diane", imageIcon);
-			map.put("Caroline", imageIcon);
-			map.put("Todd", imageIcon);
-			map.put("Peanutbutter", imageIcon);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			map.put(c.getName(), imageIcon);
 		}
 		return map;
 	}

@@ -3,33 +3,28 @@ package vista;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
+import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import controlador.Controlador;
-import modelo.Usuario;
 
 public class ContactSettingsView {
 	public ContactSettingsView() {
 	}
 
 	public void show() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		//
-		HashMap<String, Usuario> Userlist = Controlador.getInstance().getUserMap(null);
-		//
+		List<String> userlist = Controlador.getInstance().getUsernamesByFilter("");
 		JFrame frame = new JFrame("Contact settings");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
@@ -44,6 +39,7 @@ public class ContactSettingsView {
 		Component verticalStrut_3 = Box.createVerticalStrut(20);
 		panel_1.add(verticalStrut_3);
 		JTextField textField = new JTextField();
+
 		textField.setPreferredSize(new Dimension(100, 20));
 		textField.setMinimumSize(new Dimension(100, 20));
 		textField.setMaximumSize(new Dimension(100, 20));
@@ -51,11 +47,6 @@ public class ContactSettingsView {
 		textField.setColumns(10);
 
 		JButton btnSearch = new JButton("Search");
-		btnSearch.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-
 		Component verticalStrut_4 = Box.createVerticalStrut(10);
 		panel_1.add(verticalStrut_4);
 		btnSearch.setPreferredSize(new Dimension(100, 30));
@@ -80,7 +71,6 @@ public class ContactSettingsView {
 		btnAdd.setMinimumSize(new Dimension(100, 30));
 		btnAdd.setMaximumSize(new Dimension(100, 30));
 		panel_2.add(btnAdd);
-
 		Component horizontalStrut_2 = Box.createHorizontalStrut(120);
 		panel_2.add(horizontalStrut_2);
 
@@ -88,6 +78,45 @@ public class ContactSettingsView {
 		panel.add(scrollPane, BorderLayout.CENTER);
 
 		JList list = new JList();
+		DefaultListModel listModel = new DefaultListModel();
+		for (int i = 0; i < userlist.size(); i++)
+			listModel.addElement(userlist.get(i));
+		list.setModel(listModel);
+		btnSearch.addActionListener(e -> {
+			try {
+				listModel.clear();
+				List<String> newlist = Controlador.getInstance().getUsernamesByFilter(textField.getText().trim());
+				for (int i = 0; i < newlist.size(); i++)
+					listModel.addElement(newlist.get(i));
+				list.setModel(listModel);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
+		textField.addActionListener(e -> {
+			btnSearch.doClick();
+		});
+		btnAdd.addActionListener(e -> {
+			List<String> selections = list.getSelectedValuesList();
+			boolean noContactIsRepeated;
+			try {
+				noContactIsRepeated = Controlador.getInstance().checkContactList(selections);
+				if (noContactIsRepeated) {
+					for (String username : selections)
+						Controlador.getInstance().addContact(username);
+					JOptionPane.showMessageDialog(new JFrame(),
+							"Selected contacts [" + String.join(",", selections) + "] added succesfully!\n",
+							"New contacts", JOptionPane.INFORMATION_MESSAGE);
+				} else
+					JOptionPane.showMessageDialog(new JFrame(),
+							"Conflicting contacts selected: Contact already in your contact list detected.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+			} catch (Exception e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+		});
 		scrollPane.setViewportView(list);
 		JPanel panel2 = new JPanel();
 		tabbedPane.addTab("Contact manager", null, panel2, "Hide, show or delete contacts on your list");
@@ -144,7 +173,6 @@ public class ContactSettingsView {
 		JScrollPane scrollPane_1 = new JScrollPane(list_1);
 
 		panel2.add(scrollPane_1, BorderLayout.CENTER);
-
 		frame.getContentPane().add(tabbedPane);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.pack();

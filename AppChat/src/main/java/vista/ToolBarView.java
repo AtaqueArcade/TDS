@@ -8,18 +8,21 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import controlador.Controlador;
+import modelo.Contacto;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ToolBarView extends JPanel {
+	private static final int DELAY = 1000;
 	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete;
 	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel;
 	JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
 	private PopupFactory pf = new PopupFactory();
 
-	public ToolBarView() throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public ToolBarView()
+			throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		ImageIcon imageIcon = new ImageIcon(new URL(
 				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
 		Image image = imageIcon.getImage();
@@ -47,12 +50,11 @@ public class ToolBarView extends JPanel {
 
 		btnProfile = new JButton();
 		btnMenu = new JButton();
-		btnContact = new JButton("Judah");
+		btnContact = new JButton("No chat selected");
 		btnGlass = new JButton();
 		btnDelete = new JButton();
 
 		profileSettingsJPanel = profileSettingsView(imageIcon);
-		currentContactJPanel = currentContactView(imageIcon, "");
 		toolbarMenuJPanel = toolbarMenuView();
 		searchJPanel = searchView();
 		deleteJPanel = deleteView();
@@ -90,6 +92,12 @@ public class ToolBarView extends JPanel {
 		btnContact.setIcon(imageContact);
 		btnContact.addActionListener(e -> {
 			btnContact.setEnabled(false);
+			try {
+				currentContactJPanel = currentContactView();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			poCurrentContact = pf.getPopup(this, currentContactJPanel,
 					(int) btnContact.getLocationOnScreen().getX() + 20,
 					(int) btnContact.getLocationOnScreen().getY() + 20);
@@ -116,9 +124,29 @@ public class ToolBarView extends JPanel {
 			poDelete.show();
 		});
 		rightPanel.add(btnDelete);
+
+		Timer timer = new Timer(DELAY, new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				Contacto contact = null;
+				try {
+					contact = Controlador.getInstance().getCurrentContact();
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				if (contact != null)
+					btnContact.setText(contact.getName());
+				else
+					btnContact.setText("No chat selected");
+				btnContact.repaint();
+			}
+		});
+		timer.start();
 	}
 
-	private JPanel profileSettingsView(ImageIcon imageIcon) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	private JPanel profileSettingsView(ImageIcon imageIcon)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel profileSettingsView = new JPanel();
 		profileSettingsView.setPreferredSize(new Dimension(200, 280));
 		profileSettingsView.setBorder(new EmptyBorder(50, 50, 50, 50));
@@ -127,7 +155,7 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut);
 
-		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUser());
+		JLabel lblUserName = new JLabel(Controlador.getInstance().getcurrentUser());
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
 		profileSettingsView.add(lblUserName);
@@ -270,7 +298,7 @@ public class ToolBarView extends JPanel {
 		return (toolbarMenuView);
 	}
 
-	private JPanel currentContactView(ImageIcon imageIcon, String phone) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	private JPanel currentContactView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel currentContactView = new JPanel();
 		currentContactView.setPreferredSize(new Dimension(200, 280));
 		currentContactView.setBorder(new EmptyBorder(50, 50, 50, 50));
@@ -279,7 +307,12 @@ public class ToolBarView extends JPanel {
 		currentContactView.add(verticalStrut);
 
 		// load contact info
-		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUser());
+		JLabel lblUserName;
+		Contacto c = Controlador.getInstance().getCurrentContact();
+		if (c != null)
+			lblUserName = new JLabel(Controlador.getInstance().getCurrentContact().getName());
+		else
+			lblUserName = new JLabel("No one selected");
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
 		currentContactView.add(lblUserName);
@@ -287,6 +320,18 @@ public class ToolBarView extends JPanel {
 		JPanel panel_2 = new JPanel();
 		currentContactView.add(panel_2);
 		JLabel lblCurrentPicture = new JLabel();
+
+		ImageIcon imageIcon = null;
+		try {
+			imageIcon = new ImageIcon(new URL(
+					"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		Image image = imageIcon.getImage();
+		Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+		imageIcon = new ImageIcon(newimg);
 		lblCurrentPicture.setIcon(imageIcon);
 		panel_2.add(lblCurrentPicture);
 		Border blackline = BorderFactory.createLineBorder(Color.black);
@@ -446,5 +491,6 @@ public class ToolBarView extends JPanel {
 	}
 
 	private void updateView() {
+		this.getParent().repaint();
 	}
 }

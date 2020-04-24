@@ -25,43 +25,37 @@ public class LoginView extends JPanel {
 
 	public LoginView() {
 		setLayout(new BorderLayout(0, 0));
-
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.GRAY);
 		add(panel, BorderLayout.NORTH);
-
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		verticalStrut_1.setPreferredSize(new Dimension(0, 50));
 		panel.add(verticalStrut_1);
-
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.GRAY);
 		add(panel_1, BorderLayout.SOUTH);
-
 		Component verticalStrut = Box.createVerticalStrut(20);
 		verticalStrut.setPreferredSize(new Dimension(0, 50));
 		panel_1.add(verticalStrut);
-
 		JPanel panel_2 = new JPanel();
 		add(panel_2, BorderLayout.CENTER);
 		panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.X_AXIS));
-
 		JPanel panel_3 = new JPanel();
 		panel_2.add(panel_3);
 		panel_3.setLayout(new BorderLayout(0, 0));
-
 		JPanel panel_4 = new JPanel();
 		panel_4.setBackground(Color.GRAY);
 		panel_3.add(panel_4, BorderLayout.NORTH);
-
 		JLabel lblUser = new JLabel("User");
 		lblUser.setForeground(Color.BLACK);
 		panel_4.add(lblUser);
-
 		nameTextField = new JTextField();
 		nameTextField.setPreferredSize(new Dimension(10, 20));
 		panel_4.add(nameTextField);
 		nameTextField.setColumns(13);
+		nameTextField.addActionListener(e -> {
+			passwordTextField.requestFocusInWindow();
+		});
 
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(Color.GRAY);
@@ -125,6 +119,9 @@ public class LoginView extends JPanel {
 		passwordTextField = new JTextField();
 		passwordTextField.setColumns(10);
 		panel_7.add(passwordTextField);
+		passwordTextField.addActionListener(e -> {
+			btnLogin.doClick();
+		});
 
 		JPanel panel_8 = new JPanel();
 		panel_8.setBackground(Color.GRAY);

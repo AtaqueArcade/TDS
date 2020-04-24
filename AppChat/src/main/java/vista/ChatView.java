@@ -55,7 +55,7 @@ public class ChatView extends JPanel {
 				BubbleText bubble;
 				try {
 					bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
-							Controlador.getInstance().getCurrentUser(), BubbleText.SENT);
+							Controlador.getInstance().getcurrentUser(), BubbleText.SENT);
 					chat.add(bubble);
 					inputTextField.setText("");
 				} catch (Exception e1) {
@@ -89,7 +89,7 @@ public class ChatView extends JPanel {
 					Mensaje message = new Mensaje(null, n);
 					BubbleText bubble;
 					try {
-						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getCurrentUser(),
+						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getcurrentUser(),
 								BubbleText.SENT, 18);
 						chat.add(bubble);
 						frame.dispose();
@@ -112,7 +112,7 @@ public class ChatView extends JPanel {
 						BubbleText bubble;
 						try {
 							bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-									Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
+									Controlador.getInstance().getcurrentUser(), BubbleText.SENT, 18);
 							chat.add(bubble);
 							frame.dispose();
 						} catch (Exception e1) {

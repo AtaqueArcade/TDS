@@ -112,4 +112,10 @@ public class Usuario {
 	public int getId() {
 		return id;
 	}
+
+	public boolean addContact(Contacto contact) {
+		if (contacts.contains(contact))
+			return false;
+		return (contacts.add(contact));
+	}
 }
