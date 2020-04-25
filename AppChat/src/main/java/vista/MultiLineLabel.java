@@ -40,7 +40,11 @@ import javax.swing.JPanel;
 **/
 public class MultiLineLabel extends JPanel
 {
-   protected int fontAttributes = Font.PLAIN;
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+protected int fontAttributes = Font.PLAIN;
    protected float alignment;
    protected Color col = null;
  protected int spacing = 0;

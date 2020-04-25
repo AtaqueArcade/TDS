@@ -1,14 +1,13 @@
 package controlador;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.swing.Icon;
 
 import modelo.Contacto;
 import modelo.ContactoIndividual;
+import modelo.Grupo;
 import modelo.Usuario;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;
@@ -19,7 +18,7 @@ public class Controlador {
 	private FactoriaDAO dao;
 	private DAOusuario userAdapter;
 	private CatalogoUsuarios userCatalog;
-	
+
 	private Usuario currentUser;
 	private Contacto currentContact;
 
@@ -56,47 +55,57 @@ public class Controlador {
 		return false;
 	}
 
-	public String getcurrentUser() {
-		return currentUser.getName();
-	}
-
 	public void logOut() {
 		// TODO Auto-generated method stub
 	}
 
-	public List<String> getUsernamesByFilter(String filter)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		List<String> usernames = CatalogoUsuarios.getInstance().getByFilter(filter);
-		usernames.remove(currentUser.getUsername());
-		return usernames;
-	}
-
 	public Contacto getContact(String username)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		Contacto response;
 		Usuario user = CatalogoUsuarios.getInstance().getUser(username);
-		Contacto response = new ContactoIndividual(user.getName(), user.getPicture());
-		return response;
+		if (user != null) {
+			response = new ContactoIndividual(user.getName(), user.getPicture());
+			return response;
+
+		}
+		return null;
 	}
 
-	public boolean addContact(String username) {
-		Contacto contact = null;
+	public boolean addContact(String contactName)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		Usuario user = null;
 		try {
-			contact = getContact(username);
+			user = CatalogoUsuarios.getInstance().getUser(contactName);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return currentUser.addContact(contact);
+		if (user != null) {
+			Contacto c = getContact(contactName);
+			return currentUser.addContact(c);
+		}
+		return false;
+	}
+
+	public boolean addContact(String groupName, List<String> userNames) {
+		List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
+				.collect(Collectors.toList());
+		Grupo group = new Grupo(groupName, contactList);
+		return currentUser.addContact(group);
 	}
 
 	public boolean checkContactList(List<String> contacts) {
 		boolean flag = true;
-		List<String> usernameList = currentUser.getContacts().stream().map(Contacto::getName)
+		List<String> contactList = currentUser.getContacts().stream().map(Contacto::getName)
 				.collect(Collectors.toList());
-		for (String username : contacts)
-			if (usernameList.contains(username))
+		for (String name : contacts)
+			if (contactList.contains(name))
 				flag = false;
 		return flag;
+	}
+
+	public String getCurrentUser() {
+		return currentUser.getName();
 	}
 
 	public List<Contacto> getCurrentContacts() {
@@ -109,5 +118,24 @@ public class Controlador {
 
 	public Contacto getCurrentContact() {
 		return currentContact;
+	}
+
+	public boolean deleteContacts(List<String> contacts) {
+		currentUser.getContacts().removeIf(c -> contacts.contains(c.getName()));
+		return true;
+	}
+
+	public List<String> getUsernamesByFilter(String filter)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		List<String> usernames = CatalogoUsuarios.getInstance().getByFilter(filter);
+		usernames.remove(currentUser.getUsername());
+		return usernames;
+	}
+
+	public List<String> getGroupComponents(String groupName) {
+		Optional<Contacto> g = currentUser.getContacts().stream()
+				.filter(c -> (c.getName().equals(groupName) && c instanceof Grupo)).findFirst();
+		Grupo gr = (Grupo) g.get();
+		return gr.getComponents().stream().map(c -> c.getName()).collect(Collectors.toList());
 	}
 }

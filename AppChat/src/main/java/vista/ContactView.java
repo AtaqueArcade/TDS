@@ -9,13 +9,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.Timer;
 import javax.swing.*;
-
 import controlador.Controlador;
 import modelo.Contacto;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -24,15 +21,19 @@ import java.util.Map;
 import java.awt.Color;
 
 public class ContactView extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final int DELAY = 1000;
 	private Map<String, ImageIcon> imageMap;
-	private DefaultListModel listModel;
-	private JList list;
+	private DefaultListModel<Contacto> listModel;
+	private JList<Contacto> list;
 
 	public ContactView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		super(new BorderLayout());
 		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
-		list = new JList();
+		list = new JList<Contacto>();
 		listModel = new DefaultListModel();
 		for (int i = 0; i < contacts.size(); i++)
 			listModel.addElement(contacts.get(i));
@@ -78,6 +79,10 @@ public class ContactView extends JPanel {
 	}
 
 	public class ListRenderer extends DefaultListCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		Font font = new Font("helvitica", Font.PLAIN, 16);
 
 		@Override

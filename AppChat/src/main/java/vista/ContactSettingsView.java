@@ -16,8 +16,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import controlador.Controlador;
+import modelo.Contacto;
 
 public class ContactSettingsView {
 	public ContactSettingsView() {
@@ -29,7 +32,7 @@ public class ContactSettingsView {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("New contact", null, panel, "Add new contatcs to your contact list");
+		tabbedPane.addTab("New contact", null, panel, "Add new contacts to your contact list");
 		panel.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_1 = new JPanel();
@@ -77,8 +80,8 @@ public class ContactSettingsView {
 		JScrollPane scrollPane = new JScrollPane();
 		panel.add(scrollPane, BorderLayout.CENTER);
 
-		JList list = new JList();
-		DefaultListModel listModel = new DefaultListModel();
+		JList<String> list = new JList<String>();
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
 		for (int i = 0; i < userlist.size(); i++)
 			listModel.addElement(userlist.get(i));
 		list.setModel(listModel);
@@ -103,8 +106,9 @@ public class ContactSettingsView {
 			try {
 				noContactIsRepeated = Controlador.getInstance().checkContactList(selections);
 				if (noContactIsRepeated) {
-					for (String username : selections)
+					for (String username : selections) {
 						Controlador.getInstance().addContact(username);
+					}
 					JOptionPane.showMessageDialog(new JFrame(),
 							"Selected contacts [" + String.join(",", selections) + "] added succesfully!\n",
 							"New contacts", JOptionPane.INFORMATION_MESSAGE);
@@ -169,9 +173,42 @@ public class ContactSettingsView {
 		Component verticalStrut_long = Box.createVerticalStrut(250);
 		panel_4.add(verticalStrut_long);
 
-		JList list_1 = new JList();
+		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
+		JList<String> list_1 = new JList<String>();
+		DefaultListModel<String> listModel_1 = new DefaultListModel<String>();
+		for (int i = 0; i < contacts.size(); i++)
+			listModel_1.addElement(contacts.get(i).getName());
+		list_1.setModel(listModel_1);
 		JScrollPane scrollPane_1 = new JScrollPane(list_1);
-
+		tabbedPane.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				DefaultListModel<String> listModel_1 = new DefaultListModel<String>();
+				for (int i = 0; i < contacts.size(); i++)
+					listModel_1.addElement(contacts.get(i).getName());
+				list_1.setModel(listModel_1);
+			}
+		});
+		btnDelete.addActionListener(e -> {
+			List<String> selections = list_1.getSelectedValuesList();
+			if (selections.size() == 0)
+				JOptionPane.showMessageDialog(new JFrame(), "Please, select any amount of contacts to be deleted.\n",
+						"Delete contacts", JOptionPane.ERROR_MESSAGE);
+			else {
+				try {
+					if (Controlador.getInstance().deleteContacts(selections))
+						JOptionPane.showMessageDialog(new JFrame(),
+								"Selected contacts [" + String.join(",", selections) + "] deleted succesfully.\n",
+								"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
+					DefaultListModel<String> listM = new DefaultListModel<String>();
+					for (int i = 0; i < contacts.size(); i++)
+						listM.addElement(contacts.get(i).getName());
+					list_1.setModel(listM);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		panel2.add(scrollPane_1, BorderLayout.CENTER);
 		frame.getContentPane().add(tabbedPane);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

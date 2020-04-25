@@ -4,21 +4,16 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
-import java.util.Date;
-
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.border.LineBorder;
 import com.toedter.calendar.JDateChooser;
-import com.toedter.calendar.demo.BirthdayEvaluator;
-
 import controlador.Controlador;
 
 @SuppressWarnings("serial")
@@ -176,8 +171,8 @@ public class SignUpView extends JPanel {
 						Ventana.frame.repaint();
 					} else {
 						JOptionPane.showMessageDialog(new JFrame(),
-								"Error: username '" + nameTextField.getText().trim() + "' is not available.\n", "Sign up",
-								JOptionPane.ERROR_MESSAGE);
+								"Error: username '" + nameTextField.getText().trim() + "' is not available.\n",
+								"Sign up", JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -222,7 +217,7 @@ public class SignUpView extends JPanel {
 		errorLabel.setForeground(Color.RED);
 		panel_16.add(errorLabel);
 		errorLabel.setVisible(false);
-		
+
 		nameTextField.addActionListener(e -> {
 			userTextField.requestFocusInWindow();
 		});

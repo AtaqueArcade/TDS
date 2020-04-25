@@ -5,28 +5,43 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.AbstractListModel;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionListener;
+
+import controlador.Controlador;
+import modelo.Contacto;
+import modelo.ContactoIndividual;
+import modelo.Grupo;
 
 public class GroupSettingsView {
-	public GroupSettingsView(){}
+	public GroupSettingsView() {
+	}
+
 	/**
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 * @wbp.parser.entryPoint
 	 */
-	public void show() {
+	public void show() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
 		JTextField textFieldGroupName;
-		JTextField textField;
 		JFrame frame = new JFrame("Group settings");
 		frame.setPreferredSize(new Dimension(400, 300));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,36 +50,52 @@ public class GroupSettingsView {
 		tabbedPane.addTab("New group", null, panel, "Create a new group chat");
 		panel.setLayout(new BorderLayout(0, 0));
 
+		JPanel panel_8 = new JPanel();
+		panel.add(panel_8, BorderLayout.NORTH);
+
+		Component horizontalStrut_6 = Box.createHorizontalStrut(25);
+		panel_8.add(horizontalStrut_6);
+
+		JLabel lblContacts = new JLabel("Contact list\r\n");
+		lblContacts.setHorizontalAlignment(SwingConstants.LEFT);
+		panel_8.add(lblContacts);
+
+		Component horizontalStrut_7 = Box.createHorizontalStrut(45);
+		panel_8.add(horizontalStrut_7);
+
+		JLabel lblGroupName = new JLabel("Group name\r\n");
+		lblGroupName.setHorizontalAlignment(SwingConstants.CENTER);
+		panel_8.add(lblGroupName);
+
+		Component horizontalStrut_8 = Box.createHorizontalStrut(27);
+		panel_8.add(horizontalStrut_8);
+
+		JLabel lblContactsToBe = new JLabel("Contacts to be added\r\n");
+		lblContactsToBe.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel_8.add(lblContactsToBe);
+
+		Component horizontalStrut_9 = Box.createHorizontalStrut(20);
+		panel_8.add(horizontalStrut_9);
+
 		JPanel panel_1 = new JPanel();
 		panel.add(panel_1, BorderLayout.SOUTH);
 
 		JButton btnConfirm = new JButton("Confirm");
-		btnConfirm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
 		panel_1.add(btnConfirm);
 
 		JButton btnCancel = new JButton("Cancel");
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-			}
+		btnCancel.addActionListener(e -> {
+			frame.dispose();
 		});
 		panel_1.add(btnCancel);
 
-		JList list = new JList();
-		list.setModel(new AbstractListModel() {
-			String[] values = new String[] { "ejemplo_1", "ejemplo_2" };
-
-			public int getSize() {
-				return values.length;
-			}
-
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
+		JList<String> list = new JList<String>();
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		for (int i = 0; i < contacts.size(); i++) {
+			if (contacts.get(i) instanceof ContactoIndividual)
+				listModel.addElement(contacts.get(i).getName());
+		}
+		list.setModel(listModel);
 		JPanel panel_5 = new JPanel();
 		panel.add(panel_5, BorderLayout.WEST);
 
@@ -72,24 +103,17 @@ public class GroupSettingsView {
 		panel_5.add(horizontalStrut);
 
 		JScrollPane scrollPane = new JScrollPane(list);
+		scrollPane.setPreferredSize(new Dimension(100, 160));
 		panel_5.add(scrollPane);
 
-		JList list_2 = new JList();
-		list_2.setModel(new AbstractListModel() {
-			String[] values = new String[] { "ejemplo_anadido" };
-
-			public int getSize() {
-				return values.length;
-			}
-
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
+		JList<String> list_2 = new JList<String>();
+		DefaultListModel<String> listModel_2 = new DefaultListModel<String>();
+		list_2.setModel(listModel_2);
 		JPanel scrollPane_2 = new JPanel();
 		panel.add(scrollPane_2, BorderLayout.EAST);
 
 		JScrollPane scrollPane_3 = new JScrollPane(list_2);
+		scrollPane_3.setPreferredSize(new Dimension(100, 160));
 		scrollPane_2.add(scrollPane_3);
 
 		Component horizontalStrut_1 = Box.createHorizontalStrut(20);
@@ -100,17 +124,28 @@ public class GroupSettingsView {
 		panel.add(panel_2, BorderLayout.CENTER);
 
 		JButton btnNewButton_2 = new JButton("-->");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				List<String> selections = list.getSelectedValuesList();
+				for (String username : selections) {
+					listModel.removeElement(username);
+					listModel_2.addElement(username);
+					list.setModel(listModel);
+					list_2.setModel(listModel_2);
+				}
+			}
+		});
 		btnNewButton_2.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
 
-		Component verticalStrut = Box.createVerticalStrut(20);
-		panel_2.add(verticalStrut);
-
 		textFieldGroupName = new JTextField();
 		textFieldGroupName.setToolTipText("Enter the group's name here");
+		textFieldGroupName.setPreferredSize(new Dimension(100, 20));
+		textFieldGroupName.setMinimumSize(new Dimension(100, 20));
+		textFieldGroupName.setMaximumSize(new Dimension(100, 20));
 		panel_2.add(textFieldGroupName);
 		textFieldGroupName.setColumns(10);
 		textFieldGroupName.setPreferredSize(new Dimension(100, 20));
@@ -119,6 +154,17 @@ public class GroupSettingsView {
 		panel_2.add(btnNewButton_2);
 
 		JButton btnNewButton_3 = new JButton("<--");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				List<String> selections = list_2.getSelectedValuesList();
+				for (String username : selections) {
+					listModel_2.removeElement(username);
+					listModel.addElement(username);
+					list.setModel(listModel);
+					list_2.setModel(listModel_2);
+				}
+			}
+		});
 		btnNewButton_3.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panel_2.add(btnNewButton_3);
 
@@ -137,25 +183,19 @@ public class GroupSettingsView {
 		panel_3.add(btnConfirm2);
 
 		JButton btnCancel2 = new JButton("Cancel");
-		btnCancel2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-			}
+		btnCancel2.addActionListener(e -> {
+			frame.dispose();
 		});
 		panel_3.add(btnCancel2);
 
-		JList list2 = new JList();
-		list2.setModel(new AbstractListModel() {
-			String[] values = new String[] { "Grupo_1", "Grupo_2", "Grupo_3" };
-
-			public int getSize() {
-				return values.length;
-			}
-
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
+		JList<String> list2 = new JList<String>();
+		DefaultListModel<String> listModel2 = new DefaultListModel<String>();
+		for (int i = 0; i < contacts.size(); i++) {
+			if (contacts.get(i) instanceof Grupo)
+				listModel2.addElement(contacts.get(i).getName());
+		}
+		list2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list2.setModel(listModel2);
 		JPanel panel_6 = new JPanel();
 		panel2.add(panel_6, BorderLayout.WEST);
 
@@ -163,76 +203,96 @@ public class GroupSettingsView {
 		panel_6.add(horizontalStrut1);
 
 		JScrollPane scrollPane1 = new JScrollPane(list2);
+		scrollPane1.setPreferredSize(new Dimension(100, 160));
+
 		panel_6.add(scrollPane1);
 
 		JList list3 = new JList();
-		list3.setModel(new AbstractListModel() {
-			String[] values = new String[] { "contacto del grupo", "1", "2", "3", "4" };
-
-			public int getSize() {
-				return values.length;
-			}
-
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
 		JPanel panel1 = new JPanel();
 		panel2.add(panel1, BorderLayout.EAST);
 		JScrollPane scrollPane_ = new JScrollPane(list3);
+		scrollPane_.setPreferredSize(new Dimension(100, 160));
 		panel1.add(scrollPane_);
 		Component horizontalStrut_ = Box.createHorizontalStrut(20);
 		panel1.add(horizontalStrut_);
 		JPanel panel4 = new JPanel();
 		panel2.add(panel4, BorderLayout.CENTER);
 		panel4.setLayout(new BorderLayout(0, 0));
-		JPanel panel_4 = new JPanel();
-		panel4.add(panel_4, BorderLayout.SOUTH);
-		JButton btnAdd = new JButton("Add\r\n");
-		panel_4.add(btnAdd);
-		JButton btnNewButton_1 = new JButton("Remove\r\n");
-		panel_4.add(btnNewButton_1);
 		JPanel panel_7 = new JPanel();
 		panel4.add(panel_7, BorderLayout.CENTER);
-		JList contacts = new JList();
-		contacts.setModel(new AbstractListModel() {
-			String[] values = new String[] { "contacto 1", "" };
-
-			public int getSize() {
-				return values.length;
-			}
-
-			public Object getElementAt(int index) {
-				return values[index];
+		JList contacts2 = new JList();
+		btnConfirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				List<String> contactList = IntStream.range(0, listModel_2.size()).mapToObj(listModel_2::get)
+						.map(element -> (String) element).collect(Collectors.toList());
+				try {
+					Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), contactList);
+					JOptionPane.showMessageDialog(new JFrame(),
+							"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n", "New group",
+							JOptionPane.INFORMATION_MESSAGE);
+					frame.dispose();
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
-		Component horizontalStrut_3 = Box.createHorizontalStrut(20);
-		panel_7.add(horizontalStrut_3);
-		JScrollPane scrollPane_1 = new JScrollPane(contacts);
+		list2.addListSelectionListener(e -> {
+			List<String> contactList = null;
+			try {
+				contactList = Controlador.getInstance().getGroupComponents(list2.getSelectedValue());
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			DefaultListModel<String> listModel3 = new DefaultListModel<String>();
+			for (int i = 0; i < contactList.size(); i++) {
+				listModel3.addElement(contactList.get(i));
+			}
+			list3.setModel(listModel3);
+		});
+		JScrollPane scrollPane_1 = new JScrollPane(contacts2);
+		scrollPane_1.setPreferredSize(new Dimension(100, 80));
 		panel_7.add(scrollPane_1);
-		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
-		panel_7.add(horizontalStrut_2);
-		textField = new JTextField();
-		textField.setColumns(10);
-		textField.setPreferredSize(new Dimension(100, 20));
-		textField.setMinimumSize(new Dimension(100, 20));
-		textField.setMaximumSize(new Dimension(100, 20));
-		panel4.add(textField, BorderLayout.NORTH);
+
+		JButton btnNewButton = new JButton("Add user\n");
+		btnNewButton.setPreferredSize(new Dimension(100, 20));
+		btnNewButton.setMinimumSize(new Dimension(100, 20));
+		btnNewButton.setMaximumSize(new Dimension(100, 20));
+		panel_7.add(btnNewButton);
+
+		JButton btnNewButton_4 = new JButton("Remove user");
+		btnNewButton_4.setPreferredSize(new Dimension(100, 20));
+		btnNewButton_4.setMinimumSize(new Dimension(100, 20));
+		btnNewButton_4.setMaximumSize(new Dimension(100, 20));
+		panel_7.add(btnNewButton_4);
+
+		JButton btnNewButton_1 = new JButton("Delete group\r\n");
+		btnNewButton_1.setPreferredSize(new Dimension(100, 20));
+		btnNewButton_1.setMinimumSize(new Dimension(100, 20));
+		btnNewButton_1.setMaximumSize(new Dimension(100, 20));
+		panel_7.add(btnNewButton_1);
 		JPanel l3 = new JPanel();
 		panel2.add(l3, BorderLayout.NORTH);
+
+		Component horizontalStrut_2 = Box.createHorizontalStrut(25);
+		l3.add(horizontalStrut_2);
 		JLabel lblNewLabel = new JLabel("Select the group");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		l3.add(lblNewLabel);
-		Component horizontalStrut_4 = Box.createHorizontalStrut(40);
+		Component horizontalStrut_4 = Box.createHorizontalStrut(30);
 		l3.add(horizontalStrut_4);
 		JLabel lblNewLabel_1 = new JLabel("Your contacts");
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		l3.add(lblNewLabel_1);
-		Component horizontalStrut_5 = Box.createHorizontalStrut(50);
+		Component horizontalStrut_5 = Box.createHorizontalStrut(20);
 		l3.add(horizontalStrut_5);
 		JLabel lblNewLabel_2 = new JLabel("Contacts inside group");
 		lblNewLabel_2.setHorizontalAlignment(SwingConstants.RIGHT);
 		l3.add(lblNewLabel_2);
+
+		Component horizontalStrut_3 = Box.createHorizontalStrut(20);
+		l3.add(horizontalStrut_3);
 		frame.getContentPane().add(tabbedPane);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.pack();

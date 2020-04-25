@@ -15,6 +15,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ToolBarView extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final int DELAY = 1000;
 	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete;
 	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel;
@@ -155,7 +159,7 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut);
 
-		JLabel lblUserName = new JLabel(Controlador.getInstance().getcurrentUser());
+		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUser());
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
 		profileSettingsView.add(lblUserName);
@@ -238,7 +242,12 @@ public class ToolBarView extends JPanel {
 		toolbarMenuView.add(verticalStrut_1);
 		JButton btnGroupSettings = new JButton("Group Settings");
 		btnGroupSettings.addActionListener(ev -> {
-			groupSettingsView.show();
+			try {
+				groupSettingsView.show();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		btnGroupSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnGroupSettings.setPreferredSize(new Dimension(140, 30));
@@ -271,8 +280,12 @@ public class ToolBarView extends JPanel {
 		toolbarMenuView.add(verticalStrut_4);
 		JButton btnLogOut = new JButton("Log out");
 		btnLogOut.addActionListener(ev -> {
-			// Controlador.logOut();
-			Ventana v = new Ventana();
+			try {
+				Controlador.getInstance().logOut();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		btnLogOut.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnLogOut.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -488,9 +501,5 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut3 = Box.createVerticalStrut(10);
 		deleteView.add(verticalStrut3);
 		return (deleteView);
-	}
-
-	private void updateView() {
-		this.getParent().repaint();
 	}
 }

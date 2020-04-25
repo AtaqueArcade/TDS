@@ -3,9 +3,13 @@ package vista;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-
-import javax.swing.*;
-
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import modelo.Mensaje;
 import controlador.Controlador;
 import tds.BubbleText;
@@ -19,9 +23,9 @@ public class ChatView extends JPanel {
 	public ChatView() {
 		chat = new JPanel();
 		setLayout(new BorderLayout(0, 0));
-		chat.setLayout(new BoxLayout(chat, BoxLayout.Y_AXIS));
-		chat.setSize(400, 700);
+		chat.setLayout(new BoxLayout(chat, BoxLayout.Y_AXIS));	
 		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setViewportView(chat);
 		JPanel contactsPanel = new JPanel();
 		add(contactsPanel, BorderLayout.WEST);
@@ -55,7 +59,7 @@ public class ChatView extends JPanel {
 				BubbleText bubble;
 				try {
 					bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
-							Controlador.getInstance().getcurrentUser(), BubbleText.SENT);
+							Controlador.getInstance().getCurrentUser(), BubbleText.SENT);
 					chat.add(bubble);
 					inputTextField.setText("");
 				} catch (Exception e1) {
@@ -89,7 +93,7 @@ public class ChatView extends JPanel {
 					Mensaje message = new Mensaje(null, n);
 					BubbleText bubble;
 					try {
-						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getcurrentUser(),
+						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getCurrentUser(),
 								BubbleText.SENT, 18);
 						chat.add(bubble);
 						frame.dispose();
@@ -112,7 +116,7 @@ public class ChatView extends JPanel {
 						BubbleText bubble;
 						try {
 							bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-									Controlador.getInstance().getcurrentUser(), BubbleText.SENT, 18);
+									Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
 							chat.add(bubble);
 							frame.dispose();
 						} catch (Exception e1) {
