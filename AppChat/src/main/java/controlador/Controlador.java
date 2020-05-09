@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import modelo.Contacto;
 import modelo.ContactoIndividual;
 import modelo.Grupo;
@@ -90,7 +89,7 @@ public class Controlador {
 	public boolean addContact(String groupName, List<String> userNames) {
 		List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 				.collect(Collectors.toList());
-		Grupo group = new Grupo(groupName, contactList);
+		Grupo group = new Grupo(groupName, currentUser, contactList);
 		return currentUser.addContact(group);
 	}
 
@@ -137,5 +136,27 @@ public class Controlador {
 				.filter(c -> (c.getName().equals(groupName) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
 		return gr.getComponents().stream().map(c -> c.getName()).collect(Collectors.toList());
+	}
+
+	public boolean deleteGroups(List<String> groupNames) {
+		boolean flag = currentUser.getContacts().stream().filter(c -> c instanceof Grupo)
+				.allMatch(c -> ((Grupo) c).getAdmin().equals(currentUser));
+		if (flag)
+			currentUser.getContacts().removeIf(c -> c instanceof Grupo && ((Grupo) c).getAdmin().equals(currentUser)
+					&& groupNames.contains(c.getName()));
+		return flag;
+	}
+
+	public boolean editGroup(String groupName, List<String> userNames) {
+		Optional<Contacto> g = currentUser.getContacts().stream()
+				.filter(c -> (c.getName().equals(groupName) && c instanceof Grupo)).findFirst();
+		Grupo gr = (Grupo) g.get();
+		if (gr != null && (gr.getAdmin() == currentUser)) {
+			List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
+					.collect(Collectors.toList());
+			gr.setComponents(contactList);
+			return true;
+		}
+		return false;
 	}
 }

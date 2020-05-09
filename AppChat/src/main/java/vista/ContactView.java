@@ -15,15 +15,14 @@ import controlador.Controlador;
 import modelo.Contacto;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.awt.Color;
 
 public class ContactView extends JPanel {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private static final int DELAY = 1000;
 	private Map<String, ImageIcon> imageMap;
@@ -34,7 +33,7 @@ public class ContactView extends JPanel {
 		super(new BorderLayout());
 		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
 		list = new JList<Contacto>();
-		listModel = new DefaultListModel();
+		listModel = new DefaultListModel<Contacto>();
 		for (int i = 0; i < contacts.size(); i++)
 			listModel.addElement(contacts.get(i));
 		list.setModel(listModel);
@@ -48,7 +47,6 @@ public class ContactView extends JPanel {
 				int index = list.locationToIndex(evt.getPoint());
 				if (index >= 0 && index <= list.getModel().getSize()) {
 					Contacto c = (Contacto) list.getModel().getElementAt(index);
-					System.out.println("Cargando: " + c.getName());
 					try {
 						Controlador.getInstance().setCurrentChat(c);
 					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -66,13 +64,18 @@ public class ContactView extends JPanel {
 		Timer timer = new Timer(DELAY, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				repaint();
-				listModel.clear();
-				listModel = new DefaultListModel();
+				DefaultListModel<Contacto> newListModel = new DefaultListModel<Contacto>();
 				for (int i = 0; i < contacts.size(); i++)
-					listModel.addElement(contacts.get(i));
-				list.setModel(listModel);
-				imageMap = createImageMap(contacts);
+					newListModel.addElement(contacts.get(i));
+				List<?> elements1 = Arrays.asList(newListModel.toArray());
+				List<?> elements2 = Arrays.asList(listModel.toArray());
+				if (!elements1.equals(elements2)) {
+					listModel.clear();
+					listModel = newListModel;
+					list.setModel(listModel);
+					imageMap = createImageMap(contacts);
+					repaint();
+				}
 			}
 		});
 		timer.start();

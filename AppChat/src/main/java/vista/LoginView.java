@@ -3,6 +3,8 @@ package vista;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
@@ -116,7 +118,7 @@ public class LoginView extends JPanel {
 		label.setForeground(Color.BLACK);
 		panel_7.add(label);
 
-		passwordTextField = new JTextField();
+		passwordTextField = new JPasswordField();
 		passwordTextField.setColumns(10);
 		panel_7.add(passwordTextField);
 		passwordTextField.addActionListener(e -> {

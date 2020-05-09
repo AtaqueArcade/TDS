@@ -2,7 +2,6 @@ package vista;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -108,7 +107,7 @@ public class ToolBarView extends JPanel {
 			poCurrentContact.show();
 		});
 		midPanel.add(btnContact);
-
+		btnContact.setText("No chat selected");
 		btnGlass.setIcon(imageGlass);
 		btnGlass.addActionListener(e -> {
 			btnGlass.setEnabled(false);
@@ -139,11 +138,10 @@ public class ToolBarView extends JPanel {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				if (contact != null)
+				if (contact != null && !btnContact.getText().equals(contact)) {
 					btnContact.setText(contact.getName());
-				else
-					btnContact.setText("No chat selected");
-				btnContact.repaint();
+					btnContact.repaint();
+				}
 			}
 		});
 		timer.start();
@@ -431,12 +429,25 @@ public class ToolBarView extends JPanel {
 		JTextField textField = new JTextField();
 		panel_2.add(textField);
 		textField.setColumns(10);
+		if (isFocusOwner())
+			textField.requestFocus();
 		JButton btnFilter = new JButton("Search");
 		panel_2.add(btnFilter);
 		btnFilter.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnFilter.addActionListener(e -> {
+			SearchResultsView sr;
+			try {
+				if (Controlador.getInstance().getCurrentContact() != null)
+					sr = new SearchResultsView(textField.getText().trim());
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			poSearch.hide();
 			btnGlass.setEnabled(true);
+		});
+		textField.addActionListener(e -> {
+			btnFilter.doClick();
 		});
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		searchJPanel.setBorder(blackline);

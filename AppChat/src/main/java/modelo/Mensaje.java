@@ -6,11 +6,13 @@ public class Mensaje {
 	private String text;
 	private LocalDateTime time;
 	private int emoticon;
+	private String speaker;
 
-	public Mensaje(String text, int emoticon) {
+	public Mensaje(String text, int emoticon, String speaker) {
 		this.text = text;
 		this.time = LocalDateTime.now();
 		this.emoticon = emoticon;
+		this.speaker = speaker;
 	}
 
 	public String getText() {
@@ -35,5 +37,13 @@ public class Mensaje {
 
 	public void setEmoticon(int emoticon) {
 		this.emoticon = emoticon;
+	}
+
+	public void setSpeaker(String speaker) {
+		this.speaker = speaker;
+	}
+
+	public String getSpeaker() {
+		return speaker;
 	}
 }
