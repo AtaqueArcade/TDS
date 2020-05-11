@@ -82,9 +82,7 @@ public class ContactView extends JPanel {
 	}
 
 	public class ListRenderer extends DefaultListCellRenderer {
-		/**
-		 * 
-		 */
+
 		private static final long serialVersionUID = 1L;
 		Font font = new Font("helvitica", Font.PLAIN, 16);
 

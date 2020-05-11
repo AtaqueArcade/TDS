@@ -26,6 +26,9 @@ public class ContactSettingsView {
 	public ContactSettingsView() {
 	}
 
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public void show() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		List<String> userlist = Controlador.getInstance().getUsernamesByFilter("");
 		JFrame frame = new JFrame("Contact settings");
@@ -122,6 +125,12 @@ public class ContactSettingsView {
 			}
 		});
 		scrollPane.setViewportView(list);
+		
+		Component verticalStrut_7 = Box.createVerticalStrut(5);
+		panel.add(verticalStrut_7, BorderLayout.NORTH);
+		
+		Component verticalStrut_8 = Box.createVerticalStrut(10);
+		panel.add(verticalStrut_8, BorderLayout.SOUTH);
 		JPanel panel2 = new JPanel();
 		tabbedPane.addTab("Contact manager", null, panel2, "Hide, show or delete contacts on your list");
 		panel2.setLayout(new BorderLayout(0, 0));
@@ -209,9 +218,16 @@ public class ContactSettingsView {
 				}
 			}
 		});
+		
+		Component verticalStrut_5 = Box.createVerticalStrut(5);
+		panel2.add(verticalStrut_5, BorderLayout.NORTH);
 		panel2.add(scrollPane_1, BorderLayout.CENTER);
+		
+		Component verticalStrut_6 = Box.createVerticalStrut(10);
+		panel2.add(verticalStrut_6, BorderLayout.SOUTH);
 		frame.getContentPane().add(tabbedPane);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setPreferredSize(new Dimension(400, 300));
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);

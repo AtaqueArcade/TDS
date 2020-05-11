@@ -159,4 +159,8 @@ public class Controlador {
 		}
 		return false;
 	}
+
+	public void deleteMessages() {
+		currentContact.resetMensajes();
+	}
 }

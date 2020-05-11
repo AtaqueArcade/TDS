@@ -2,21 +2,21 @@ package vista;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
 import controlador.Controlador;
 import modelo.Contacto;
-
+import modelo.Mensaje;
+import tds.BubbleText;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ToolBarView extends JPanel {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private static final int DELAY = 1000;
 	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete;
@@ -435,10 +435,9 @@ public class ToolBarView extends JPanel {
 		panel_2.add(btnFilter);
 		btnFilter.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnFilter.addActionListener(e -> {
-			SearchResultsView sr;
 			try {
 				if (Controlador.getInstance().getCurrentContact() != null)
-					sr = new SearchResultsView(textField.getText().trim());
+					SearchResultsView(textField.getText().trim());
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -465,10 +464,27 @@ public class ToolBarView extends JPanel {
 		deleteView.add(panel_2);
 		JButton button = new JButton("Delete contact");
 		button.addActionListener(e -> {
-			int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete [Contact]?", "Warning",
-					JOptionPane.YES_NO_OPTION);
-			if (response == JOptionPane.YES_OPTION) {
-				//
+			try {
+				if (Controlador.getInstance().getCurrentContact() != null) {
+					int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete [Contact]?",
+							"Warning", JOptionPane.YES_NO_OPTION);
+					if (response == JOptionPane.YES_OPTION) {
+						try {
+							List<String> l = new LinkedList<String>();
+							l.add(Controlador.getInstance().getCurrentContact().getName());
+							if (Controlador.getInstance().deleteContacts(l))
+								JOptionPane.showMessageDialog(new JFrame(),
+										"Contact [" + String.join(",", l) + "] deleted succesfully.\n",
+										"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 			poDelete.hide();
 			btnDelete.setEnabled(true);
@@ -479,17 +495,26 @@ public class ToolBarView extends JPanel {
 		button.setMinimumSize(new Dimension(140, 30));
 		button.setMaximumSize(new Dimension(140, 30));
 		panel_2.add(button);
+
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		deleteView.setBorder(blackline);
 		JButton button_1 = new JButton("Delete messages");
 		button_1.addActionListener(e -> {
-			int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all message history?",
-					"Warning", JOptionPane.YES_NO_OPTION);
-			if (response == JOptionPane.YES_OPTION) {
-				//
+			try {
+				if (Controlador.getInstance().getCurrentContact() != null) {
+					int response = JOptionPane.showConfirmDialog(null,
+							"Are you sure you want to delete all message history?", "Warning",
+							JOptionPane.YES_NO_OPTION);
+					if (response == JOptionPane.YES_OPTION) {
+						Controlador.getInstance().deleteMessages();
+					}
+					poDelete.hide();
+					btnDelete.setEnabled(true);
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-			poDelete.hide();
-			btnDelete.setEnabled(true);
 		});
 		button_1.setForeground(Color.RED);
 		button_1.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -512,5 +537,46 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut3 = Box.createVerticalStrut(10);
 		deleteView.add(verticalStrut3);
 		return (deleteView);
+	}
+
+	private void SearchResultsView(String search) {
+		boolean resultsExist = false;
+		try {
+			resultsExist = Controlador.getInstance().getCurrentContact().getMensajes().stream()
+					.anyMatch(m -> (m.getText() != null) && m.getText().contains(search));
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if (resultsExist) {
+			JFrame frame = new JFrame("Search results");
+			frame.setPreferredSize(new Dimension(400, 300));
+			frame.setMinimumSize(new Dimension(400, 300));
+			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			JPanel chat = new JPanel();
+			chat.setLayout(new BoxLayout(chat, BoxLayout.Y_AXIS));
+			JScrollPane scrollPane = new JScrollPane();
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			scrollPane.setViewportView(chat);
+			frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+			frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
+			try {
+				// TODO hacer en stream
+				for (Mensaje m : Controlador.getInstance().getCurrentContact().getMensajes()) {
+					if (m.getText().contains(search)) {
+						BubbleText bubble = new BubbleText(chat, m.getText(), Color.LIGHT_GRAY, m.getSpeaker(),
+								BubbleText.SENT);
+						chat.add(bubble);
+					}
+				}
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			JOptionPane.showMessageDialog(new JFrame(), "No coincidences were found", "Search",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }

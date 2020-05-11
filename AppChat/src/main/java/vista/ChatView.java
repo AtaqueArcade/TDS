@@ -9,10 +9,11 @@ import java.util.LinkedList;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
 import javax.swing.Timer;
 import modelo.Mensaje;
 import controlador.Controlador;
@@ -25,8 +26,13 @@ public class ChatView extends JPanel {
 	private JPanel chat;
 	private LinkedList<Mensaje> messages;
 	private static final int DELAY = 1000;
+	private Popup poEmoji;
+	private JPanel emojiJPanel;
+	private PopupFactory pf;
+	private JButton btnEmoji;
 
 	public ChatView() {
+		pf = new PopupFactory();
 		chat = new JPanel();
 		messages = new LinkedList<Mensaje>();
 		setLayout(new BorderLayout(0, 0));
@@ -44,9 +50,20 @@ public class ChatView extends JPanel {
 		JPanel inputPanel = new JPanel();
 		tray.add(inputPanel);
 
-		JButton btnEmoji = new JButton("Emoji");
-		btnEmoji.addActionListener(ev -> {
-			abrirSelectorEmojis();
+		btnEmoji = new JButton("Emoji");
+		emojiJPanel = emojiView();
+		btnEmoji.addActionListener(e -> {
+			try {
+				if (Controlador.getInstance().getCurrentContact() != null) {
+					btnEmoji.setEnabled(false);
+					poEmoji = pf.getPopup(this, emojiJPanel, (int) btnEmoji.getLocationOnScreen().getX() - 35,
+							(int) btnEmoji.getLocationOnScreen().getY() - 210);
+					poEmoji.show();
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		inputPanel.add(btnEmoji);
 
@@ -101,10 +118,8 @@ public class ChatView extends JPanel {
 		timer.start();
 	}
 
-	private void abrirSelectorEmojis() {
-		JFrame frame = new JFrame("Select an emoji to send.");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+	private JPanel emojiView() {
+		JPanel panel = new JPanel();
 		JPanel testPane = new JPanel();
 		testPane.setLayout(new GridLayout((int) Math.sqrt(BubbleText.MAXICONO), (int) Math.sqrt(BubbleText.MAXICONO)));
 		int currentemoji = 0;
@@ -127,7 +142,8 @@ public class ChatView extends JPanel {
 						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getCurrentUser(),
 								BubbleText.SENT, 18);
 						chat.add(bubble);
-						frame.dispose();
+						poEmoji.hide();
+						btnEmoji.setEnabled(true);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -155,7 +171,8 @@ public class ChatView extends JPanel {
 							bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
 									Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
 							chat.add(bubble);
-							frame.dispose();
+							poEmoji.hide();
+							btnEmoji.setEnabled(true);
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -166,21 +183,17 @@ public class ChatView extends JPanel {
 				}
 			}
 		}
-		frame.getContentPane().add(testPane);
-		{
-			JPanel panel = new JPanel();
-			frame.getContentPane().add(panel, BorderLayout.NORTH);
-			{
-				JButton btnCancel = new JButton("Cancel");
-				btnCancel.addActionListener(e -> {
-					frame.dispose();
-				});
-				panel.add(btnCancel);
-			}
-		}
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(testPane);
+		JPanel panelb = new JPanel(new BorderLayout());
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(e -> {
+			poEmoji.hide();
+			btnEmoji.setEnabled(true);
+		});
+		panelb.add(btnCancel, BorderLayout.CENTER);
+		panel.add(panelb);
+		return panel;
 	}
 
 	public void setChat() {
@@ -208,6 +221,5 @@ public class ChatView extends JPanel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 }
