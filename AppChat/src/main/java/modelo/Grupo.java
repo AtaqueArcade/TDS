@@ -5,38 +5,21 @@ import java.util.List;
 
 public class Grupo extends Contacto {
 	List<Contacto> components;
-	Usuario admin;
+	int admin;
 
-	public Grupo(String name, Usuario admin) {
+	public Grupo(String name, int admin, List<Contacto> components) {
 		super(name);
-		components = new LinkedList<Contacto>();
 		this.admin = admin;
+		this.components = components;
+		this.setId(this.getId() * -1);
 	}
 
-	public Grupo(String name, Usuario admin, int picture) {
-		super(name, picture);
-		components = new LinkedList<Contacto>();
-		this.admin = admin;
-	}
-
-	public Grupo(int id, String name, Usuario admin, int picture) {
-		super(id, name, picture);
-		components = new LinkedList<Contacto>();
-		this.admin = admin;
-	}
-
-	public Grupo(int id, String name, Usuario admin, int picture, List<Contacto> components) {
+	public Grupo(int id, String name, int admin, String picture, List<Contacto> components) {
 		super(id, name, picture);
 		this.components = new LinkedList<Contacto>();
 		this.admin = admin;
 		components.stream().filter(c -> !this.components.contains(c)).forEach(this.components::add);
-	}
-
-	public Grupo(String name, Usuario admin, List<Contacto> components) {
-		super(name);
-		this.components = new LinkedList<Contacto>();
-		this.admin = admin;
-		this.components.addAll(components);
+		this.setId(this.getId() * -1);
 	}
 
 	public List<Contacto> getComponents() {
@@ -47,7 +30,7 @@ public class Grupo extends Contacto {
 		this.components = components;
 	}
 
-	public Usuario getAdmin() {
+	public int getAdmin() {
 		return admin;
 	}
 }

@@ -39,9 +39,10 @@ public class Controlador {
 	public boolean register(String name, Date birthday, int phone, String username, String password) {
 		if (!userCatalog.isUser(username)) {
 			Usuario user = new Usuario(name, birthday, phone, username, password);
-			userAdapter.registerUser(user);
-			userCatalog.addUser(username, user);
-			return true;
+			if (userAdapter.registerUser(user)) {
+				userCatalog.addUser(username, user);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -63,7 +64,7 @@ public class Controlador {
 		Contacto response;
 		Usuario user = CatalogoUsuarios.getInstance().getUser(username);
 		if (user != null) {
-			response = new ContactoIndividual(user.getName(), user.getPicture());
+			response = new ContactoIndividual(user.getId(), user.getName(), user.getPicture());
 			return response;
 
 		}
@@ -81,7 +82,9 @@ public class Controlador {
 		}
 		if (user != null) {
 			Contacto c = getContact(contactName);
-			return currentUser.addContact(c);
+			currentUser.addContact(c);
+			userAdapter.modifyUser(currentUser);
+			return true;
 		}
 		return false;
 	}
@@ -89,8 +92,11 @@ public class Controlador {
 	public boolean addContact(String groupName, List<String> userNames) {
 		List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 				.collect(Collectors.toList());
-		Grupo group = new Grupo(groupName, currentUser, contactList);
-		return currentUser.addContact(group);
+		Grupo group = new Grupo(groupName, currentUser.getId(), contactList);
+		currentUser.addContact(group);
+		userAdapter.registerGroup(group);
+		userAdapter.modifyUser(currentUser);
+		return true;
 	}
 
 	public boolean checkContactList(List<String> contacts) {
@@ -121,6 +127,7 @@ public class Controlador {
 
 	public boolean deleteContacts(List<String> contacts) {
 		currentUser.getContacts().removeIf(c -> contacts.contains(c.getName()));
+		userAdapter.modifyUser(currentUser);
 		return true;
 	}
 
@@ -140,10 +147,11 @@ public class Controlador {
 
 	public boolean deleteGroups(List<String> groupNames) {
 		boolean flag = currentUser.getContacts().stream().filter(c -> c instanceof Grupo)
-				.allMatch(c -> ((Grupo) c).getAdmin().equals(currentUser));
+				.allMatch(c -> ((Grupo) c).getAdmin() == currentUser.getId());
 		if (flag)
-			currentUser.getContacts().removeIf(c -> c instanceof Grupo && ((Grupo) c).getAdmin().equals(currentUser)
-					&& groupNames.contains(c.getName()));
+			currentUser.getContacts().removeIf(c -> c instanceof Grupo
+					&& (((Grupo) c).getAdmin() == currentUser.getId()) && groupNames.contains(c.getName()));
+		userAdapter.modifyUser(currentUser);
 		return flag;
 	}
 
@@ -151,10 +159,12 @@ public class Controlador {
 		Optional<Contacto> g = currentUser.getContacts().stream()
 				.filter(c -> (c.getName().equals(groupName) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
-		if (gr != null && (gr.getAdmin() == currentUser)) {
+		if (gr != null && (gr.getAdmin() == currentUser.getId())) {
 			List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 					.collect(Collectors.toList());
 			gr.setComponents(contactList);
+			userAdapter.modifyGroup(gr);
+			userAdapter.modifyUser(currentUser);
 			return true;
 		}
 		return false;
@@ -162,5 +172,27 @@ public class Controlador {
 
 	public void deleteMessages() {
 		currentContact.resetMensajes();
+		userAdapter.modifyUser(currentUser);
+	}
+
+	public String getCurrentUserPicture() {
+		return currentUser.getPicture();
+	}
+
+	public void setCurrentUserPicture(String picture) {
+		currentUser.setPicture(picture);
+		userAdapter.modifyUser(currentUser);
+	}
+
+	public String getCurrentUserQuote() {
+		String quote = currentUser.getQuote();
+		if (quote == null)
+			return "Hello! I'm using AppChat";
+		return quote;
+	}
+
+	public void setCurrentUserQuote(String quote) {
+		currentUser.setQuote(quote);
+		userAdapter.modifyUser(currentUser);
 	}
 }

@@ -11,9 +11,10 @@ public class Usuario {
 	private int phone;
 	private String username;
 	private String password;
-	private int picture;
+	private String picture;
 	private boolean premium;
 	private List<Contacto> contacts;
+	private String quote;
 
 	public Usuario(String name, Date birthday, int phone, String username, String password) {
 		id = Id.generateUniqueId();
@@ -22,17 +23,19 @@ public class Usuario {
 		this.phone = phone;
 		this.username = username;
 		this.password = password;
-		picture = 0;
+		picture = null;
 		premium = false;
 		contacts = new ArrayList<Contacto>();
 	}
 
-	public Usuario(String name, Date birthday, int phone, String username, String password, int picture,
-			boolean premium, List<Contacto> contacts2) {
+	public Usuario(int id, String name, Date birthday, int phone, String username, String password, String picture,
+			boolean premium, List<Contacto> contacts, String quote) {
 		this(name, birthday, phone, username, password);
+		this.id = id;
 		this.picture = picture;
 		this.premium = premium;
-		this.contacts = contacts2;
+		this.contacts = contacts;
+		this.quote = quote;
 	}
 
 	public String getName() {
@@ -67,11 +70,11 @@ public class Usuario {
 		this.password = password;
 	}
 
-	public int getPicture() {
+	public String getPicture() {
 		return picture;
 	}
 
-	public void setPicture(int picture) {
+	public void setPicture(String picture) {
 		this.picture = picture;
 	}
 
@@ -117,5 +120,13 @@ public class Usuario {
 		if (contacts.contains(contact))
 			return false;
 		return (contacts.add(contact));
+	}
+
+	public void setQuote(String quote) {
+		this.quote = quote;
+	}
+
+	public String getQuote() {
+		return this.quote;
 	}
 }

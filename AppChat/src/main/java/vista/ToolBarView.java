@@ -19,18 +19,34 @@ public class ToolBarView extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	private static final int DELAY = 1000;
-	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete;
-	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel;
-	JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
+	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete, poURL, poQuote;
+	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel,
+			urlJPanel, quoteJPanel;
+	private JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
+	private JLabel lblCurrentPicture;
+	private MultiLineLabel quoteLabel;
 	private PopupFactory pf = new PopupFactory();
 
 	public ToolBarView()
 			throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		ImageIcon imageIcon = new ImageIcon(new URL(
-				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+		ImageIcon imageIcon;
+		String picture = Controlador.getInstance().getCurrentUserPicture();
+		try {
+			if (picture != null) {
+				imageIcon = new ImageIcon(new URL(picture));
+			} else {
+				imageIcon = new ImageIcon(new URL(
+						"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+			}
+		} catch (MalformedURLException e) {
+			imageIcon = new ImageIcon(new URL(
+					"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+		}
+
 		Image image = imageIcon.getImage();
 		Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 		imageIcon = new ImageIcon(newimg);
+
 		ImageIcon imageContact = new ImageIcon(new URL(
 				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
 		image = imageContact.getImage();
@@ -61,7 +77,8 @@ public class ToolBarView extends JPanel {
 		toolbarMenuJPanel = toolbarMenuView();
 		searchJPanel = searchView();
 		deleteJPanel = deleteView();
-
+		urlJPanel = urlView();
+		quoteJPanel = quoteView();
 		setLayout(new BorderLayout(0, 0));
 
 		JPanel leftPanel = new JPanel();
@@ -165,11 +182,16 @@ public class ToolBarView extends JPanel {
 		JPanel panel_2 = new JPanel();
 		profileSettingsView.add(panel_2);
 
-		JLabel lblCurrentPicture = new JLabel();
+		lblCurrentPicture = new JLabel();
 		lblCurrentPicture.setIcon(imageIcon);
 		panel_2.add(lblCurrentPicture);
 
 		JButton btnChangeYourPicture = new JButton("Change your picture");
+		btnChangeYourPicture.addActionListener(a -> {
+			poURL = pf.getPopup(this, urlJPanel, (int) btnChangeYourPicture.getLocationOnScreen().getX() + 20,
+					(int) btnChangeYourPicture.getLocationOnScreen().getY() + 20);
+			poURL.show();
+		});
 		btnChangeYourPicture.setPreferredSize(new Dimension(140, 30));
 		btnChangeYourPicture.setMinimumSize(new Dimension(140, 30));
 		btnChangeYourPicture.setMaximumSize(new Dimension(140, 30));
@@ -181,13 +203,18 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut_3 = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut_3);
 
-		MultiLineLabel label = new MultiLineLabel("Frase del usuario", Component.CENTER_ALIGNMENT);
-		profileSettingsView.add(label);
+		quoteLabel = new MultiLineLabel(Controlador.getInstance().getCurrentUserQuote(), Component.CENTER_ALIGNMENT);
+		profileSettingsView.add(quoteLabel);
 
 		Component verticalStrut_2 = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut_2);
 
 		JButton btnQuote = new JButton("Change quote");
+		btnQuote.addActionListener(a -> {
+			poQuote = pf.getPopup(this, quoteJPanel, (int) btnQuote.getLocationOnScreen().getX() + 20,
+					(int) btnQuote.getLocationOnScreen().getY() + 20);
+			poQuote.show();
+		});
 		btnQuote.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnQuote.setPreferredSize(new Dimension(140, 30));
 		btnQuote.setMinimumSize(new Dimension(140, 30));
@@ -537,6 +564,71 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut3 = Box.createVerticalStrut(10);
 		deleteView.add(verticalStrut3);
 		return (deleteView);
+	}
+
+	private JPanel urlView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		JPanel urlJPanel = new JPanel();
+		Border blackline = BorderFactory.createLineBorder(Color.black);
+		urlJPanel.setBorder(blackline);
+		JTextField textField = new JTextField(Controlador.getInstance().getCurrentUserPicture());
+		JButton btnNewButton = new JButton("Change picture");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Controlador.getInstance().setCurrentUserPicture(textField.getText().trim());
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ImageIcon imageIcon = null;
+				try {
+					imageIcon = new ImageIcon(new URL(textField.getText().trim()));
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Image image = imageIcon.getImage();
+				Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+				imageIcon = new ImageIcon(newimg);
+				btnProfile.setIcon(imageIcon);
+				btnProfile.repaint();
+				lblCurrentPicture.setIcon(imageIcon);
+				lblCurrentPicture.repaint();
+				poURL.hide();
+			}
+		});
+		urlJPanel.add(btnNewButton, BorderLayout.EAST);
+		textField.setColumns(30);
+		urlJPanel.add(textField, BorderLayout.CENTER);
+		return urlJPanel;
+
+	}
+
+	private JPanel quoteView() {
+		JPanel urlJPanel = new JPanel();
+		Border blackline = BorderFactory.createLineBorder(Color.black);
+		urlJPanel.setBorder(blackline);
+		JButton btnNewButton = new JButton("Confirm");
+		JTextField textField = new JTextField();
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				poQuote.hide();
+				try {
+					Controlador.getInstance().setCurrentUserQuote(textField.getText().trim());
+					quoteLabel.setText(textField.getText().trim());
+					quoteLabel.paintImmediately(quoteLabel.getVisibleRect());
+					quoteLabel.repaint();
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+		urlJPanel.add(btnNewButton, BorderLayout.EAST);
+		textField.setColumns(30);
+		urlJPanel.add(textField, BorderLayout.CENTER);
+		return urlJPanel;
 	}
 
 	private void SearchResultsView(String search) {
