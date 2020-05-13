@@ -105,8 +105,10 @@ public class ContactView extends JPanel {
 		ImageIcon imageIcon = null;
 		for (Contacto c : contacts) {
 			try {
-				imageIcon = new ImageIcon(new URL(
-						"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+				String picture = c.getPicture();
+				if (picture == null)
+					picture = "https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png";
+				imageIcon = new ImageIcon(new URL(picture));
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

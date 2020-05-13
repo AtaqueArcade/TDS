@@ -1,5 +1,6 @@
 package controlador;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -81,21 +82,30 @@ public class Controlador {
 			e.printStackTrace();
 		}
 		if (user != null) {
-			Contacto c = getContact(contactName);
-			currentUser.addContact(c);
+			Contacto c1 = getContact(contactName);
+			currentUser.addContact(c1);
 			userAdapter.modifyUser(currentUser);
+			Contacto c2 = getContact(currentUser.getUsername());
+			user.addContact(c2);
+			userAdapter.modifyUser(user);
 			return true;
 		}
 		return false;
 	}
 
-	public boolean addContact(String groupName, List<String> userNames) {
+	public boolean addContact(String groupName, List<String> userNames)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException {
 		List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 				.collect(Collectors.toList());
 		Grupo group = new Grupo(groupName, currentUser.getId(), contactList);
 		currentUser.addContact(group);
 		userAdapter.registerGroup(group);
 		userAdapter.modifyUser(currentUser);
+		for (Contacto c : contactList) {
+			Usuario user = userAdapter.getUser(c.getId());
+			user.addContact(group);
+			userAdapter.modifyUser(user);
+		}
 		return true;
 	}
 
@@ -194,5 +204,15 @@ public class Controlador {
 	public void setCurrentUserQuote(String quote) {
 		currentUser.setQuote(quote);
 		userAdapter.modifyUser(currentUser);
+	}
+
+	public String getUserPicture(int id) {
+		try {
+			return userAdapter.getUser(id).getPicture();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

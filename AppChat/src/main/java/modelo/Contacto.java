@@ -11,19 +11,12 @@ public abstract class Contacto {
 	public Contacto(String name) {
 		id = Id.generateUniqueId();
 		this.name = name;
-		this.picture = null;
 		this.mensajes = new LinkedList<Mensaje>();
 	}
 
-	public Contacto(String name, String picture) {
-		this(name);
-		this.picture = picture;
-		this.mensajes = new LinkedList<Mensaje>();
-	}
-
-	public Contacto(int id, String name, String picture) {
-		this(name, picture);
+	public Contacto(int id, String name) {
 		this.id = id;
+		this.name = name;
 		this.mensajes = new LinkedList<Mensaje>();
 	}
 

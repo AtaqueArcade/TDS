@@ -58,10 +58,13 @@ public class AdaptadorUsuario implements DAOusuario {
 
 	public boolean registerGroup(Grupo group) {
 		Entidad eGroup;
+		boolean exists = true;
 		try {
 			eGroup = server.recuperarEntidad(group.getId());
-			return false;
 		} catch (NullPointerException e) {
+			exists = false;
+		}
+		if (!exists) {
 			eGroup = new Entidad();
 			eGroup.setNombre("group");
 			eGroup.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("name", group.getName()),
@@ -70,8 +73,8 @@ public class AdaptadorUsuario implements DAOusuario {
 					new Propiedad("members", getAllIds(group.getComponents())))));
 			eGroup = server.registrarEntidad(eGroup);
 			group.setId(eGroup.getId());
-			return true;
 		}
+		return (!exists);
 	}
 
 	public void deleteAll() {
@@ -133,13 +136,13 @@ public class AdaptadorUsuario implements DAOusuario {
 		ArrayList<Contacto> result = new ArrayList<Contacto>();
 		if (idList != null) {
 			for (int id : idList) {
-				if (!server.recuperarEntidad(id).getNombre().equals("group")) {
+				if (server.recuperarEntidad(id).getNombre().equals("user")) {
 					Entidad eUser = server.recuperarEntidad(id);
 					String contactName = server.recuperarPropiedadEntidad(eUser, "name");
 					String contactPicture = server.recuperarPropiedadEntidad(eUser, "picture");
 					Contacto contact = new ContactoIndividual(id, contactName, contactPicture);
 					result.add(contact);
-				} else {
+				} else if (server.recuperarEntidad(id).getNombre().equals("group")) {
 					Entidad eGroup = server.recuperarEntidad(id);
 					String groupName = server.recuperarPropiedadEntidad(eGroup, "name");
 					int admin = Integer.parseInt(server.recuperarPropiedadEntidad(eGroup, "admin"));

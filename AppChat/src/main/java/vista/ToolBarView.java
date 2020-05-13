@@ -23,8 +23,9 @@ public class ToolBarView extends JPanel {
 	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel,
 			urlJPanel, quoteJPanel;
 	private JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
-	private JLabel lblCurrentPicture;
+	private JLabel lblCurrentPicture, lblUserName;;
 	private MultiLineLabel quoteLabel;
+	private ImageIcon imageContact;
 	private PopupFactory pf = new PopupFactory();
 
 	public ToolBarView()
@@ -47,7 +48,7 @@ public class ToolBarView extends JPanel {
 		Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 		imageIcon = new ImageIcon(newimg);
 
-		ImageIcon imageContact = new ImageIcon(new URL(
+		imageContact = new ImageIcon(new URL(
 				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
 		image = imageContact.getImage();
 		newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
@@ -157,6 +158,30 @@ public class ToolBarView extends JPanel {
 				}
 				if (contact != null && !btnContact.getText().equals(contact)) {
 					btnContact.setText(contact.getName());
+					String pictureContacto = null;
+					pictureContacto = contact.getPicture();
+
+					if (pictureContacto != null) {
+						try {
+							imageContact = new ImageIcon(new URL(pictureContacto));
+						} catch (MalformedURLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					} else {
+						try {
+							imageContact = new ImageIcon(new URL(
+									"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+						} catch (MalformedURLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+
+					Image image = imageContact.getImage();
+					Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+					imageContact = new ImageIcon(newimg);
+					btnContact.setIcon(imageContact);
 					btnContact.repaint();
 				}
 			}
@@ -345,7 +370,6 @@ public class ToolBarView extends JPanel {
 		currentContactView.add(verticalStrut);
 
 		// load contact info
-		JLabel lblUserName;
 		Contacto c = Controlador.getInstance().getCurrentContact();
 		if (c != null)
 			lblUserName = new JLabel(Controlador.getInstance().getCurrentContact().getName());
@@ -357,7 +381,6 @@ public class ToolBarView extends JPanel {
 
 		JPanel panel_2 = new JPanel();
 		currentContactView.add(panel_2);
-		JLabel lblCurrentPicture = new JLabel();
 
 		ImageIcon imageIcon = null;
 		try {

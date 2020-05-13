@@ -11,15 +11,14 @@ public class Grupo extends Contacto {
 		super(name);
 		this.admin = admin;
 		this.components = components;
-		this.setId(this.getId() * -1);
 	}
 
 	public Grupo(int id, String name, int admin, String picture, List<Contacto> components) {
-		super(id, name, picture);
+		super(id, name);
 		this.components = new LinkedList<Contacto>();
 		this.admin = admin;
 		components.stream().filter(c -> !this.components.contains(c)).forEach(this.components::add);
-		this.setId(this.getId() * -1);
+		this.setPicture(picture);
 	}
 
 	public List<Contacto> getComponents() {

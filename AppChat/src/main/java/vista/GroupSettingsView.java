@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -191,7 +192,7 @@ public class GroupSettingsView {
 							"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n", "New group",
 							JOptionPane.INFORMATION_MESSAGE);
 					frame.dispose();
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
