@@ -19,7 +19,6 @@ import tds.driver.ServicioPersistencia;
 
 public class AdaptadorUsuario implements DAOusuario {
 	private static ServicioPersistencia server;
-	private SimpleDateFormat dateFormat;
 	private static AdaptadorUsuario instance;
 
 	public static AdaptadorUsuario getInstance() {
@@ -31,7 +30,6 @@ public class AdaptadorUsuario implements DAOusuario {
 
 	private AdaptadorUsuario() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
-		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	}
 
 	public boolean registerUser(Usuario user) {
@@ -140,7 +138,8 @@ public class AdaptadorUsuario implements DAOusuario {
 					Entidad eUser = server.recuperarEntidad(id);
 					String contactName = server.recuperarPropiedadEntidad(eUser, "name");
 					String contactPicture = server.recuperarPropiedadEntidad(eUser, "picture");
-					Contacto contact = new ContactoIndividual(id, contactName, contactPicture);
+					int contactPhone = Integer.parseInt(server.recuperarPropiedadEntidad(eUser, "phone"));
+					Contacto contact = new ContactoIndividual(id, contactName, contactPicture, contactPhone);
 					result.add(contact);
 				} else if (server.recuperarEntidad(id).getNombre().equals("group")) {
 					Entidad eGroup = server.recuperarEntidad(id);

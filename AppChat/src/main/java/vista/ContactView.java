@@ -43,7 +43,8 @@ public class ContactView extends JPanel {
 
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
-				JList list = (JList) evt.getSource();
+				@SuppressWarnings("unchecked")
+				JList<Contacto> list = (JList<Contacto>) evt.getSource();
 				int index = list.locationToIndex(evt.getPoint());
 				if (index >= 0 && index <= list.getModel().getSize()) {
 					Contacto c = (Contacto) list.getModel().getElementAt(index);
@@ -87,7 +88,7 @@ public class ContactView extends JPanel {
 		Font font = new Font("helvitica", Font.PLAIN, 16);
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
 			Contacto c = (Contacto) value;
 			JLabel label = (JLabel) super.getListCellRendererComponent(list, c.getName(), index, isSelected,

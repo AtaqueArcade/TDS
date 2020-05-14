@@ -3,6 +3,7 @@ package modelo;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Usuario {
 	private int id;
@@ -128,5 +129,12 @@ public class Usuario {
 
 	public String getQuote() {
 		return this.quote;
+	}
+
+	public boolean hasContact(int id) {
+		List<Integer> ids = contacts.stream().map(Contacto::getId).collect(Collectors.toList());
+		if (ids.contains(id))
+			return true;
+		return false;
 	}
 }

@@ -7,9 +7,10 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import TDS.AppChat.App;
 import controlador.Controlador;
-import modelo.Contacto;
 import modelo.Mensaje;
+import modelo.RefreshRate;
 import tds.BubbleText;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -18,18 +19,19 @@ import java.awt.event.ActionListener;
 public class ToolBarView extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private static final int DELAY = 1000;
 	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete, poURL, poQuote;
 	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel,
 			urlJPanel, quoteJPanel;
 	private JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
-	private JLabel lblCurrentPicture, lblUserName;;
+	private JLabel lblCurrentPicture, lblUserName, lblContactPicture;
+	MultiLineLabel labelPhone;
 	private MultiLineLabel quoteLabel;
 	private ImageIcon imageContact;
 	private PopupFactory pf = new PopupFactory();
 
 	public ToolBarView()
 			throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		// Images and icons
 		ImageIcon imageIcon;
 		String picture = Controlador.getInstance().getCurrentUserPicture();
 		try {
@@ -68,11 +70,21 @@ public class ToolBarView extends JPanel {
 		newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 		imageHam = new ImageIcon(newimg);
 
+		// Element initialization
 		btnProfile = new JButton();
 		btnMenu = new JButton();
 		btnContact = new JButton("No chat selected");
 		btnGlass = new JButton();
 		btnDelete = new JButton();
+
+		lblCurrentPicture = new JLabel();
+		lblCurrentPicture.setIcon(imageIcon);
+		lblUserName = new JLabel("No one selected");
+		lblContactPicture = new JLabel();
+		lblContactPicture.setIcon(imageContact);
+		labelPhone = new MultiLineLabel();
+		labelPhone.setText("[No contact selected]");
+		labelPhone.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		profileSettingsJPanel = profileSettingsView(imageIcon);
 		toolbarMenuJPanel = toolbarMenuView();
@@ -80,6 +92,7 @@ public class ToolBarView extends JPanel {
 		deleteJPanel = deleteView();
 		urlJPanel = urlView();
 		quoteJPanel = quoteView();
+
 		setLayout(new BorderLayout(0, 0));
 
 		JPanel leftPanel = new JPanel();
@@ -146,21 +159,27 @@ public class ToolBarView extends JPanel {
 		});
 		rightPanel.add(btnDelete);
 
-		Timer timer = new Timer(DELAY, new ActionListener() {
+		// UI updater
+		Timer timer = new Timer(RefreshRate.RATE, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				Contacto contact = null;
+				String contactName = null;
 				try {
-					contact = Controlador.getInstance().getCurrentContact();
+					contactName = Controlador.getInstance().getCurrentContactName();
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				if (contact != null && !btnContact.getText().equals(contact)) {
-					btnContact.setText(contact.getName());
+				if (contactName != null && !btnContact.getText().equals(contactName)) {
+					btnContact.setText(contactName);
+					lblUserName.setText(contactName);
 					String pictureContacto = null;
-					pictureContacto = contact.getPicture();
-
+					try {
+						pictureContacto = Controlador.getInstance().getCurrentContactPicture();
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
 					if (pictureContacto != null) {
 						try {
 							imageContact = new ImageIcon(new URL(pictureContacto));
@@ -177,12 +196,20 @@ public class ToolBarView extends JPanel {
 							e1.printStackTrace();
 						}
 					}
-
 					Image image = imageContact.getImage();
 					Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 					imageContact = new ImageIcon(newimg);
 					btnContact.setIcon(imageContact);
+					lblContactPicture.setIcon(imageContact);
 					btnContact.repaint();
+					lblContactPicture.repaint();
+					try {
+						labelPhone.setText(Controlador.getInstance().getCurrentContactPhone());
+						labelPhone.repaint();
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -199,7 +226,7 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut);
 
-		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUser());
+		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUserName());
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
 		profileSettingsView.add(lblUserName);
@@ -207,8 +234,6 @@ public class ToolBarView extends JPanel {
 		JPanel panel_2 = new JPanel();
 		profileSettingsView.add(panel_2);
 
-		lblCurrentPicture = new JLabel();
-		lblCurrentPicture.setIcon(imageIcon);
 		panel_2.add(lblCurrentPicture);
 
 		JButton btnChangeYourPicture = new JButton("Change your picture");
@@ -332,6 +357,11 @@ public class ToolBarView extends JPanel {
 		btnLogOut.addActionListener(ev -> {
 			try {
 				Controlador.getInstance().logOut();
+				java.awt.Window win[] = java.awt.Window.getWindows();
+				for (int i = 0; i < win.length; i++) {
+					win[i].dispose();
+				}
+				App.main(null);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -369,12 +399,6 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut);
 
-		// load contact info
-		Contacto c = Controlador.getInstance().getCurrentContact();
-		if (c != null)
-			lblUserName = new JLabel(Controlador.getInstance().getCurrentContact().getName());
-		else
-			lblUserName = new JLabel("No one selected");
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
 		currentContactView.add(lblUserName);
@@ -382,19 +406,7 @@ public class ToolBarView extends JPanel {
 		JPanel panel_2 = new JPanel();
 		currentContactView.add(panel_2);
 
-		ImageIcon imageIcon = null;
-		try {
-			imageIcon = new ImageIcon(new URL(
-					"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
-		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		Image image = imageIcon.getImage();
-		Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
-		imageIcon = new ImageIcon(newimg);
-		lblCurrentPicture.setIcon(imageIcon);
-		panel_2.add(lblCurrentPicture);
+		panel_2.add(lblContactPicture);
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		currentContactView.setBorder(blackline);
 		Component verticalStrut_3 = Box.createVerticalStrut(10);
@@ -403,9 +415,7 @@ public class ToolBarView extends JPanel {
 		currentContactView.add(label);
 		Component verticalStrut_4 = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut_4);
-		JLabel label_1 = new JLabel("00-000000000");
-		label_1.setAlignmentX(Component.CENTER_ALIGNMENT);
-		currentContactView.add(label_1);
+		currentContactView.add(labelPhone);
 		Component verticalStrut_2 = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut_2);
 		Component verticalStrut_1 = Box.createVerticalStrut(40);
@@ -486,7 +496,7 @@ public class ToolBarView extends JPanel {
 		btnFilter.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnFilter.addActionListener(e -> {
 			try {
-				if (Controlador.getInstance().getCurrentContact() != null)
+				if (Controlador.getInstance().isContactSelected())
 					SearchResultsView(textField.getText().trim());
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -515,13 +525,13 @@ public class ToolBarView extends JPanel {
 		JButton button = new JButton("Delete contact");
 		button.addActionListener(e -> {
 			try {
-				if (Controlador.getInstance().getCurrentContact() != null) {
+				if (Controlador.getInstance().isContactSelected()) {
 					int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete [Contact]?",
 							"Warning", JOptionPane.YES_NO_OPTION);
 					if (response == JOptionPane.YES_OPTION) {
 						try {
 							List<String> l = new LinkedList<String>();
-							l.add(Controlador.getInstance().getCurrentContact().getName());
+							l.add(Controlador.getInstance().getCurrentContactName());
 							if (Controlador.getInstance().deleteContacts(l))
 								JOptionPane.showMessageDialog(new JFrame(),
 										"Contact [" + String.join(",", l) + "] deleted succesfully.\n",
@@ -551,7 +561,7 @@ public class ToolBarView extends JPanel {
 		JButton button_1 = new JButton("Delete messages");
 		button_1.addActionListener(e -> {
 			try {
-				if (Controlador.getInstance().getCurrentContact() != null) {
+				if (Controlador.getInstance().isContactSelected()) {
 					int response = JOptionPane.showConfirmDialog(null,
 							"Are you sure you want to delete all message history?", "Warning",
 							JOptionPane.YES_NO_OPTION);
@@ -657,7 +667,7 @@ public class ToolBarView extends JPanel {
 	private void SearchResultsView(String search) {
 		boolean resultsExist = false;
 		try {
-			resultsExist = Controlador.getInstance().getCurrentContact().getMensajes().stream()
+			resultsExist = Controlador.getInstance().getCurrentMessages().stream()
 					.anyMatch(m -> (m.getText() != null) && m.getText().contains(search));
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -678,8 +688,8 @@ public class ToolBarView extends JPanel {
 			frame.setVisible(true);
 			try {
 				// TODO hacer en stream
-				for (Mensaje m : Controlador.getInstance().getCurrentContact().getMensajes()) {
-					if (m.getText().contains(search)) {
+				for (Mensaje m : Controlador.getInstance().getCurrentMessages()) {
+					if (m.getText() != null && m.getText().contains(search)) {
 						BubbleText bubble = new BubbleText(chat, m.getText(), Color.LIGHT_GRAY, m.getSpeaker(),
 								BubbleText.SENT);
 						chat.add(bubble);

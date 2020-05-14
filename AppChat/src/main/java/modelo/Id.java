@@ -3,6 +3,7 @@ package modelo;
 import java.util.UUID;
 
 public class Id {
+	//Generador de Ids
 	public static int generateUniqueId() {
 		UUID idOne = UUID.randomUUID();
 		String str = "" + idOne;

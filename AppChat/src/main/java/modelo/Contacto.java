@@ -55,4 +55,8 @@ public abstract class Contacto {
 	public void resetMensajes() {
 		mensajes = new LinkedList<Mensaje>();
 	}
+
+	public abstract String getPhone();
+
+	public abstract void setPhone(int phone);
 }

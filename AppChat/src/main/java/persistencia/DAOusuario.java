@@ -1,7 +1,6 @@
 package persistencia;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import modelo.Contacto;

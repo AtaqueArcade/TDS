@@ -16,6 +16,7 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.Timer;
 import modelo.Mensaje;
+import modelo.RefreshRate;
 import controlador.Controlador;
 import tds.BubbleText;
 import java.awt.Component;
@@ -25,7 +26,6 @@ public class ChatView extends JPanel {
 	private JTextField inputTextField;
 	private JPanel chat;
 	private LinkedList<Mensaje> messages;
-	private static final int DELAY = 1000;
 	private Popup poEmoji;
 	private JPanel emojiJPanel;
 	private PopupFactory pf;
@@ -54,7 +54,7 @@ public class ChatView extends JPanel {
 		emojiJPanel = emojiView();
 		btnEmoji.addActionListener(e -> {
 			try {
-				if (Controlador.getInstance().getCurrentContact() != null) {
+				if (Controlador.getInstance().isContactSelected()) {
 					btnEmoji.setEnabled(false);
 					poEmoji = pf.getPopup(this, emojiJPanel, (int) btnEmoji.getLocationOnScreen().getX() - 35,
 							(int) btnEmoji.getLocationOnScreen().getY() - 210);
@@ -79,15 +79,15 @@ public class ChatView extends JPanel {
 		btnSend.addActionListener(e -> {
 			// TODO añadir persistencia de mensajes
 			try {
-				if (!inputTextField.getText().equals("") && Controlador.getInstance().getCurrentContact() != null) {
+				if (!inputTextField.getText().equals("") && Controlador.getInstance().isContactSelected()) {
 					try {
 						Mensaje message = new Mensaje(inputTextField.getText(), 0,
-								Controlador.getInstance().getCurrentUser());
+								Controlador.getInstance().getCurrentUserName());
 						messages.add(message);
-						Controlador.getInstance().getCurrentContact().addMensaje(message);
+						Controlador.getInstance().addMessageToCurrent(message);
 						BubbleText bubble;
 						bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
-								Controlador.getInstance().getCurrentUser(), BubbleText.SENT);
+								Controlador.getInstance().getCurrentUserName(), BubbleText.SENT);
 						chat.add(bubble);
 						inputTextField.setText("");
 					} catch (Exception e1) {
@@ -108,7 +108,7 @@ public class ChatView extends JPanel {
 		Component horizontalStrut = Box.createHorizontalStrut(5);
 		add(horizontalStrut, BorderLayout.EAST);
 
-		Timer timer = new Timer(DELAY, new ActionListener() {
+		Timer timer = new Timer(RefreshRate.RATE, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
@@ -130,17 +130,17 @@ public class ChatView extends JPanel {
 				int n = currentemoji;
 				x.addActionListener(e -> {
 					try {
-						Mensaje message = new Mensaje(null, n, Controlador.getInstance().getCurrentUser());
+						Mensaje message = new Mensaje(null, n, Controlador.getInstance().getCurrentUserName());
 						messages.add(message);
-						Controlador.getInstance().getCurrentContact().addMensaje(message);
+						Controlador.getInstance().addMessageToCurrent(message);
 					} catch (Exception e2) {
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
 					BubbleText bubble;
 					try {
-						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY, Controlador.getInstance().getCurrentUser(),
-								BubbleText.SENT, 18);
+						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
+								Controlador.getInstance().getCurrentUserName(), BubbleText.SENT, 18);
 						chat.add(bubble);
 						poEmoji.hide();
 						btnEmoji.setEnabled(true);
@@ -159,9 +159,9 @@ public class ChatView extends JPanel {
 					int n = currentemoji;
 					y.addActionListener(e -> {
 						try {
-							Mensaje message = new Mensaje(null, n, Controlador.getInstance().getCurrentUser());
+							Mensaje message = new Mensaje(null, n, Controlador.getInstance().getCurrentUserName());
 							messages.add(message);
-							Controlador.getInstance().getCurrentContact().addMensaje(message);
+							Controlador.getInstance().addMessageToCurrent(message);
 						} catch (Exception e2) {
 							// TODO Auto-generated catch block
 							e2.printStackTrace();
@@ -169,7 +169,7 @@ public class ChatView extends JPanel {
 						BubbleText bubble;
 						try {
 							bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-									Controlador.getInstance().getCurrentUser(), BubbleText.SENT, 18);
+									Controlador.getInstance().getCurrentUserName(), BubbleText.SENT, 18);
 							chat.add(bubble);
 							poEmoji.hide();
 							btnEmoji.setEnabled(true);
@@ -198,11 +198,11 @@ public class ChatView extends JPanel {
 
 	public void setChat() {
 		try {
-			if (Controlador.getInstance().getCurrentContact() != null) {
-				if (!messages.equals(Controlador.getInstance().getCurrentContact().getMensajes())) {
+			if (Controlador.getInstance().isContactSelected()) {
+				if (!messages.equals(Controlador.getInstance().getCurrentMessages())) {
 					chat.removeAll();
 					messages.clear();
-					messages.addAll(Controlador.getInstance().getCurrentContact().getMensajes());
+					messages.addAll(Controlador.getInstance().getCurrentMessages());
 					for (Mensaje m : messages) {
 						BubbleText bubble;
 						if (m.getEmoticon() == 0)

@@ -32,4 +32,19 @@ public class Grupo extends Contacto {
 	public int getAdmin() {
 		return admin;
 	}
+
+	@Override
+	public String getPhone() {
+		String phones = "";
+		for (Contacto c : components) {
+			phones += c.getPhone();
+			phones += "\n";
+		}
+		return phones;
+	}
+
+	@Override
+	public void setPhone(int phone) {
+		// unused
+	}
 }
