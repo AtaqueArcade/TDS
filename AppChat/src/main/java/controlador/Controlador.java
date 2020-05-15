@@ -99,7 +99,6 @@ public class Controlador {
 		try {
 			user = CatalogoUsuarios.getInstance().getUser(contactName);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if (user != null) {
@@ -107,12 +106,10 @@ public class Controlador {
 			if (currentUser.hasContact(c1.getId()))
 				return false;
 			int msgId = messageCatalog.createMessage();
-			c1.setMensajes(msgId);
-			currentUser.addContact(c1);
+			currentUser.addContact(c1, msgId);
 			userCatalog.modifyUser(currentUser);
 			Contacto c2 = getContact(currentUser.getUsername());
-			c2.setMensajes(msgId);
-			user.addContact(c2);
+			user.addContact(c2, msgId);
 			userCatalog.modifyUser(user);
 			return true;
 		}
@@ -123,7 +120,7 @@ public class Controlador {
 	public boolean deleteContacts(List<Integer> contacts) {
 		// delete current contact
 		if (contacts == null) {
-			messageCatalog.removeMessages(currentContact.getMensajes());
+			messageCatalog.removeMessages(currentUser.getMessages(currentContact));
 			userCatalog.getUser(currentContact.getId()).removeContact(currentUser.getId());
 			currentUser.removeContact(currentContact.getId());
 			userCatalog.modifyUser(currentUser);
@@ -134,7 +131,7 @@ public class Controlador {
 			currentUser.getContacts().stream()
 					.filter(c -> contacts.contains(c.getId()) && (userCatalog.getUser(c.getId()) != null))
 					.forEach(c -> {
-						messageCatalog.removeMessages(c.getMensajes());
+						messageCatalog.removeMessages(currentUser.getMessages(c));
 						userCatalog.getUser(c.getId()).removeContact(currentUser.getId());
 						userCatalog.modifyUser(userCatalog.getUser(c.getId()));
 					});
@@ -150,12 +147,13 @@ public class Controlador {
 		List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 				.collect(Collectors.toList());
 		Grupo group = new Grupo(groupName, currentUser.getId(), contactList);
-		currentUser.addContact(group);
+		int msgId = messageCatalog.createMessage();
+		currentUser.addContact(group, msgId);
 		userAdapter.registerGroup(group);
 		userCatalog.modifyUser(currentUser);
 		for (Contacto c : contactList) {
 			Usuario user = userCatalog.getUser(c.getId());
-			user.addContact(group);
+			user.addContact(group, msgId);
 			userCatalog.modifyUser(user);
 		}
 		return true;
@@ -276,14 +274,14 @@ public class Controlador {
 	// Returns the current message list
 	public List<Mensaje> getCurrentMessages() {
 		if (currentContact != null)
-			return messageCatalog.getMessages(currentContact.getMensajes());
+			return messageCatalog.getMessages(currentUser.getMessages(currentContact));
 		return null;
 	}
 
 	// Adds a message to the message list
 	public void addMessageToCurrent(String text, int emoji) {
 		Mensaje message = new Mensaje(text, emoji, getCurrentUserName());
-		messageCatalog.addMessage(currentContact.getMensajes(), message);
+		messageCatalog.addMessage(currentUser.getMessages(currentContact), message);
 	}
 
 	// Deletes all messages from the current conversation

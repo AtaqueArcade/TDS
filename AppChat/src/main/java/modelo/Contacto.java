@@ -4,7 +4,6 @@ public abstract class Contacto {
 	private int id;
 	private String name;
 	private String picture;
-	private int msgId;
 
 	public Contacto(String name) {
 		id = Id.generateUniqueId();
@@ -38,14 +37,6 @@ public abstract class Contacto {
 
 	public void setPicture(String picture) {
 		this.picture = picture;
-	}
-
-	public void setMensajes(int msgId) {
-		this.msgId = msgId;
-	}
-
-	public int getMensajes() {
-		return msgId;
 	}
 
 	public abstract String getPhone();

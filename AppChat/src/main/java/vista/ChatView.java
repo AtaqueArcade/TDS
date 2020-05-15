@@ -20,6 +20,7 @@ import modelo.RefreshRate;
 import controlador.Controlador;
 import tds.BubbleText;
 import java.awt.Component;
+import java.awt.SystemColor;
 
 @SuppressWarnings("serial")
 public class ChatView extends JPanel {
@@ -32,8 +33,10 @@ public class ChatView extends JPanel {
 	private JButton btnEmoji;
 
 	public ChatView() {
+		setBackground(Color.DARK_GRAY);
 		pf = new PopupFactory();
 		chat = new JPanel();
+		chat.setBackground(SystemColor.controlDkShadow);
 		messages = new LinkedList<Mensaje>();
 		setLayout(new BorderLayout(0, 0));
 		chat.setLayout(new BoxLayout(chat, BoxLayout.Y_AXIS));
@@ -41,13 +44,17 @@ public class ChatView extends JPanel {
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setViewportView(chat);
 		JPanel contactsPanel = new JPanel();
+		contactsPanel.setBackground(Color.DARK_GRAY);
 		add(contactsPanel, BorderLayout.WEST);
 		JPanel toolbarPanel = new JPanel();
+		toolbarPanel.setBackground(Color.DARK_GRAY);
 		add(toolbarPanel, BorderLayout.NORTH);
 
 		JPanel tray = new JPanel();
+		tray.setBackground(Color.DARK_GRAY);
 		add(tray, BorderLayout.SOUTH);
 		JPanel inputPanel = new JPanel();
+		inputPanel.setBackground(Color.DARK_GRAY);
 		tray.add(inputPanel);
 
 		btnEmoji = new JButton("Emoji");
@@ -72,6 +79,7 @@ public class ChatView extends JPanel {
 		inputTextField.setColumns(35);
 
 		JPanel sendPanel = new JPanel();
+		sendPanel.setBackground(Color.DARK_GRAY);
 		tray.add(sendPanel);
 
 		JButton btnSend = new JButton("Send");
@@ -176,12 +184,13 @@ public class ChatView extends JPanel {
 					messages.addAll(Controlador.getInstance().getCurrentMessages());
 					for (Mensaje m : messages) {
 						BubbleText bubble;
+						int side = 1;
+						if (m.getSpeaker().equals(Controlador.getInstance().getCurrentUserName()))
+							side = 0;
 						if (m.getEmoticon() == 0)
-							bubble = new BubbleText(chat, m.getText(), Color.LIGHT_GRAY, m.getSpeaker(),
-									BubbleText.SENT);
+							bubble = new BubbleText(chat, m.getText(), Color.WHITE, m.getSpeaker(), side);
 						else
-							bubble = new BubbleText(chat, m.getEmoticon(), Color.LIGHT_GRAY, m.getSpeaker(),
-									BubbleText.SENT, 18);
+							bubble = new BubbleText(chat, m.getEmoticon(), Color.LIGHT_GRAY, m.getSpeaker(), side, 18);
 						chat.add(bubble);
 					}
 					revalidate();

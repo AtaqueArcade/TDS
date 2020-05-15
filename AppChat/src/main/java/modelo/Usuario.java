@@ -1,9 +1,10 @@
 package modelo;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class Usuario {
 	private int id;
@@ -13,9 +14,9 @@ public class Usuario {
 	private String username;
 	private String password;
 	private String picture;
-	private boolean premium;
-	private List<Contacto> contacts;
 	private String quote;
+	private boolean premium;
+	private Map<Contacto, Integer> contacts;
 
 	public Usuario(String name, Date birthday, int phone, String username, String password) {
 		id = Id.generateUniqueId();
@@ -26,11 +27,11 @@ public class Usuario {
 		this.password = password;
 		picture = null;
 		premium = false;
-		contacts = new ArrayList<Contacto>();
+		contacts = new HashMap<Contacto, Integer>();
 	}
 
 	public Usuario(int id, String name, Date birthday, int phone, String username, String password, String picture,
-			boolean premium, List<Contacto> contacts, String quote) {
+			boolean premium, Map<Contacto, Integer> contacts, String quote) {
 		this(name, birthday, phone, username, password);
 		this.id = id;
 		this.picture = picture;
@@ -88,10 +89,11 @@ public class Usuario {
 	}
 
 	public List<Contacto> getContacts() {
-		return contacts;
+		List<Contacto> result = new LinkedList<Contacto>(contacts.keySet());
+		return result;
 	}
 
-	public void setContacts(ArrayList<Contacto> contacts) {
+	public void setContacts(HashMap<Contacto, Integer> contacts) {
 		this.contacts = contacts;
 	}
 
@@ -117,10 +119,8 @@ public class Usuario {
 		return id;
 	}
 
-	public boolean addContact(Contacto contact) {
-		if (contacts.contains(contact))
-			return false;
-		return (contacts.add(contact));
+	public boolean addContact(Contacto contact, int msgId) {
+		return (contacts.put(contact, msgId) == null);
 	}
 
 	public void setQuote(String quote) {
@@ -132,13 +132,19 @@ public class Usuario {
 	}
 
 	public boolean hasContact(int id) {
-		List<Integer> ids = contacts.stream().map(Contacto::getId).collect(Collectors.toList());
-		if (ids.contains(id))
-			return true;
-		return false;
+		return contacts.entrySet().stream().anyMatch(e -> e.getKey().getId() == id);
 	}
 
 	public boolean removeContact(int contactId) {
-		return contacts.removeIf(c -> c.getId() == contactId);
+		return contacts.entrySet().removeIf(e -> e.getKey().getId() == contactId);
+	}
+
+	public int getMessages(Contacto contact) {
+		return contacts.get(contact);
+	}
+
+	public List<Integer> getAllMessages() {
+		List<Integer> result = new LinkedList<Integer>(contacts.values());
+		return result;
 	}
 }

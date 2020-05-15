@@ -9,8 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.Timer;
-import javax.swing.*;
 import controlador.Controlador;
 import modelo.Contacto;
 import java.net.MalformedURLException;
@@ -40,7 +46,6 @@ public class ContactView extends JPanel {
 		imageMap = createImageMap(contacts);
 		list.setBackground(Color.LIGHT_GRAY);
 		list.setCellRenderer(new ListRenderer());
-
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				@SuppressWarnings("unchecked")
@@ -65,17 +70,23 @@ public class ContactView extends JPanel {
 		Timer timer = new Timer(DELAY, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				DefaultListModel<Contacto> newListModel = new DefaultListModel<Contacto>();
-				for (int i = 0; i < contacts.size(); i++)
-					newListModel.addElement(contacts.get(i));
-				List<?> elements1 = Arrays.asList(newListModel.toArray());
-				List<?> elements2 = Arrays.asList(listModel.toArray());
-				if (!elements1.equals(elements2)) {
-					listModel.clear();
-					listModel = newListModel;
-					list.setModel(listModel);
-					imageMap = createImageMap(contacts);
-					repaint();
+				try {
+					DefaultListModel<Contacto> newListModel = new DefaultListModel<Contacto>();
+					List<Contacto> updatedContacts = Controlador.getInstance().getCurrentContacts();
+					for (int i = 0; i < updatedContacts.size(); i++)
+						newListModel.addElement(updatedContacts.get(i));
+					List<?> elements1 = Arrays.asList(newListModel.toArray());
+					List<?> elements2 = Arrays.asList(listModel.toArray());
+					if (!elements1.equals(elements2)) {
+						listModel.clear();
+						listModel = newListModel;
+						list.setModel(listModel);
+						imageMap = createImageMap(updatedContacts);
+						repaint();
+					}
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});

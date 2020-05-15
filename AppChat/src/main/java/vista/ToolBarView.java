@@ -31,6 +31,7 @@ public class ToolBarView extends JPanel {
 			throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		// Images and icons
 		ImageIcon imageIcon;
+		setBackground(Color.DARK_GRAY);
 		String picture = Controlador.getInstance().getCurrentUserPicture();
 		try {
 			if (picture != null) {
@@ -94,14 +95,14 @@ public class ToolBarView extends JPanel {
 		setLayout(new BorderLayout(0, 0));
 
 		JPanel leftPanel = new JPanel();
+		leftPanel.setBackground(Color.DARK_GRAY);
 		add(leftPanel, BorderLayout.WEST);
-
 		JPanel rightPanel = new JPanel();
+		rightPanel.setBackground(Color.DARK_GRAY);
 		add(rightPanel, BorderLayout.EAST);
-
 		JPanel midPanel = new JPanel();
+		midPanel.setBackground(Color.DARK_GRAY);
 		add(midPanel, BorderLayout.CENTER);
-
 		btnProfile.setIcon(imageIcon);
 		leftPanel.add(btnProfile);
 		btnProfile.addActionListener(e -> {

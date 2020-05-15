@@ -7,7 +7,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import beans.Entidad;
 import beans.Propiedad;
 import modelo.Contacto;
@@ -46,7 +48,8 @@ public class AdaptadorUsuario implements DAOusuario {
 					new Propiedad("username", user.getUsername()), new Propiedad("password", user.getPassword()),
 					new Propiedad("picture", user.getPicture()),
 					new Propiedad("premium", String.valueOf(user.isPremium())),
-					new Propiedad("contacts", getAllIds(user.getContacts())),
+					new Propiedad("contacts", getAllContactIds(user.getContacts())),
+					new Propiedad("messages", getAllMessageIds(user.getAllMessages())),
 					new Propiedad("quote", user.getQuote()))));
 			eUser = server.registrarEntidad(eUser);
 			user.setId(eUser.getId());
@@ -68,17 +71,25 @@ public class AdaptadorUsuario implements DAOusuario {
 			eGroup.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("name", group.getName()),
 					new Propiedad("admin", Integer.toString(group.getAdmin())),
 					new Propiedad("picture", group.getPicture()),
-					new Propiedad("members", getAllIds(group.getComponents())))));
+					new Propiedad("members", getAllContactIds(group.getComponents())))));
 			eGroup = server.registrarEntidad(eGroup);
 			group.setId(eGroup.getId());
 		}
 		return (!exists);
 	}
 
-	private String getAllIds(List<Contacto> list) {
+	private String getAllContactIds(List<Contacto> list) {
 		String result = "";
 		for (Contacto c : list) {
 			result += c.getId() + " ";
+		}
+		return result.trim();
+	}
+
+	private String getAllMessageIds(List<Integer> list) {
+		String result = "";
+		for (int id : list) {
+			result += id + " ";
 		}
 		return result.trim();
 	}
@@ -98,7 +109,6 @@ public class AdaptadorUsuario implements DAOusuario {
 			try {
 				birthday = parser.parse(server.recuperarPropiedadEntidad(eUser, "birthday"));
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			int phone = Integer.parseInt(server.recuperarPropiedadEntidad(eUser, "phone"));
@@ -112,8 +122,12 @@ public class AdaptadorUsuario implements DAOusuario {
 			if (!idListString.equals(""))
 				idList = Arrays.stream(idListString.split(" ")).map(Integer::valueOf).collect(Collectors.toList());
 			List<Contacto> contacts = getAsContacts(idList);
-			Usuario user = new Usuario(id, name, birthday, phone, username, password, picture, premium, contacts,
-					quote);
+			idListString = server.recuperarPropiedadEntidad(eUser, "messages");
+			if (!idListString.equals(""))
+				idList = Arrays.stream(idListString.split(" ")).map(Integer::valueOf).collect(Collectors.toList());
+			Map<Contacto, Integer> result = IntStream.range(0, contacts.size()).boxed()
+					.collect(Collectors.toMap(contacts::get, idList::get));
+			Usuario user = new Usuario(id, name, birthday, phone, username, password, picture, premium, result, quote);
 			return user;
 		}
 		return null;
@@ -173,8 +187,11 @@ public class AdaptadorUsuario implements DAOusuario {
 			} else if (p.getNombre().equals("quote")) {
 				p.setValor(user.getQuote());
 			} else if (p.getNombre().equals("contacts")) {
-				String contacts = getAllIds(user.getContacts());
+				String contacts = getAllContactIds(user.getContacts());
 				p.setValor(contacts);
+			} else if (p.getNombre().equals("messages")) {
+				String messages = getAllMessageIds(user.getAllMessages());
+				p.setValor(messages);
 			}
 			server.modificarPropiedad(p);
 		}
@@ -188,7 +205,7 @@ public class AdaptadorUsuario implements DAOusuario {
 			if (p.getNombre().equals("picture")) {
 				p.setValor(group.getPicture());
 			} else if (p.getNombre().equals("members")) {
-				String contacts = getAllIds(group.getComponents());
+				String contacts = getAllContactIds(group.getComponents());
 				p.setValor(contacts);
 			}
 			server.modificarPropiedad(p);
