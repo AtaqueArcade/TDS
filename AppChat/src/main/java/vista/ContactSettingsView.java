@@ -3,6 +3,7 @@ package vista;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.LinkedList;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -18,7 +19,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import controlador.Controlador;
 import modelo.Contacto;
 
@@ -125,10 +125,10 @@ public class ContactSettingsView {
 			}
 		});
 		scrollPane.setViewportView(list);
-		
+
 		Component verticalStrut_7 = Box.createVerticalStrut(5);
 		panel.add(verticalStrut_7, BorderLayout.NORTH);
-		
+
 		Component verticalStrut_8 = Box.createVerticalStrut(10);
 		panel.add(verticalStrut_8, BorderLayout.SOUTH);
 		JPanel panel2 = new JPanel();
@@ -184,9 +184,12 @@ public class ContactSettingsView {
 
 		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
 		JList<String> list_1 = new JList<String>();
+		LinkedList<Integer> idList = new LinkedList<Integer>();
 		DefaultListModel<String> listModel_1 = new DefaultListModel<String>();
-		for (int i = 0; i < contacts.size(); i++)
-			listModel_1.addElement(contacts.get(i).getName());
+		for (Contacto c : contacts) {
+			listModel_1.addElement(c.getName());
+			idList.add(c.getId());
+		}
 		list_1.setModel(listModel_1);
 		JScrollPane scrollPane_1 = new JScrollPane(list_1);
 		tabbedPane.addChangeListener(new ChangeListener() {
@@ -198,15 +201,18 @@ public class ContactSettingsView {
 			}
 		});
 		btnDelete.addActionListener(e -> {
-			List<String> selections = list_1.getSelectedValuesList();
-			if (selections.size() == 0)
+			int[] arr = list_1.getSelectedIndices();
+			LinkedList<Integer> result = new LinkedList<Integer>();
+			for (int i : arr)
+				result.add(idList.get(i));
+
+			if (result.size() == 0)
 				JOptionPane.showMessageDialog(new JFrame(), "Please, select any amount of contacts to be deleted.\n",
 						"Delete contacts", JOptionPane.ERROR_MESSAGE);
 			else {
 				try {
-					if (Controlador.getInstance().deleteContacts(selections))
-						JOptionPane.showMessageDialog(new JFrame(),
-								"Selected contacts [" + String.join(",", selections) + "] deleted succesfully.\n",
+					if (Controlador.getInstance().deleteContacts(result))
+						JOptionPane.showMessageDialog(new JFrame(), "Selected contacts deleted succesfully.\n",
 								"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
 					DefaultListModel<String> listM = new DefaultListModel<String>();
 					for (int i = 0; i < contacts.size(); i++)
@@ -218,11 +224,11 @@ public class ContactSettingsView {
 				}
 			}
 		});
-		
+
 		Component verticalStrut_5 = Box.createVerticalStrut(5);
 		panel2.add(verticalStrut_5, BorderLayout.NORTH);
 		panel2.add(scrollPane_1, BorderLayout.CENTER);
-		
+
 		Component verticalStrut_6 = Box.createVerticalStrut(10);
 		panel2.add(verticalStrut_6, BorderLayout.SOUTH);
 		frame.getContentPane().add(tabbedPane);

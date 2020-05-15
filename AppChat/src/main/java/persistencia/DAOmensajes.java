@@ -11,7 +11,7 @@ public interface DAOmensajes {
 
 	public int createMessageList();
 
-	public List<Mensaje> getMessageList(int id);
+	public LinkedList<Mensaje> getMessageList(int id);
 
 	void modifyMessageList(int id, LinkedList<Mensaje> messageList);
 

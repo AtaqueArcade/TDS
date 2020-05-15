@@ -75,17 +75,6 @@ public class AdaptadorUsuario implements DAOusuario {
 		return (!exists);
 	}
 
-	public void deleteAll() {
-		ArrayList<Entidad> eUserList = server.recuperarEntidades("user");
-		for (Entidad eUser : eUserList) {
-			server.borrarEntidad(eUser);
-		}
-		ArrayList<Entidad> eGroupList = server.recuperarEntidades("group");
-		for (Entidad eGroup : eGroupList) {
-			server.borrarEntidad(eGroup);
-		}
-	}
-
 	private String getAllIds(List<Contacto> list) {
 		String result = "";
 		for (Contacto c : list) {
@@ -203,6 +192,17 @@ public class AdaptadorUsuario implements DAOusuario {
 				p.setValor(contacts);
 			}
 			server.modificarPropiedad(p);
+		}
+	}
+
+	public void deleteAll() {
+		ArrayList<Entidad> eUserList = server.recuperarEntidades("user");
+		for (Entidad eUser : eUserList) {
+			server.borrarEntidad(eUser);
+		}
+		ArrayList<Entidad> eGroupList = server.recuperarEntidades("group");
+		for (Entidad eGroup : eGroupList) {
+			server.borrarEntidad(eGroup);
 		}
 	}
 }

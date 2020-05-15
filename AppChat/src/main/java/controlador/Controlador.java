@@ -10,7 +10,6 @@ import modelo.ContactoIndividual;
 import modelo.Grupo;
 import modelo.Mensaje;
 import modelo.Usuario;
-import persistencia.DAOmensajes;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;
 
@@ -19,10 +18,8 @@ public class Controlador {
 	private static Controlador instance;
 	private FactoriaDAO dao;
 	private DAOusuario userAdapter;
-	private DAOmensajes messageAdapter;
 	private CatalogoUsuarios userCatalog;
 	private CatalogoMensajes messageCatalog;
-
 	private Usuario currentUser;
 	private Contacto currentContact;
 
@@ -40,8 +37,6 @@ public class Controlador {
 		dao = FactoriaDAO.getInstance();
 		userAdapter = dao.getDAOusuario();
 		userCatalog = CatalogoUsuarios.getInstance();
-
-		messageAdapter = dao.getDAOmensajes();
 		messageCatalog = CatalogoMensajes.getInstance();
 	}
 
@@ -82,13 +77,7 @@ public class Controlador {
 
 	// Returns the picture of any user
 	public String getUserPicture(int id) {
-		try {
-			return userAdapter.getUser(id).getPicture();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		return userCatalog.getUser(id).getPicture();
 	}
 
 	// Returns the username as a Contact if it's registered in the database
@@ -117,21 +106,42 @@ public class Controlador {
 			Contacto c1 = getContact(contactName);
 			if (currentUser.hasContact(c1.getId()))
 				return false;
+			int msgId = messageCatalog.createMessage();
+			c1.setMensajes(msgId);
 			currentUser.addContact(c1);
-			userAdapter.modifyUser(currentUser);
+			userCatalog.modifyUser(currentUser);
 			Contacto c2 = getContact(currentUser.getUsername());
+			c2.setMensajes(msgId);
 			user.addContact(c2);
-			userAdapter.modifyUser(user);
+			userCatalog.modifyUser(user);
 			return true;
 		}
 		return false;
 	}
 
 	// Deletes the selected contacts from the current user's list
-	public boolean deleteContacts(List<String> contacts) {
-		currentUser.getContacts().removeIf(c -> contacts.contains(c.getName()));
-		userAdapter.modifyUser(currentUser);
-		return true;
+	public boolean deleteContacts(List<Integer> contacts) {
+		// delete current contact
+		if (contacts == null) {
+			messageCatalog.removeMessages(currentContact.getMensajes());
+			userCatalog.getUser(currentContact.getId()).removeContact(currentUser.getId());
+			currentUser.removeContact(currentContact.getId());
+			userCatalog.modifyUser(currentUser);
+			return true;
+		}
+		// delete contact list
+		else {
+			currentUser.getContacts().stream()
+					.filter(c -> contacts.contains(c.getId()) && (userCatalog.getUser(c.getId()) != null))
+					.forEach(c -> {
+						messageCatalog.removeMessages(c.getMensajes());
+						userCatalog.getUser(c.getId()).removeContact(currentUser.getId());
+						userCatalog.modifyUser(userCatalog.getUser(c.getId()));
+					});
+			contacts.forEach(id -> currentUser.removeContact(id));
+			userCatalog.modifyUser(currentUser);
+			return true;
+		}
 	}
 
 	// Adds a group contact to the current user
@@ -142,11 +152,11 @@ public class Controlador {
 		Grupo group = new Grupo(groupName, currentUser.getId(), contactList);
 		currentUser.addContact(group);
 		userAdapter.registerGroup(group);
-		userAdapter.modifyUser(currentUser);
+		userCatalog.modifyUser(currentUser);
 		for (Contacto c : contactList) {
-			Usuario user = userAdapter.getUser(c.getId());
+			Usuario user = userCatalog.getUser(c.getId());
 			user.addContact(group);
-			userAdapter.modifyUser(user);
+			userCatalog.modifyUser(user);
 		}
 		return true;
 	}
@@ -169,7 +179,7 @@ public class Controlador {
 					.collect(Collectors.toList());
 			gr.setComponents(contactList);
 			userAdapter.modifyGroup(gr);
-			userAdapter.modifyUser(currentUser);
+			userCatalog.modifyUser(currentUser);
 			return true;
 		}
 		return false;
@@ -182,7 +192,7 @@ public class Controlador {
 		if (flag)
 			currentUser.getContacts().removeIf(c -> c instanceof Grupo
 					&& (((Grupo) c).getAdmin() == currentUser.getId()) && groupNames.contains(c.getName()));
-		userAdapter.modifyUser(currentUser);
+		userCatalog.modifyUser(currentUser);
 		return flag;
 	}
 
@@ -210,7 +220,7 @@ public class Controlador {
 	// Sets the current user's picture
 	public void setCurrentUserPicture(String picture) {
 		currentUser.setPicture(picture);
-		userAdapter.modifyUser(currentUser);
+		userCatalog.modifyUser(currentUser);
 	}
 
 	// Returns the current user's quote
@@ -224,7 +234,7 @@ public class Controlador {
 	// Sets the current user's quote
 	public void setCurrentUserQuote(String quote) {
 		currentUser.setQuote(quote);
-		userAdapter.modifyUser(currentUser);
+		userCatalog.modifyUser(currentUser);
 	}
 
 	// Returns the current user's contact list
@@ -266,18 +276,19 @@ public class Controlador {
 	// Returns the current message list
 	public List<Mensaje> getCurrentMessages() {
 		if (currentContact != null)
-			return currentContact.getMensajes();
+			return messageCatalog.getMessages(currentContact.getMensajes());
 		return null;
 	}
 
 	// Adds a message to the message list
-	public void addMessageToCurrent(Mensaje message) {
-		currentContact.addMensaje(message);
+	public void addMessageToCurrent(String text, int emoji) {
+		Mensaje message = new Mensaje(text, emoji, getCurrentUserName());
+		messageCatalog.addMessage(currentContact.getMensajes(), message);
 	}
 
 	// Deletes all messages from the current conversation
 	public void deleteMessages() {
-		currentContact.resetMensajes();
-		userAdapter.modifyUser(currentUser);
+		messageCatalog.removeMessages(currentContact.getId());
+		userCatalog.modifyUser(currentUser);
 	}
 }

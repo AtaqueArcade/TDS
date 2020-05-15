@@ -2,8 +2,6 @@ package vista;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -526,15 +524,17 @@ public class ToolBarView extends JPanel {
 		button.addActionListener(e -> {
 			try {
 				if (Controlador.getInstance().isContactSelected()) {
-					int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete [Contact]?",
-							"Warning", JOptionPane.YES_NO_OPTION);
+					int response = JOptionPane
+							.showConfirmDialog(null,
+									"Are you sure you want to delete "
+											+ Controlador.getInstance().getCurrentContactName() + "?",
+									"Warning", JOptionPane.YES_NO_OPTION);
 					if (response == JOptionPane.YES_OPTION) {
 						try {
-							List<String> l = new LinkedList<String>();
-							l.add(Controlador.getInstance().getCurrentContactName());
-							if (Controlador.getInstance().deleteContacts(l))
+							if (Controlador.getInstance().deleteContacts(null))
 								JOptionPane.showMessageDialog(new JFrame(),
-										"Contact [" + String.join(",", l) + "] deleted succesfully.\n",
+										"Contact " + Controlador.getInstance().getCurrentContactName()
+												+ " deleted succesfully.\n",
 										"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block

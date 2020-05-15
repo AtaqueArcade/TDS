@@ -1,6 +1,8 @@
 package controlador;
+
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import modelo.Usuario;
@@ -47,6 +49,14 @@ public class CatalogoUsuarios {
 		return catalog.get(username);
 	}
 
+	public Usuario getUser(int id) {
+		Entry<String, Usuario> entry = catalog.entrySet().stream().filter(e -> e.getValue().getId() == id).findFirst()
+				.get();
+		if (entry != null)
+			return entry.getValue();
+		return null;
+	}
+
 	public boolean match(String username, String password) {
 		Usuario user = catalog.get(username);
 		if (user != null && password != null)
@@ -56,7 +66,14 @@ public class CatalogoUsuarios {
 	}
 
 	public List<String> getByFilter(String filter) {
-		List<String> result = catalog.keySet().stream().filter(username -> username.contains(filter)).collect(Collectors.toList());
+		List<String> result = catalog.keySet().stream().filter(username -> username.contains(filter))
+				.collect(Collectors.toList());
 		return result;
+	}
+
+	public void modifyUser(Usuario user) {
+		Usuario modifiedUser = this.getUser(user.getId());
+		modifiedUser = user;
+		adaptadorUsuario.modifyUser(modifiedUser);
 	}
 }

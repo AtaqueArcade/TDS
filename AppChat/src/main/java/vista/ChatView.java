@@ -77,18 +77,10 @@ public class ChatView extends JPanel {
 		JButton btnSend = new JButton("Send");
 		sendPanel.add(btnSend);
 		btnSend.addActionListener(e -> {
-			// TODO añadir persistencia de mensajes
 			try {
 				if (!inputTextField.getText().equals("") && Controlador.getInstance().isContactSelected()) {
 					try {
-						Mensaje message = new Mensaje(inputTextField.getText(), 0,
-								Controlador.getInstance().getCurrentUserName());
-						messages.add(message);
-						Controlador.getInstance().addMessageToCurrent(message);
-						BubbleText bubble;
-						bubble = new BubbleText(chat, inputTextField.getText(), Color.LIGHT_GRAY,
-								Controlador.getInstance().getCurrentUserName(), BubbleText.SENT);
-						chat.add(bubble);
+						Controlador.getInstance().addMessageToCurrent(inputTextField.getText(), 0);
 						inputTextField.setText("");
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -111,14 +103,15 @@ public class ChatView extends JPanel {
 		Timer timer = new Timer(RefreshRate.RATE, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				repaint();
 				setChat();
+				repaint();
 			}
 		});
 		timer.start();
 	}
 
 	private JPanel emojiView() {
+		// The emoji panel will adapt to the number of emojis added
 		JPanel panel = new JPanel();
 		JPanel testPane = new JPanel();
 		testPane.setLayout(new GridLayout((int) Math.sqrt(BubbleText.MAXICONO), (int) Math.sqrt(BubbleText.MAXICONO)));
@@ -130,23 +123,12 @@ public class ChatView extends JPanel {
 				int n = currentemoji;
 				x.addActionListener(e -> {
 					try {
-						Mensaje message = new Mensaje(null, n, Controlador.getInstance().getCurrentUserName());
-						messages.add(message);
-						Controlador.getInstance().addMessageToCurrent(message);
+						Controlador.getInstance().addMessageToCurrent(null, n);
+						poEmoji.hide();
+						btnEmoji.setEnabled(true);
 					} catch (Exception e2) {
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
-					}
-					BubbleText bubble;
-					try {
-						bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-								Controlador.getInstance().getCurrentUserName(), BubbleText.SENT, 18);
-						chat.add(bubble);
-						poEmoji.hide();
-						btnEmoji.setEnabled(true);
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
 					}
 				});
 				testPane.add(x);
@@ -159,23 +141,12 @@ public class ChatView extends JPanel {
 					int n = currentemoji;
 					y.addActionListener(e -> {
 						try {
-							Mensaje message = new Mensaje(null, n, Controlador.getInstance().getCurrentUserName());
-							messages.add(message);
-							Controlador.getInstance().addMessageToCurrent(message);
+							Controlador.getInstance().addMessageToCurrent(null, n);
+							poEmoji.hide();
+							btnEmoji.setEnabled(true);
 						} catch (Exception e2) {
 							// TODO Auto-generated catch block
 							e2.printStackTrace();
-						}
-						BubbleText bubble;
-						try {
-							bubble = new BubbleText(chat, n, Color.LIGHT_GRAY,
-									Controlador.getInstance().getCurrentUserName(), BubbleText.SENT, 18);
-							chat.add(bubble);
-							poEmoji.hide();
-							btnEmoji.setEnabled(true);
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
 						}
 					});
 					testPane.add(y);
@@ -218,7 +189,6 @@ public class ChatView extends JPanel {
 				}
 			}
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

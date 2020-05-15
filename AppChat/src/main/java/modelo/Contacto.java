@@ -1,23 +1,19 @@
 package modelo;
 
-import java.util.LinkedList;
-
 public abstract class Contacto {
 	private int id;
 	private String name;
 	private String picture;
-	private LinkedList<Mensaje> mensajes;
+	private int msgId;
 
 	public Contacto(String name) {
 		id = Id.generateUniqueId();
 		this.name = name;
-		this.mensajes = new LinkedList<Mensaje>();
 	}
 
 	public Contacto(int id, String name) {
 		this.id = id;
 		this.name = name;
-		this.mensajes = new LinkedList<Mensaje>();
 	}
 
 	public int getId() {
@@ -44,16 +40,12 @@ public abstract class Contacto {
 		this.picture = picture;
 	}
 
-	public LinkedList<Mensaje> getMensajes() {
-		return mensajes;
+	public void setMensajes(int msgId) {
+		this.msgId = msgId;
 	}
 
-	public void addMensaje(Mensaje m) {
-		mensajes.add(m);
-	}
-
-	public void resetMensajes() {
-		mensajes = new LinkedList<Mensaje>();
+	public int getMensajes() {
+		return msgId;
 	}
 
 	public abstract String getPhone();

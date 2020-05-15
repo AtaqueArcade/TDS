@@ -33,9 +33,9 @@ public class AdaptadorMensajes implements DAOmensajes {
 	public HashMap<Integer, List<Mensaje>> getAllMessages() {
 		HashMap<Integer, List<Mensaje>> result = new HashMap<Integer, List<Mensaje>>();
 		ArrayList<Entidad> eMessagesList = server.recuperarEntidades("messages");
-		for (Entidad eMessage : eMessagesList) {
+		for (Entidad eMessage : eMessagesList)
 			result.put(eMessage.getId(), getMessageList(eMessage.getId()));
-		}
+
 		return result;
 	}
 
@@ -51,7 +51,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 	}
 
 	@Override
-	public List<Mensaje> getMessageList(int id) {
+	public LinkedList<Mensaje> getMessageList(int id) {
 		Entidad eMessage;
 		LinkedList<Mensaje> messages = new LinkedList<Mensaje>();
 		try {
@@ -83,9 +83,8 @@ public class AdaptadorMensajes implements DAOmensajes {
 	}
 
 	private LinkedList<Mensaje> parseStringToMsg(String msgString) {
-		LinkedList<Mensaje> result = null;
+		LinkedList<Mensaje> result = new LinkedList<Mensaje>();
 		if (!msgString.equals("")) {
-			result = new LinkedList<Mensaje>();
 			List<String> messages = Arrays.stream(msgString.split(";")).map(String::intern)
 					.collect(Collectors.toList());
 			for (String mStr : messages) {
@@ -117,5 +116,12 @@ public class AdaptadorMensajes implements DAOmensajes {
 		result = Optional.ofNullable(result).filter(sStr -> sStr.length() != 0)
 				.map(sStr -> sStr.substring(0, sStr.length() - 1)).orElse(result);
 		return result;
+	}
+
+	public void deleteAll() {
+		ArrayList<Entidad> eMessageList = server.recuperarEntidades("message");
+		for (Entidad eMessage : eMessageList) {
+			server.borrarEntidad(eMessage);
+		}
 	}
 }

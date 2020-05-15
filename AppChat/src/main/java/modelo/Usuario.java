@@ -137,4 +137,8 @@ public class Usuario {
 			return true;
 		return false;
 	}
+
+	public boolean removeContact(int contactId) {
+		return contacts.removeIf(c -> c.getId() == contactId);
+	}
 }
