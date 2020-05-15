@@ -117,8 +117,8 @@ public class AdaptadorUsuario implements DAOusuario {
 			String password = server.recuperarPropiedadEntidad(eUser, "password");
 			String picture = server.recuperarPropiedadEntidad(eUser, "picture");
 			boolean premium = Boolean.parseBoolean(server.recuperarPropiedadEntidad(eUser, "premium"));
-			String idListString = server.recuperarPropiedadEntidad(eUser, "contacts");
 			String quote = server.recuperarPropiedadEntidad(eUser, "quote");
+			String idListString = server.recuperarPropiedadEntidad(eUser, "contacts");
 			List<Integer> idList = new ArrayList<Integer>();
 			if (!idListString.equals(""))
 				idList = Arrays.stream(idListString.split(" ")).map(Integer::valueOf).collect(Collectors.toList());

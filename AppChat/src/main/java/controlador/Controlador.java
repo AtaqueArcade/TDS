@@ -10,6 +10,7 @@ import modelo.ContactoIndividual;
 import modelo.Grupo;
 import modelo.Mensaje;
 import modelo.Usuario;
+import persistencia.DAOmensajes;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;
 
@@ -18,7 +19,9 @@ public class Controlador {
 	private static Controlador instance;
 	private FactoriaDAO dao;
 	private DAOusuario userAdapter;
+	private DAOmensajes messageAdapter;
 	private CatalogoUsuarios userCatalog;
+	private CatalogoMensajes messageCatalog;
 
 	private Usuario currentUser;
 	private Contacto currentContact;
@@ -37,6 +40,9 @@ public class Controlador {
 		dao = FactoriaDAO.getInstance();
 		userAdapter = dao.getDAOusuario();
 		userCatalog = CatalogoUsuarios.getInstance();
+
+		messageAdapter = dao.getDAOmensajes();
+		messageCatalog = CatalogoMensajes.getInstance();
 	}
 
 	// Registers a new user in the database
