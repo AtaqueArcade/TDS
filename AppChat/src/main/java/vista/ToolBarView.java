@@ -13,6 +13,7 @@ import tds.BubbleText;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 public class ToolBarView extends JPanel {
 
@@ -29,9 +30,11 @@ public class ToolBarView extends JPanel {
 
 	public ToolBarView()
 			throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		setBackground(Color.DARK_GRAY);
+		setLayout(new BorderLayout(0, 0));
+		Font font = new Font("Open Sans", Font.PLAIN, 20);
 		// Images and icons
 		ImageIcon imageIcon;
-		setBackground(Color.DARK_GRAY);
 		String picture = Controlador.getInstance().getCurrentUserPicture();
 		try {
 			if (picture != null) {
@@ -44,43 +47,75 @@ public class ToolBarView extends JPanel {
 			imageIcon = new ImageIcon(new URL(
 					"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
 		}
-
 		Image image = imageIcon.getImage();
 		Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 		imageIcon = new ImageIcon(newimg);
+		lblCurrentPicture = new JLabel();
+		lblCurrentPicture.setIcon(imageIcon);
+		BufferedImage bi = new BufferedImage(imageIcon.getIconWidth() + 0, imageIcon.getIconHeight() + 0,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = bi.createGraphics();
+		g.setColor(SystemColor.textHighlight);
+		g.drawImage(imageIcon.getImage(), 1, 1, null);
+		BasicStroke stroke = new BasicStroke(5);
+		g.setStroke(stroke);
+		g.drawRect(0, 0, bi.getWidth() - 1, bi.getHeight() - 1);
+		imageIcon = new ImageIcon(bi);
 
-		imageContact = new ImageIcon(new URL(
-				"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+		imageContact = new ImageIcon(new URL("https://i.imgur.com/NPRQMwe.png"));
 		image = imageContact.getImage();
 		newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 		imageContact = new ImageIcon(newimg);
-		ImageIcon imageMenu = new ImageIcon(new URL("https://image.flaticon.com/icons/png/128/482/482620.png"));
-		image = imageMenu.getImage();
-		newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
-		imageMenu = new ImageIcon(newimg);
-		ImageIcon imageGlass = new ImageIcon(new URL(
-				"https://www.vippng.com/png/full/493-4938154_computer-icons-magnifier-magnifying-glass-magnifier-icon-png.png"));
-		image = imageGlass.getImage();
-		newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
-		imageGlass = new ImageIcon(newimg);
-		ImageIcon imageHam = new ImageIcon(
-				new URL("https://www.festivalclaca.cat/imgfv/b/4-43869_hamburger-menu-icon-png-menu-icon-png.png"));
-		image = imageHam.getImage();
-		newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
-		imageHam = new ImageIcon(newimg);
-
-		// Element initialization
-		btnProfile = new JButton();
-		btnMenu = new JButton();
-		btnContact = new JButton("No chat selected");
-		btnGlass = new JButton();
-		btnDelete = new JButton();
-
-		lblCurrentPicture = new JLabel();
-		lblCurrentPicture.setIcon(imageIcon);
-		lblUserName = new JLabel("No one selected");
 		lblContactPicture = new JLabel();
 		lblContactPicture.setIcon(imageContact);
+		bi = new BufferedImage(imageContact.getIconWidth() + 0, imageContact.getIconHeight() + 0,
+				BufferedImage.TYPE_INT_ARGB);
+		g = bi.createGraphics();
+		g.setColor(SystemColor.textHighlight);
+		g.drawImage(imageContact.getImage(), 1, 1, null);
+		g.setStroke(stroke);
+		g.drawRect(0, 0, bi.getWidth() - 1, bi.getHeight() - 1);
+		imageContact = new ImageIcon(bi);
+
+		ImageIcon imageMenu = new ImageIcon(new URL("https://i.imgur.com/NU99BzZ.png"));
+		image = imageMenu.getImage();
+		newimg = image.getScaledInstance(10, 40, java.awt.Image.SCALE_SMOOTH);
+		imageMenu = new ImageIcon(newimg);
+		ImageIcon imageGlass = new ImageIcon(new URL("https://i.imgur.com/1dbyOYn.png"));
+		image = imageGlass.getImage();
+		newimg = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
+		imageGlass = new ImageIcon(newimg);
+		ImageIcon imageHam = new ImageIcon(new URL("https://i.imgur.com/xembiVA.png"));
+		image = imageHam.getImage();
+		newimg = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
+		imageHam = new ImageIcon(newimg);
+
+		g.dispose();
+		// Element initialization
+		btnProfile = new JButton();
+		btnProfile.setBackground(Color.DARK_GRAY);
+		btnProfile.setContentAreaFilled(false);
+		btnProfile.setOpaque(true);
+		btnMenu = new JButton();
+		btnMenu.setBackground(Color.DARK_GRAY);
+		btnMenu.setContentAreaFilled(false);
+		btnMenu.setOpaque(true);
+		btnContact = new JButton("No chat selected");
+		btnContact.setFont(font);
+		btnContact.setForeground(Color.WHITE);
+		btnContact.setBackground(Color.DARK_GRAY);
+		btnContact.setContentAreaFilled(false);
+		btnContact.setOpaque(true);
+		btnGlass = new JButton();
+		btnGlass.setBackground(Color.DARK_GRAY);
+		btnGlass.setContentAreaFilled(false);
+		btnGlass.setOpaque(true);
+		btnDelete = new JButton();
+		btnDelete.setBackground(Color.DARK_GRAY);
+		btnDelete.setContentAreaFilled(false);
+		btnDelete.setOpaque(true);
+
+		lblUserName = new JLabel("No one selected");
 		labelPhone = new MultiLineLabel();
 		labelPhone.setText("[No contact selected]");
 		labelPhone.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -92,19 +127,16 @@ public class ToolBarView extends JPanel {
 		urlJPanel = urlView();
 		quoteJPanel = quoteView();
 
-		setLayout(new BorderLayout(0, 0));
-
 		JPanel leftPanel = new JPanel();
 		leftPanel.setBackground(Color.DARK_GRAY);
 		add(leftPanel, BorderLayout.WEST);
-		JPanel rightPanel = new JPanel();
-		rightPanel.setBackground(Color.DARK_GRAY);
-		add(rightPanel, BorderLayout.EAST);
 		JPanel midPanel = new JPanel();
 		midPanel.setBackground(Color.DARK_GRAY);
 		add(midPanel, BorderLayout.CENTER);
+		JPanel rightPanel = new JPanel();
+		rightPanel.setBackground(Color.DARK_GRAY);
+		add(rightPanel, BorderLayout.EAST);
 		btnProfile.setIcon(imageIcon);
-		leftPanel.add(btnProfile);
 		btnProfile.addActionListener(e -> {
 			btnProfile.setEnabled(false);
 			poProfileSettings = pf.getPopup(this, profileSettingsJPanel,
@@ -112,13 +144,11 @@ public class ToolBarView extends JPanel {
 					(int) btnProfile.getLocationOnScreen().getY() + 20);
 			poProfileSettings.show();
 		});
-
 		btnMenu.setIcon(imageMenu);
-		midPanel.add(btnMenu);
 		btnMenu.addActionListener(e -> {
 			btnMenu.setEnabled(false);
-			poToolbarMenu = pf.getPopup(this, toolbarMenuJPanel, (int) btnMenu.getLocationOnScreen().getX() + 20,
-					(int) btnMenu.getLocationOnScreen().getY() + 20);
+			poToolbarMenu = pf.getPopup(this, toolbarMenuJPanel, (int) btnMenu.getLocationOnScreen().getX() + 12,
+					(int) btnMenu.getLocationOnScreen().getY() + 8);
 			poToolbarMenu.show();
 		});
 
@@ -136,8 +166,8 @@ public class ToolBarView extends JPanel {
 					(int) btnContact.getLocationOnScreen().getY() + 20);
 			poCurrentContact.show();
 		});
-		midPanel.add(btnContact);
 		btnContact.setText("No chat selected");
+
 		btnGlass.setIcon(imageGlass);
 		btnGlass.addActionListener(e -> {
 			btnGlass.setEnabled(false);
@@ -145,17 +175,23 @@ public class ToolBarView extends JPanel {
 					(int) btnGlass.getLocationOnScreen().getY() + 20);
 			poSearch.show();
 		});
-		rightPanel.add(btnGlass);
 
 		btnDelete.setIcon(imageHam);
 		btnProfile.setIcon(imageIcon);
-		leftPanel.add(btnProfile);
 		btnDelete.addActionListener(e -> {
 			btnDelete.setEnabled(false);
 			poDelete = pf.getPopup(this, deleteJPanel, (int) btnDelete.getLocationOnScreen().getX() - 100,
 					(int) btnDelete.getLocationOnScreen().getY() + 20);
 			poDelete.show();
 		});
+
+		leftPanel.add(btnProfile);
+		Component strut = Box.createHorizontalStrut(100);
+		leftPanel.add(strut);
+		leftPanel.add(btnMenu);
+		leftPanel.add(btnContact);
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.X_AXIS));
+		rightPanel.add(btnGlass);
 		rightPanel.add(btnDelete);
 
 		// UI updater
@@ -176,20 +212,19 @@ public class ToolBarView extends JPanel {
 					try {
 						pictureContacto = Controlador.getInstance().getCurrentContactPicture();
 					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e2) {
-						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
 					if (pictureContacto != null) {
 						try {
 							imageContact = new ImageIcon(new URL(pictureContacto));
+
 						} catch (MalformedURLException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					} else {
 						try {
-							imageContact = new ImageIcon(new URL(
-									"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+							imageContact = new ImageIcon(new URL("https://i.imgur.com/NPRQMwe.png"));
 						} catch (MalformedURLException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -198,8 +233,21 @@ public class ToolBarView extends JPanel {
 					Image image = imageContact.getImage();
 					Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
 					imageContact = new ImageIcon(newimg);
-					btnContact.setIcon(imageContact);
+
+					newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+					imageContact = new ImageIcon(newimg);
 					lblContactPicture.setIcon(imageContact);
+					BufferedImage bi = new BufferedImage(imageContact.getIconWidth() + 0,
+							imageContact.getIconHeight() + 0, BufferedImage.TYPE_INT_ARGB);
+					Graphics2D g = bi.createGraphics();
+					g.setColor(SystemColor.textHighlight);
+					g.drawImage(imageContact.getImage(), 1, 1, null);
+					g.setStroke(stroke);
+					g.drawRect(0, 0, bi.getWidth() - 1, bi.getHeight() - 1);
+					imageContact = new ImageIcon(bi);
+
+					btnContact.setIcon(imageContact);
+
 					btnContact.repaint();
 					lblContactPicture.repaint();
 					try {
@@ -218,6 +266,7 @@ public class ToolBarView extends JPanel {
 	private JPanel profileSettingsView(ImageIcon imageIcon)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel profileSettingsView = new JPanel();
+		profileSettingsView.setBackground(SystemColor.controlDkShadow);
 		profileSettingsView.setPreferredSize(new Dimension(200, 280));
 		profileSettingsView.setBorder(new EmptyBorder(50, 50, 50, 50));
 		profileSettingsView.setLayout(new BoxLayout(profileSettingsView, BoxLayout.Y_AXIS));
@@ -291,6 +340,7 @@ public class ToolBarView extends JPanel {
 		ContactSettingsView contactSettingsView = new ContactSettingsView();
 		GroupSettingsView groupSettingsView = new GroupSettingsView();
 		JPanel toolbarMenuView = new JPanel();
+		toolbarMenuView.setBackground(SystemColor.controlDkShadow);
 		toolbarMenuView.setPreferredSize(new Dimension(200, 280));
 		toolbarMenuView.setBorder(new EmptyBorder(50, 50, 50, 50));
 		toolbarMenuView.setLayout(new BoxLayout(toolbarMenuView, BoxLayout.Y_AXIS));
@@ -392,6 +442,7 @@ public class ToolBarView extends JPanel {
 
 	private JPanel currentContactView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel currentContactView = new JPanel();
+		currentContactView.setBackground(SystemColor.controlDkShadow);
 		currentContactView.setPreferredSize(new Dimension(200, 280));
 		currentContactView.setBorder(new EmptyBorder(50, 50, 50, 50));
 		currentContactView.setLayout(new BoxLayout(currentContactView, BoxLayout.Y_AXIS));
@@ -478,12 +529,15 @@ public class ToolBarView extends JPanel {
 
 	public JPanel searchView() {
 		JPanel searchJPanel = new JPanel();
+		searchJPanel.setBackground(SystemColor.controlDkShadow);
 		searchJPanel.setPreferredSize(new Dimension(200, 50));
 		searchJPanel.setBorder(new EmptyBorder(50, 50, 50, 50));
 		searchJPanel.setLayout(new BoxLayout(searchJPanel, BoxLayout.Y_AXIS));
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		Component verticalStrut = Box.createVerticalStrut(8);
 		searchJPanel.add(verticalStrut);
 		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(SystemColor.controlDkShadow);
 		searchJPanel.add(panel_2);
 		JTextField textField = new JTextField();
 		panel_2.add(textField);
@@ -491,6 +545,7 @@ public class ToolBarView extends JPanel {
 		if (isFocusOwner())
 			textField.requestFocus();
 		JButton btnFilter = new JButton("Search");
+		btnFilter.setFont(font);
 		panel_2.add(btnFilter);
 		btnFilter.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnFilter.addActionListener(e -> {
@@ -514,12 +569,14 @@ public class ToolBarView extends JPanel {
 
 	public JPanel deleteView() {
 		JPanel deleteView = new JPanel();
+		deleteView.setBackground(SystemColor.controlDkShadow);
 		deleteView.setPreferredSize(new Dimension(160, 130));
 		deleteView.setBorder(new EmptyBorder(50, 50, 50, 50));
 		deleteView.setLayout(new BoxLayout(deleteView, BoxLayout.Y_AXIS));
 		Component verticalStrut = Box.createVerticalStrut(5);
 		deleteView.add(verticalStrut);
 		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(SystemColor.controlDkShadow);
 		deleteView.add(panel_2);
 		JButton button = new JButton("Delete contact");
 		button.addActionListener(e -> {
@@ -667,6 +724,8 @@ public class ToolBarView extends JPanel {
 
 	private void SearchResultsView(String search) {
 		boolean resultsExist = false;
+		if (search.equals(""))
+			return;
 		try {
 			resultsExist = Controlador.getInstance().getCurrentMessages().stream()
 					.anyMatch(m -> (m.getText() != null) && m.getText().contains(search));

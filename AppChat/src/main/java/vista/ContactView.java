@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.awt.Color;
+import java.awt.SystemColor;
 
 public class ContactView extends JPanel {
 
@@ -44,7 +44,7 @@ public class ContactView extends JPanel {
 			listModel.addElement(contacts.get(i));
 		list.setModel(listModel);
 		imageMap = createImageMap(contacts);
-		list.setBackground(Color.LIGHT_GRAY);
+		list.setBackground(SystemColor.controlDkShadow);
 		list.setCellRenderer(new ListRenderer());
 		list.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
@@ -64,7 +64,7 @@ public class ContactView extends JPanel {
 		});
 
 		JScrollPane scroll = new JScrollPane(list);
-		scroll.setPreferredSize(new Dimension(300, 400));
+		scroll.setPreferredSize(new Dimension(250, 400));
 		this.add(scroll);
 		this.setVisible(true);
 		Timer timer = new Timer(DELAY, new ActionListener() {
@@ -96,7 +96,7 @@ public class ContactView extends JPanel {
 	public class ListRenderer extends DefaultListCellRenderer {
 
 		private static final long serialVersionUID = 1L;
-		Font font = new Font("helvitica", Font.PLAIN, 16);
+		Font font = new Font("Open Sans", Font.PLAIN, 20);
 
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
@@ -106,6 +106,7 @@ public class ContactView extends JPanel {
 					cellHasFocus);
 			label.setIcon(imageMap.get(c.getName()));
 			label.setHorizontalTextPosition(JLabel.RIGHT);
+			label.setIconTextGap(20);
 			label.setFont(font);
 			return label;
 		}
@@ -126,7 +127,7 @@ public class ContactView extends JPanel {
 				e.printStackTrace();
 			}
 			Image image = imageIcon.getImage();
-			Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+			Image newimg = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
 			imageIcon = new ImageIcon(newimg);
 			map.put(c.getName(), imageIcon);
 		}

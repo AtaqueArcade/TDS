@@ -1,6 +1,7 @@
 package modelo;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Mensaje {
 	private String text;
@@ -45,5 +46,18 @@ public class Mensaje {
 
 	public String getSpeaker() {
 		return speaker;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
+		Mensaje mensaje = (Mensaje) o;
+		return Objects.equals(text, mensaje.text) && Objects.equals(time, mensaje.time)
+				&& Objects.equals(emoticon, mensaje.emoticon) && Objects.equals(speaker, mensaje.speaker);
 	}
 }

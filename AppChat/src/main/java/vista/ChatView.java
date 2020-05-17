@@ -20,6 +20,7 @@ import modelo.RefreshRate;
 import controlador.Controlador;
 import tds.BubbleText;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.SystemColor;
 
 @SuppressWarnings("serial")
@@ -33,10 +34,11 @@ public class ChatView extends JPanel {
 	private JButton btnEmoji;
 
 	public ChatView() {
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		setBackground(Color.DARK_GRAY);
 		pf = new PopupFactory();
 		chat = new JPanel();
-		chat.setBackground(SystemColor.controlDkShadow);
+		chat.setBackground(SystemColor.activeCaption);
 		messages = new LinkedList<Mensaje>();
 		setLayout(new BorderLayout(0, 0));
 		chat.setLayout(new BoxLayout(chat, BoxLayout.Y_AXIS));
@@ -58,6 +60,10 @@ public class ChatView extends JPanel {
 		tray.add(inputPanel);
 
 		btnEmoji = new JButton("Emoji");
+		btnEmoji.setFont(font);
+		btnEmoji.setContentAreaFilled(false);
+		btnEmoji.setOpaque(true);
+		btnEmoji.setBackground(SystemColor.textHighlight);
 		emojiJPanel = emojiView();
 		btnEmoji.addActionListener(e -> {
 			try {
@@ -83,6 +89,10 @@ public class ChatView extends JPanel {
 		tray.add(sendPanel);
 
 		JButton btnSend = new JButton("Send");
+		btnSend.setFont(font);
+		btnSend.setContentAreaFilled(false);
+		btnSend.setOpaque(true);
+		btnSend.setBackground(SystemColor.textHighlight);
 		sendPanel.add(btnSend);
 		btnSend.addActionListener(e -> {
 			try {
@@ -128,6 +138,9 @@ public class ChatView extends JPanel {
 			if (currentemoji < BubbleText.MAXICONO) {
 				JButton x = new JButton();
 				x.setIcon(BubbleText.getEmoji(currentemoji));
+				x.setBackground(Color.DARK_GRAY);
+				x.setContentAreaFilled(false);
+				x.setOpaque(true);
 				int n = currentemoji;
 				x.addActionListener(e -> {
 					try {
@@ -135,7 +148,6 @@ public class ChatView extends JPanel {
 						poEmoji.hide();
 						btnEmoji.setEnabled(true);
 					} catch (Exception e2) {
-						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
 				});
@@ -146,6 +158,9 @@ public class ChatView extends JPanel {
 				if (currentemoji < BubbleText.MAXICONO) {
 					JButton y = new JButton();
 					y.setIcon(BubbleText.getEmoji(currentemoji));
+					y.setBackground(Color.DARK_GRAY);
+					y.setContentAreaFilled(false);
+					y.setOpaque(true);
 					int n = currentemoji;
 					y.addActionListener(e -> {
 						try {
@@ -153,7 +168,6 @@ public class ChatView extends JPanel {
 							poEmoji.hide();
 							btnEmoji.setEnabled(true);
 						} catch (Exception e2) {
-							// TODO Auto-generated catch block
 							e2.printStackTrace();
 						}
 					});
@@ -166,6 +180,11 @@ public class ChatView extends JPanel {
 		panel.add(testPane);
 		JPanel panelb = new JPanel(new BorderLayout());
 		JButton btnCancel = new JButton("Cancel");
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
+		btnCancel.setFont(font);
+		btnCancel.setContentAreaFilled(false);
+		btnCancel.setOpaque(true);
+		btnCancel.setBackground(SystemColor.textHighlight);
 		btnCancel.addActionListener(e -> {
 			poEmoji.hide();
 			btnEmoji.setEnabled(true);
@@ -185,12 +204,15 @@ public class ChatView extends JPanel {
 					for (Mensaje m : messages) {
 						BubbleText bubble;
 						int side = 1;
-						if (m.getSpeaker().equals(Controlador.getInstance().getCurrentUserName()))
+						Color color = Color.LIGHT_GRAY;
+						if (m.getSpeaker().equals(Controlador.getInstance().getCurrentUserName())) {
 							side = 0;
+							color = SystemColor.controlHighlight;
+						}
 						if (m.getEmoticon() == 0)
-							bubble = new BubbleText(chat, m.getText(), Color.WHITE, m.getSpeaker(), side);
+							bubble = new BubbleText(chat, m.getText(), color, m.getSpeaker(), side);
 						else
-							bubble = new BubbleText(chat, m.getEmoticon(), Color.LIGHT_GRAY, m.getSpeaker(), side, 18);
+							bubble = new BubbleText(chat, m.getEmoticon(), color, m.getSpeaker(), side, 18);
 						chat.add(bubble);
 					}
 					revalidate();
