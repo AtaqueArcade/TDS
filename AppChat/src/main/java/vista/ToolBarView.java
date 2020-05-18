@@ -5,7 +5,6 @@ import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import TDS.AppChat.App;
 import controlador.Controlador;
 import modelo.Mensaje;
 import modelo.RefreshRate;
@@ -275,16 +274,39 @@ public class ToolBarView extends JPanel {
 		profileSettingsView.add(verticalStrut);
 
 		JLabel lblUserName = new JLabel(Controlador.getInstance().getCurrentUserName());
+		lblUserName.setForeground(Color.WHITE);
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
-		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
+		Font font = new Font("Open Sans", Font.PLAIN, 20);
+		lblUserName.setFont(font);
+		lblUserName.setBackground(SystemColor.controlDkShadow);
 		profileSettingsView.add(lblUserName);
 
 		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(SystemColor.controlDkShadow);
+		panel_2.setLayout(new BoxLayout(panel_2, BoxLayout.Y_AXIS));
 		profileSettingsView.add(panel_2);
-
+		lblCurrentPicture.setAlignmentX(CENTER_ALIGNMENT);
 		panel_2.add(lblCurrentPicture);
 
-		JButton btnChangeYourPicture = new JButton("Change your picture");
+		Component verticalStrut_X = Box.createVerticalStrut(5);
+		panel_2.add(verticalStrut_X);
+
+		Font fontQuote = new Font("Open Sans", Font.PLAIN, 16);
+		quoteLabel = new MultiLineLabel(Controlador.getInstance().getCurrentUserQuote(), Component.CENTER_ALIGNMENT);
+		quoteLabel.setFont(fontQuote);
+		quoteLabel.setForeground(Color.WHITE);
+		quoteLabel.setAlignmentX(CENTER_ALIGNMENT);
+		quoteLabel.setBackground(SystemColor.controlDkShadow);
+
+		panel_2.add(quoteLabel);
+		Component verticalStrut_X2 = Box.createVerticalStrut(10);
+		panel_2.add(verticalStrut_X2);
+		font = new Font("Open Sans", Font.PLAIN, 12);
+		JButton btnChangeYourPicture = new JButton("Change picture");
+		btnChangeYourPicture.setFont(font);
+		btnChangeYourPicture.setContentAreaFilled(false);
+		btnChangeYourPicture.setOpaque(true);
+		btnChangeYourPicture.setBackground(SystemColor.textHighlight);
 		btnChangeYourPicture.addActionListener(a -> {
 			poURL = pf.getPopup(this, urlJPanel, (int) btnChangeYourPicture.getLocationOnScreen().getX() + 20,
 					(int) btnChangeYourPicture.getLocationOnScreen().getY() + 20);
@@ -293,16 +315,12 @@ public class ToolBarView extends JPanel {
 		btnChangeYourPicture.setPreferredSize(new Dimension(140, 30));
 		btnChangeYourPicture.setMinimumSize(new Dimension(140, 30));
 		btnChangeYourPicture.setMaximumSize(new Dimension(140, 30));
+		btnChangeYourPicture.setAlignmentX(CENTER_ALIGNMENT);
+		btnChangeYourPicture.setFont(font);
 		panel_2.add(btnChangeYourPicture);
 
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		profileSettingsView.setBorder(blackline);
-
-		Component verticalStrut_3 = Box.createVerticalStrut(10);
-		profileSettingsView.add(verticalStrut_3);
-
-		quoteLabel = new MultiLineLabel(Controlador.getInstance().getCurrentUserQuote(), Component.CENTER_ALIGNMENT);
-		profileSettingsView.add(quoteLabel);
 
 		Component verticalStrut_2 = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut_2);
@@ -313,7 +331,11 @@ public class ToolBarView extends JPanel {
 					(int) btnQuote.getLocationOnScreen().getY() + 20);
 			poQuote.show();
 		});
-		btnQuote.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnQuote.setFont(font);
+		btnQuote.setContentAreaFilled(false);
+		btnQuote.setOpaque(true);
+		btnQuote.setBackground(SystemColor.textHighlight);
+		btnQuote.setAlignmentX(CENTER_ALIGNMENT);
 		btnQuote.setPreferredSize(new Dimension(140, 30));
 		btnQuote.setMinimumSize(new Dimension(140, 30));
 		btnQuote.setMaximumSize(new Dimension(140, 30));
@@ -326,10 +348,14 @@ public class ToolBarView extends JPanel {
 			poProfileSettings.hide();
 			btnProfile.setEnabled(true);
 		});
-		btnClose.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnClose.setFont(font);
+		btnClose.setContentAreaFilled(false);
+		btnClose.setOpaque(true);
+		btnClose.setBackground(SystemColor.textHighlight);
 		btnClose.setPreferredSize(new Dimension(140, 30));
 		btnClose.setMinimumSize(new Dimension(140, 30));
 		btnClose.setMaximumSize(new Dimension(140, 30));
+		btnClose.setAlignmentX(CENTER_ALIGNMENT);
 		profileSettingsView.add(btnClose);
 		Component verticalStrut1 = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut1);
@@ -337,6 +363,7 @@ public class ToolBarView extends JPanel {
 	}
 
 	private JPanel toolbarMenuView() {
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		ContactSettingsView contactSettingsView = new ContactSettingsView();
 		GroupSettingsView groupSettingsView = new GroupSettingsView();
 		JPanel toolbarMenuView = new JPanel();
@@ -349,6 +376,14 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut = Box.createVerticalStrut(10);
 		toolbarMenuView.add(verticalStrut);
 		JButton btnContactSettings = new JButton("Contact Settings");
+		btnContactSettings.setFont(font);
+		btnContactSettings.setContentAreaFilled(false);
+		btnContactSettings.setOpaque(true);
+		btnContactSettings.setBackground(SystemColor.textHighlight);
+		btnContactSettings.setAlignmentX(CENTER_ALIGNMENT);
+		btnContactSettings.setPreferredSize(new Dimension(140, 30));
+		btnContactSettings.setMinimumSize(new Dimension(140, 30));
+		btnContactSettings.setMaximumSize(new Dimension(140, 30));
 		btnContactSettings.addActionListener(ev -> {
 			try {
 				contactSettingsView.show();
@@ -357,7 +392,6 @@ public class ToolBarView extends JPanel {
 				e1.printStackTrace();
 			}
 		});
-		btnContactSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnContactSettings.setPreferredSize(new Dimension(140, 30));
 		btnContactSettings.setMinimumSize(new Dimension(140, 30));
 		btnContactSettings.setMaximumSize(new Dimension(140, 30));
@@ -373,7 +407,11 @@ public class ToolBarView extends JPanel {
 				e1.printStackTrace();
 			}
 		});
-		btnGroupSettings.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnGroupSettings.setFont(font);
+		btnGroupSettings.setContentAreaFilled(false);
+		btnGroupSettings.setOpaque(true);
+		btnGroupSettings.setBackground(SystemColor.textHighlight);
+		btnGroupSettings.setAlignmentX(CENTER_ALIGNMENT);
 		btnGroupSettings.setPreferredSize(new Dimension(140, 30));
 		btnGroupSettings.setMinimumSize(new Dimension(140, 30));
 		btnGroupSettings.setMaximumSize(new Dimension(140, 30));
@@ -384,18 +422,26 @@ public class ToolBarView extends JPanel {
 		btnUserStatistics.addActionListener(ev -> {
 			statisticsView();
 		});
-		btnUserStatistics.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnUserStatistics.setFont(font);
+		btnUserStatistics.setContentAreaFilled(false);
+		btnUserStatistics.setOpaque(true);
+		btnUserStatistics.setBackground(SystemColor.textHighlight);
+		btnUserStatistics.setAlignmentX(CENTER_ALIGNMENT);
 		btnUserStatistics.setPreferredSize(new Dimension(140, 30));
 		btnUserStatistics.setMinimumSize(new Dimension(140, 30));
 		btnUserStatistics.setMaximumSize(new Dimension(140, 30));
 		toolbarMenuView.add(btnUserStatistics);
 		Component verticalStrut_3 = Box.createVerticalStrut(5);
 		toolbarMenuView.add(verticalStrut_3);
-		JButton btnPremium = new JButton("Upgrade to Premium");
+		JButton btnPremium = new JButton("Get Premium");
 		btnPremium.addActionListener(ev -> {
 			premiumView();
 		});
-		btnPremium.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnPremium.setFont(font);
+		btnPremium.setContentAreaFilled(false);
+		btnPremium.setOpaque(true);
+		btnPremium.setBackground(SystemColor.textHighlight);
+		btnPremium.setAlignmentX(CENTER_ALIGNMENT);
 		btnPremium.setPreferredSize(new Dimension(140, 30));
 		btnPremium.setMinimumSize(new Dimension(140, 30));
 		btnPremium.setMaximumSize(new Dimension(140, 30));
@@ -406,18 +452,16 @@ public class ToolBarView extends JPanel {
 		btnLogOut.addActionListener(ev -> {
 			try {
 				Controlador.getInstance().logOut();
-				java.awt.Window win[] = java.awt.Window.getWindows();
-				for (int i = 0; i < win.length; i++) {
-					win[i].dispose();
-				}
-				App.main(null);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
-		btnLogOut.setAlignmentX(Component.CENTER_ALIGNMENT);
-		btnLogOut.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnLogOut.setFont(font);
+		btnLogOut.setContentAreaFilled(false);
+		btnLogOut.setOpaque(true);
+		btnLogOut.setBackground(SystemColor.textHighlight);
+		btnLogOut.setAlignmentX(CENTER_ALIGNMENT);
 		btnLogOut.setPreferredSize(new Dimension(140, 30));
 		btnLogOut.setMinimumSize(new Dimension(140, 30));
 		btnLogOut.setMaximumSize(new Dimension(140, 30));
@@ -430,7 +474,11 @@ public class ToolBarView extends JPanel {
 			poToolbarMenu.hide();
 			btnMenu.setEnabled(true);
 		});
-		btnClose.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnClose.setFont(font);
+		btnClose.setContentAreaFilled(false);
+		btnClose.setOpaque(true);
+		btnClose.setBackground(SystemColor.textHighlight);
+		btnClose.setAlignmentX(CENTER_ALIGNMENT);
 		btnClose.setPreferredSize(new Dimension(140, 30));
 		btnClose.setMinimumSize(new Dimension(140, 30));
 		btnClose.setMaximumSize(new Dimension(140, 30));
@@ -449,11 +497,15 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut);
 
+		lblUserName.setForeground(Color.WHITE);
 		lblUserName.setAlignmentX(Component.CENTER_ALIGNMENT);
-		lblUserName.setFont(new Font("Tahoma", Font.BOLD, 14));
+		Font font = new Font("Open Sans", Font.PLAIN, 20);
+		lblUserName.setFont(font);
+		lblUserName.setBackground(SystemColor.controlDkShadow);
 		currentContactView.add(lblUserName);
 
 		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(SystemColor.controlDkShadow);
 		currentContactView.add(panel_2);
 
 		panel_2.add(lblContactPicture);
@@ -461,10 +513,17 @@ public class ToolBarView extends JPanel {
 		currentContactView.setBorder(blackline);
 		Component verticalStrut_3 = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut_3);
-		MultiLineLabel label = new MultiLineLabel("Teléfono del contacto", Component.CENTER_ALIGNMENT);
+		JLabel label = new JLabel("Contact phone:");
+		label.setAlignmentX(CENTER_ALIGNMENT);
+		Font fontlabel = new Font("Open Sans", Font.BOLD, 12);
+		label.setFont(fontlabel);
+		label.setBackground(SystemColor.controlDkShadow);
+		label.setForeground(Color.WHITE);
 		currentContactView.add(label);
 		Component verticalStrut_4 = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut_4);
+		labelPhone.setForeground(Color.WHITE);
+		labelPhone.setBackground(SystemColor.controlDkShadow);
 		currentContactView.add(labelPhone);
 		Component verticalStrut_2 = Box.createVerticalStrut(10);
 		currentContactView.add(verticalStrut_2);
@@ -475,7 +534,15 @@ public class ToolBarView extends JPanel {
 			poCurrentContact.hide();
 			btnContact.setEnabled(true);
 		});
-		btnClose.setAlignmentX(Component.CENTER_ALIGNMENT);
+		Font fontClose = new Font("Open Sans", Font.PLAIN, 12);
+		btnClose.setFont(fontClose);
+		btnClose.setContentAreaFilled(false);
+		btnClose.setOpaque(true);
+		btnClose.setBackground(SystemColor.textHighlight);
+		btnClose.setPreferredSize(new Dimension(140, 30));
+		btnClose.setMinimumSize(new Dimension(140, 30));
+		btnClose.setMaximumSize(new Dimension(140, 30));
+		btnClose.setAlignmentX(CENTER_ALIGNMENT);
 		btnClose.setPreferredSize(new Dimension(140, 30));
 		btnClose.setMinimumSize(new Dimension(140, 30));
 		btnClose.setMaximumSize(new Dimension(140, 30));
@@ -497,20 +564,30 @@ public class ToolBarView extends JPanel {
 
 	private void premiumView() {
 		JFrame frame = new JFrame("Go premium");
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		frame.setPreferredSize(new Dimension(400, 300));
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		JPanel panel = new JPanel();
+		panel.setBackground(Color.DARK_GRAY);
 		frame.getContentPane().add(panel, BorderLayout.SOUTH);
 		JButton btnPremium = new JButton("Go Premium");
+		btnPremium.setFont(font);
+		btnPremium.setContentAreaFilled(false);
+		btnPremium.setOpaque(true);
+		btnPremium.setBackground(SystemColor.textHighlight);
 		btnPremium.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
 		panel.add(btnPremium);
 		JButton btnBack = new JButton("Back");
+		btnBack.setFont(font);
+		btnBack.setContentAreaFilled(false);
+		btnBack.setOpaque(true);
+		btnBack.setBackground(SystemColor.textHighlight);
 		btnBack.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
@@ -522,6 +599,7 @@ public class ToolBarView extends JPanel {
 		Image newimg = image.getScaledInstance(380, 220, java.awt.Image.SCALE_SMOOTH);
 		imageIcon = new ImageIcon(newimg);
 		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(Color.DARK_GRAY);
 		panel_1.add(new JLabel(imageIcon));
 		frame.getContentPane().add(panel_1, BorderLayout.CENTER);
 		frame.setVisible(true);
@@ -546,8 +624,10 @@ public class ToolBarView extends JPanel {
 			textField.requestFocus();
 		JButton btnFilter = new JButton("Search");
 		btnFilter.setFont(font);
+		btnFilter.setContentAreaFilled(false);
+		btnFilter.setOpaque(true);
+		btnFilter.setBackground(SystemColor.textHighlight);
 		panel_2.add(btnFilter);
-		btnFilter.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnFilter.addActionListener(e -> {
 			try {
 				if (Controlador.getInstance().isContactSelected())
@@ -569,6 +649,7 @@ public class ToolBarView extends JPanel {
 
 	public JPanel deleteView() {
 		JPanel deleteView = new JPanel();
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		deleteView.setBackground(SystemColor.controlDkShadow);
 		deleteView.setPreferredSize(new Dimension(160, 130));
 		deleteView.setBorder(new EmptyBorder(50, 50, 50, 50));
@@ -579,6 +660,11 @@ public class ToolBarView extends JPanel {
 		panel_2.setBackground(SystemColor.controlDkShadow);
 		deleteView.add(panel_2);
 		JButton button = new JButton("Delete contact");
+		button.setFont(font);
+		button.setContentAreaFilled(false);
+		button.setOpaque(true);
+		button.setBackground(Color.RED);
+		button.setAlignmentX(CENTER_ALIGNMENT);
 		button.addActionListener(e -> {
 			try {
 				if (Controlador.getInstance().isContactSelected()) {
@@ -607,8 +693,7 @@ public class ToolBarView extends JPanel {
 			poDelete.hide();
 			btnDelete.setEnabled(true);
 		});
-		button.setForeground(Color.RED);
-		button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		button.setForeground(Color.YELLOW);
 		button.setPreferredSize(new Dimension(140, 30));
 		button.setMinimumSize(new Dimension(140, 30));
 		button.setMaximumSize(new Dimension(140, 30));
@@ -617,6 +702,11 @@ public class ToolBarView extends JPanel {
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		deleteView.setBorder(blackline);
 		JButton button_1 = new JButton("Delete messages");
+		button_1.setFont(font);
+		button_1.setContentAreaFilled(false);
+		button_1.setOpaque(true);
+		button_1.setBackground(Color.RED);
+		button_1.setAlignmentX(CENTER_ALIGNMENT);
 		button_1.addActionListener(e -> {
 			try {
 				if (Controlador.getInstance().isContactSelected()) {
@@ -634,8 +724,7 @@ public class ToolBarView extends JPanel {
 				e1.printStackTrace();
 			}
 		});
-		button_1.setForeground(Color.RED);
-		button_1.setAlignmentX(Component.CENTER_ALIGNMENT);
+		button_1.setForeground(Color.YELLOW);
 		button_1.setPreferredSize(new Dimension(140, 30));
 		button_1.setMinimumSize(new Dimension(140, 30));
 		button_1.setMaximumSize(new Dimension(140, 30));
@@ -643,7 +732,11 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut_2 = Box.createVerticalStrut(10);
 		deleteView.add(verticalStrut_2);
 		JButton btnClose = new JButton("Close");
-		btnClose.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnClose.setFont(font);
+		btnClose.setContentAreaFilled(false);
+		btnClose.setOpaque(true);
+		btnClose.setBackground(SystemColor.textHighlight);
+		btnClose.setAlignmentX(CENTER_ALIGNMENT);
 		btnClose.setPreferredSize(new Dimension(140, 30));
 		btnClose.setMinimumSize(new Dimension(140, 30));
 		btnClose.setMaximumSize(new Dimension(140, 30));

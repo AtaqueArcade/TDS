@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import TDS.AppChat.App;
 import modelo.Contacto;
 import modelo.ContactoIndividual;
 import modelo.Grupo;
@@ -63,8 +65,12 @@ public class Controlador {
 
 	// Resets the current user
 	public void logOut() {
-		currentUser = null;
-		currentContact = null;
+		// Close all opened windows and start the App again
+		java.awt.Window win[] = java.awt.Window.getWindows();
+		for (int i = 0; i < win.length; i++) {
+			win[i].dispose();
+		}
+		App.main(null);
 	}
 
 	// Returns all hits of usernames in the user database
@@ -192,6 +198,11 @@ public class Controlador {
 					&& (((Grupo) c).getAdmin() == currentUser.getId()) && groupNames.contains(c.getName()));
 		userCatalog.modifyUser(currentUser);
 		return flag;
+	}
+
+	// Sets the selected group's picture
+	public void setGroupPicture(String groupName, String url) {
+		//
 	}
 
 	// Checks if usernames are already in the current user's contact list
