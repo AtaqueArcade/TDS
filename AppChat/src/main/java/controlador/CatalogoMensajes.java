@@ -30,7 +30,6 @@ public class CatalogoMensajes {
 
 	public int createMessage() {
 		int msgId = adaptadorMensajes.createMessageList();
-		System.out.println("Creado el mensaje " + msgId);
 		updateAllMessages();
 		return msgId;
 	}

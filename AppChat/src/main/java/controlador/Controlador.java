@@ -1,14 +1,17 @@
 package controlador;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import TDS.AppChat.App;
 import modelo.Contacto;
 import modelo.ContactoIndividual;
+import modelo.D1;
+import modelo.D2;
+import modelo.Descuento;
 import modelo.Grupo;
 import modelo.Mensaje;
 import modelo.Usuario;
@@ -130,10 +133,13 @@ public class Controlador {
 			userCatalog.getUser(currentContact.getId()).removeContact(currentUser.getId());
 			currentUser.removeContact(currentContact.getId());
 			userCatalog.modifyUser(currentUser);
+			currentContact = null;
 			return true;
 		}
 		// delete contact list
 		else {
+			if (contacts.contains(currentContact))
+				currentContact = null;
 			currentUser.getContacts().stream()
 					.filter(c -> contacts.contains(c.getId()) && (userCatalog.getUser(c.getId()) != null))
 					.forEach(c -> {
@@ -166,43 +172,66 @@ public class Controlador {
 	}
 
 	// Returns a list of the selected group's components
-	public List<String> getGroupComponents(String groupName) {
+	public List<String> getGroupComponents(int groupId) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
-				.filter(c -> (c.getName().equals(groupName) && c instanceof Grupo)).findFirst();
+				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
 		return gr.getComponents().stream().map(c -> c.getName()).collect(Collectors.toList());
 	}
 
-	// Edits the given groups if the current user created it
-	public boolean editGroup(String groupName, List<String> userNames) {
+	// Edits the given group if the current user created it
+	public boolean editGroup(int groupId, List<String> userNames) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
-				.filter(c -> (c.getName().equals(groupName) && c instanceof Grupo)).findFirst();
+				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
+		List<Contacto> oldContacts = gr.getComponents();
 		if (gr != null && (gr.getAdmin() == currentUser.getId())) {
 			List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 					.collect(Collectors.toList());
 			gr.setComponents(contactList);
+			oldContacts.stream().filter(c -> !contactList.contains(c)).forEach(c -> {
+				Usuario u = userCatalog.getUser(c.getId());
+				u.removeContact(groupId);
+				userCatalog.modifyUser(u);
+			});
 			userAdapter.modifyGroup(gr);
-			userCatalog.modifyUser(currentUser);
 			return true;
 		}
 		return false;
+
 	}
 
 	// deletes the selected groups
-	public boolean deleteGroups(List<String> groupNames) {
-		boolean flag = currentUser.getContacts().stream().filter(c -> c instanceof Grupo)
+	public boolean deleteGroups(List<Integer> groupIds) {
+		boolean flag = currentUser.getContacts().stream()
+				.filter(c -> c instanceof Grupo && groupIds.contains(c.getId()))
 				.allMatch(c -> ((Grupo) c).getAdmin() == currentUser.getId());
-		if (flag)
-			currentUser.getContacts().removeIf(c -> c instanceof Grupo
-					&& (((Grupo) c).getAdmin() == currentUser.getId()) && groupNames.contains(c.getName()));
-		userCatalog.modifyUser(currentUser);
+		if (flag) {
+			for (int groupId : groupIds) {
+				Optional<Contacto> g = currentUser.getContacts().stream()
+						.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
+				Grupo gr = (Grupo) g.get();
+				List<Contacto> oldContacts = gr.getComponents();
+				oldContacts.stream().forEach(c -> {
+					Usuario u = userCatalog.getUser(c.getId());
+					u.removeContact(groupId);
+					userCatalog.modifyUser(u);
+				});
+				currentUser.removeContact(groupId);
+				userCatalog.modifyUser(currentUser);
+				userAdapter.deleteGroup(gr);
+			}
+		}
 		return flag;
 	}
 
 	// Sets the selected group's picture
-	public void setGroupPicture(String groupName, String url) {
-		//
+	public void setGroupPicture(Integer groupId, String url) {
+		Optional<Contacto> g = currentUser.getContacts().stream()
+				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
+		Grupo gr = (Grupo) g.get();
+		gr.setPicture(url);
+		userAdapter.modifyGroup(gr);
 	}
 
 	// Checks if usernames are already in the current user's contact list
@@ -246,6 +275,34 @@ public class Controlador {
 		userCatalog.modifyUser(currentUser);
 	}
 
+	// Get current user's discount
+	public Descuento getDiscount() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		Descuento discount = null;
+		Calendar c = Calendar.getInstance();
+		int month = c.get(Calendar.MONTH);
+		if (month == Calendar.APRIL)
+			discount = new D2();
+		else {
+			int total = 0;
+			for (int msgId : currentUser.getAllMessages())
+				for (Mensaje msg : CatalogoMensajes.getInstance().getMessages(msgId))
+					if (msg.getSpeaker().equals(currentUser.getName()))
+						total++;
+			if (total >= 100)
+				discount = new D1();
+		}
+		return discount;
+	}
+
+	public boolean getCurrentUserPremium() {
+		return currentUser.getPremium();
+	}
+
+	public void setCurrentUserPremium() {
+		currentUser.setPremium(true);
+		userCatalog.modifyUser(currentUser);
+	}
+
 	// Returns the current user's contact list
 	public List<Contacto> getCurrentContacts() {
 		return currentUser.getContacts();
@@ -284,7 +341,7 @@ public class Controlador {
 
 	// Returns the current message list
 	public List<Mensaje> getCurrentMessages() {
-		if (currentContact != null)
+		if ((currentContact != null) && (currentUser.getMessages(currentContact) != -1))
 			return messageCatalog.getMessages(currentUser.getMessages(currentContact));
 		return null;
 	}

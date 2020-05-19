@@ -24,4 +24,6 @@ public interface DAOusuario {
 
 	public void modifyGroup(Grupo gr);
 
+	public void deleteGroup(Grupo gr);
+
 }

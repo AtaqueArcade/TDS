@@ -137,13 +137,17 @@ public class ContactSettingsView {
 					for (String username : selections) {
 						Controlador.getInstance().addContact(username);
 					}
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					JOptionPane.showMessageDialog(new JFrame(),
 							"Selected contacts [" + String.join(",", selections) + "] added succesfully!\n",
 							"New contacts", JOptionPane.INFORMATION_MESSAGE);
-				} else
+				} else {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					JOptionPane.showMessageDialog(new JFrame(),
 							"Conflicting contacts selected: Contact already in your contact list detected.", "Error",
 							JOptionPane.ERROR_MESSAGE);
+				}
+				frame.dispose();
 			} catch (Exception e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
@@ -283,14 +287,23 @@ public class ContactSettingsView {
 			for (int i : arr)
 				result.add(idList.get(i));
 
-			if (result.size() == 0)
-				JOptionPane.showMessageDialog(new JFrame(), "Please, select any amount of contacts to be deleted.\n",
-						"Delete contacts", JOptionPane.ERROR_MESSAGE);
-			else {
+			if (result.size() == 0) {
 				try {
-					if (Controlador.getInstance().deleteContacts(result))
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					JOptionPane.showMessageDialog(new JFrame(),
+							"Please, select any amount of contacts to be deleted.\n", "Delete contacts",
+							JOptionPane.ERROR_MESSAGE);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else {
+				try {
+					if (Controlador.getInstance().deleteContacts(result)) {
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						JOptionPane.showMessageDialog(new JFrame(), "Selected contacts deleted succesfully.\n",
 								"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
+					}
 					DefaultListModel<String> listM = new DefaultListModel<String>();
 					for (int i = 0; i < contacts.size(); i++)
 						listM.addElement(contacts.get(i).getName());
@@ -300,6 +313,7 @@ public class ContactSettingsView {
 					e1.printStackTrace();
 				}
 			}
+			frame.dispose();
 		});
 
 		Component verticalStrut_5 = Box.createVerticalStrut(5);

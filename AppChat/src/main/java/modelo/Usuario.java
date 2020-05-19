@@ -139,12 +139,16 @@ public class Usuario {
 		return contacts.entrySet().removeIf(e -> e.getKey().getId() == contactId);
 	}
 
-	public int getMessages(Contacto contact) {
+	public Integer getMessages(Contacto contact) {
 		return contacts.get(contact);
 	}
 
 	public List<Integer> getAllMessages() {
 		List<Integer> result = new LinkedList<Integer>(contacts.values());
 		return result;
+	}
+
+	public boolean getPremium() {
+		return premium;
 	}
 }

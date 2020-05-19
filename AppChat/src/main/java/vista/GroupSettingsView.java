@@ -8,10 +8,10 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,7 +33,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
 import controlador.Controlador;
 import modelo.Contacto;
 import modelo.ContactoIndividual;
@@ -237,13 +236,14 @@ public class GroupSettingsView {
 				List<String> contactList = IntStream.range(0, listModel_2.size()).mapToObj(listModel_2::get)
 						.map(element -> (String) element).collect(Collectors.toList());
 				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), contactList);
 					JOptionPane.showMessageDialog(new JFrame(),
 							"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n", "New group",
 							JOptionPane.INFORMATION_MESSAGE);
 					frame.dispose();
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ParseException e) {
-					// TODO Auto-generated catch block
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ParseException
+						| UnsupportedLookAndFeelException e) {
 					e.printStackTrace();
 				}
 			}
@@ -255,9 +255,12 @@ public class GroupSettingsView {
 
 		JList<String> list2 = new JList<String>();
 		DefaultListModel<String> listModel2 = new DefaultListModel<String>();
+		LinkedList<Integer> idList = new LinkedList<Integer>();
 		for (int i = 0; i < contacts.size(); i++) {
-			if (contacts.get(i) instanceof Grupo)
+			if (contacts.get(i) instanceof Grupo) {
 				listModel2.addElement(contacts.get(i).getName());
+				idList.add(contacts.get(i).getId());
+			}
 		}
 		list2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list2.setModel(listModel2);
@@ -295,7 +298,7 @@ public class GroupSettingsView {
 		list2.addListSelectionListener(e -> {
 			List<String> contactList = null;
 			try {
-				contactList = Controlador.getInstance().getGroupComponents(list2.getSelectedValue());
+				contactList = Controlador.getInstance().getGroupComponents(idList.get(list2.getSelectedIndex()));
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -345,18 +348,24 @@ public class GroupSettingsView {
 		btnNewButton_1.setAlignmentX(Component.CENTER_ALIGNMENT);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				List<String> selections = list2.getSelectedValuesList();
+				int[] selections = list2.getSelectedIndices();
+				LinkedList<Integer> selectedIds = new LinkedList<Integer>();
+				for (int s : selections)
+					selectedIds.add(idList.get(s));
 				try {
-					if (Controlador.getInstance().deleteGroups(selections)) {
+					if (Controlador.getInstance().deleteGroups(selectedIds)) {
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						JOptionPane.showMessageDialog(new JFrame(), "Group deleted succesfully.", "Delete groups",
 								JOptionPane.INFORMATION_MESSAGE);
 						frame.dispose();
-					} else
+					} else {
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						JOptionPane.showMessageDialog(new JFrame(),
 								"You don't have permision to delete the selected group.", "Delete groups",
 								JOptionPane.INFORMATION_MESSAGE);
-				} catch (HeadlessException | InstantiationException | IllegalAccessException
-						| ClassNotFoundException e) {
+					}
+				} catch (HeadlessException | InstantiationException | IllegalAccessException | ClassNotFoundException
+						| UnsupportedLookAndFeelException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -415,10 +424,13 @@ public class GroupSettingsView {
 			}
 		});
 		btnSet.addActionListener(e -> {
-			try {
-				Controlador.getInstance().setGroupPicture(list2.getSelectedValue(), textField.getText().trim());
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			if (!textField.getText().equals("")) {
+				try {
+					Controlador.getInstance().setGroupPicture(idList.get(list2.getSelectedIndex()),
+							textField.getText().trim());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 			popup.hide();
 			btnChangePicture.setEnabled(true);
@@ -455,17 +467,19 @@ public class GroupSettingsView {
 
 						List<String> contactList = IntStream.range(0, listModel3.size()).mapToObj(listModel3::get)
 								.map(element -> (String) element).collect(Collectors.toList());
-						if (Controlador.getInstance().editGroup(list2.getSelectedValuesList().get(0), contactList)) {
+						if (Controlador.getInstance().editGroup(idList.get(list2.getSelectedIndex()), contactList)) {
+							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 							JOptionPane.showMessageDialog(new JFrame(),
 									"Group [" + list2.getSelectedValuesList().get(0) + "] edited succesfully!\n",
 									"Edit group", JOptionPane.INFORMATION_MESSAGE);
-						} else
+						} else {
+							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 							JOptionPane.showMessageDialog(new JFrame(),
 									"Group [" + list2.getSelectedValuesList().get(0) + "] couldn't be edited.\n",
 									"Edit group", JOptionPane.INFORMATION_MESSAGE);
+						}
 					} catch (HeadlessException | InstantiationException | IllegalAccessException
-							| ClassNotFoundException e) {
-						// TODO Auto-generated catch block
+							| ClassNotFoundException | UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
 					frame.dispose();

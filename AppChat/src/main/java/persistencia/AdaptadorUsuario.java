@@ -189,6 +189,9 @@ public class AdaptadorUsuario implements DAOusuario {
 			} else if (p.getNombre().equals("contacts")) {
 				String contacts = getAllContactIds(user.getContacts());
 				p.setValor(contacts);
+			} else if (p.getNombre().equals("premium")) {
+				String premium = Boolean.toString(user.getPremium());
+				p.setValor(premium);
 			} else if (p.getNombre().equals("messages")) {
 				String messages = getAllMessageIds(user.getAllMessages());
 				p.setValor(messages);
@@ -210,6 +213,12 @@ public class AdaptadorUsuario implements DAOusuario {
 			}
 			server.modificarPropiedad(p);
 		}
+	}
+
+	@Override
+	public void deleteGroup(Grupo group) {
+		Entidad eGroup = server.recuperarEntidad(group.getId());
+		server.borrarEntidad(eGroup);
 	}
 
 	public void deleteAll() {

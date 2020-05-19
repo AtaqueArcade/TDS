@@ -6,6 +6,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import controlador.Controlador;
+import modelo.D1;
+import modelo.D2;
+import modelo.Descuento;
 import modelo.Mensaje;
 import modelo.RefreshRate;
 import tds.BubbleText;
@@ -15,7 +18,6 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 public class ToolBarView extends JPanel {
-
 	private static final long serialVersionUID = 1L;
 	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete, poURL, poQuote;
 	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel,
@@ -39,8 +41,7 @@ public class ToolBarView extends JPanel {
 			if (picture != null) {
 				imageIcon = new ImageIcon(new URL(picture));
 			} else {
-				imageIcon = new ImageIcon(new URL(
-						"https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png"));
+				imageIcon = new ImageIcon(new URL("https://i.imgur.com/pE7yZPl.png"));
 			}
 		} catch (MalformedURLException e) {
 			imageIcon = new ImageIcon(new URL(
@@ -366,6 +367,7 @@ public class ToolBarView extends JPanel {
 		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		ContactSettingsView contactSettingsView = new ContactSettingsView();
 		GroupSettingsView groupSettingsView = new GroupSettingsView();
+		StatisticsView statisticsView = new StatisticsView();
 		JPanel toolbarMenuView = new JPanel();
 		toolbarMenuView.setBackground(SystemColor.controlDkShadow);
 		toolbarMenuView.setPreferredSize(new Dimension(200, 280));
@@ -420,7 +422,17 @@ public class ToolBarView extends JPanel {
 		toolbarMenuView.add(verticalStrut_2);
 		JButton btnUserStatistics = new JButton("User Statistics");
 		btnUserStatistics.addActionListener(ev -> {
-			statisticsView();
+			try {
+				if (Controlador.getInstance().getCurrentUserPremium())
+					statisticsView.show();
+				else
+					JOptionPane.showMessageDialog(new JFrame(),
+							"This functionality is only available for premium users.", "Statistics",
+							JOptionPane.INFORMATION_MESSAGE);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		btnUserStatistics.setFont(font);
 		btnUserStatistics.setContentAreaFilled(false);
@@ -435,7 +447,11 @@ public class ToolBarView extends JPanel {
 		toolbarMenuView.add(verticalStrut_3);
 		JButton btnPremium = new JButton("Get Premium");
 		btnPremium.addActionListener(ev -> {
-			premiumView();
+			try {
+				premiumView();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		});
 		btnPremium.setFont(font);
 		btnPremium.setContentAreaFilled(false);
@@ -552,20 +568,11 @@ public class ToolBarView extends JPanel {
 		return (currentContactView);
 	}
 
-	private void statisticsView() {
-		JFrame frame = new JFrame("AppChat statistics");
-		JPanel panel = new JPanel();
-		frame.add(panel);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
-
-	private void premiumView() {
+	private void premiumView()
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, MalformedURLException {
 		JFrame frame = new JFrame("Go premium");
 		Font font = new Font("Open Sans", Font.PLAIN, 12);
-		frame.setPreferredSize(new Dimension(400, 300));
+		frame.setPreferredSize(new Dimension(400, 400));
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
@@ -580,6 +587,14 @@ public class ToolBarView extends JPanel {
 		btnPremium.setBackground(SystemColor.textHighlight);
 		btnPremium.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Controlador.getInstance().setCurrentUserPremium();
+					JOptionPane.showMessageDialog(new JFrame(), "Premium account activated", "Premium",
+							JOptionPane.INFORMATION_MESSAGE);
+					frame.dispose();
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		panel.add(btnPremium);
@@ -594,9 +609,16 @@ public class ToolBarView extends JPanel {
 			}
 		});
 		panel.add(btnBack);
-		ImageIcon imageIcon = new ImageIcon("C:/Users/Dani/git/TDS/AppChat/resources/Singtel-Music-8-Mar-2017.jpg");
+		ImageIcon imageIcon;
+		Descuento discount = Controlador.getInstance().getDiscount();
+		if (discount instanceof D1)
+			imageIcon = new ImageIcon(new URL("https://i.imgur.com/S2krqHB.png"));
+		else if (discount instanceof D2)
+			imageIcon = new ImageIcon(new URL("https://i.imgur.com/qs00RQf.png"));
+		else
+			imageIcon = new ImageIcon(new URL("https://i.imgur.com/ayCFZQ7.png"));
 		Image image = imageIcon.getImage();
-		Image newimg = image.getScaledInstance(380, 220, java.awt.Image.SCALE_SMOOTH);
+		Image newimg = image.getScaledInstance(400, 400, java.awt.Image.SCALE_SMOOTH);
 		imageIcon = new ImageIcon(newimg);
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.DARK_GRAY);
@@ -676,18 +698,14 @@ public class ToolBarView extends JPanel {
 					if (response == JOptionPane.YES_OPTION) {
 						try {
 							if (Controlador.getInstance().deleteContacts(null))
-								JOptionPane.showMessageDialog(new JFrame(),
-										"Contact " + Controlador.getInstance().getCurrentContactName()
-												+ " deleted succesfully.\n",
+								JOptionPane.showMessageDialog(new JFrame(), "Contact deleted succesfully.\n",
 										"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
 						} catch (Exception e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					}
 				}
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			poDelete.hide();
