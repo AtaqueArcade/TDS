@@ -44,6 +44,10 @@ public class Mensaje {
 		this.speaker = speaker;
 	}
 
+	public LocalDateTime getDate() {
+		return time;
+	}
+
 	public String getSpeaker() {
 		return speaker;
 	}

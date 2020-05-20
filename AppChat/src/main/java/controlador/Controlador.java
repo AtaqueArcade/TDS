@@ -1,11 +1,18 @@
 package controlador;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import TDS.AppChat.App;
 import modelo.Contacto;
 import modelo.ContactoIndividual;
@@ -27,6 +34,7 @@ public class Controlador {
 	private CatalogoMensajes messageCatalog;
 	private Usuario currentUser;
 	private Contacto currentContact;
+	private int contador;
 
 	public static Controlador getInstance()
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
@@ -356,5 +364,111 @@ public class Controlador {
 	public void deleteMessages() {
 		messageCatalog.removeMessages(currentContact.getId());
 		userCatalog.modifyUser(currentUser);
+	}
+
+	// Retreives data for the statistics
+	public int getDataContactAmount() {
+		return currentUser.getContacts().size();
+	}
+
+	// Retreives data for the statistics
+	public int getDataMessagesSent() {
+		int contador = 0;
+		for (int msgId : currentUser.getAllMessages()) {
+			contador += messageCatalog.getMessages(msgId).stream()
+					.filter(m -> m.getSpeaker().equals(currentUser.getName())).count();
+		}
+		return contador;
+	}
+
+	// Retreives data for the statistics
+	public int getDataMessagesReceived() {
+		int contador = 0;
+		for (int msgId : currentUser.getAllMessages()) {
+			contador += messageCatalog.getMessages(msgId).stream()
+					.filter(m -> !m.getSpeaker().equals(currentUser.getName())).count();
+		}
+		return contador;
+	}
+
+	// Retreives data for the statistics
+	public Map<String, Integer> getDataBestContacts() {
+		HashMap<String, Integer> result = new HashMap<String, Integer>();
+		IntStream.range(0, currentUser.getContacts().size()).boxed()
+				.collect(Collectors.toMap(currentUser.getContacts()::get, currentUser.getAllMessages()::get)).entrySet()
+				.forEach(entry -> {
+					if (result.size() < 4)
+						result.put(entry.getKey().getName(), messageCatalog.getMessages(entry.getValue()).size());
+					else {
+						Entry<String, Integer> lowest = result.entrySet().stream()
+								.sorted(Comparator
+										.comparingInt(each -> messageCatalog.getMessages(each.getValue()).size()))
+								.findFirst().get();
+						if (lowest.getValue() < messageCatalog.getMessages(entry.getValue()).size()) {
+							result.remove(lowest.getKey());
+							result.put(entry.getKey().getName(), entry.getValue());
+						}
+					}
+				});
+		return result;
+	}
+
+	// Retreives data for the statistics
+	public int[] getDataMsgReceivedLast30Days() {
+		int[] result = new int[30];
+		int it = 0;
+		for (LocalDate date = LocalDate.now().minusDays(29); date
+				.isBefore(LocalDate.now().plusDays(1)); date = date.plusDays(1)) {
+			LocalDate day = date;
+			contador = 0;
+			currentUser.getAllMessages().forEach(msgId -> {
+				contador += messageCatalog.getMessages(msgId).stream()
+						.filter(m -> (m.getTime().toLocalDate().getDayOfYear() == day.getDayOfYear())
+								&& !m.getSpeaker().equals(currentUser.getName()))
+						.count();
+			});
+			result[it] = contador;
+			it++;
+		}
+		return result;
+	}
+
+	public int[] getDataMsgSentLast30Days() {
+		int[] result = new int[30];
+		int it = 0;
+		for (LocalDate date = LocalDate.now().minusDays(29); date
+				.isBefore(LocalDate.now().plusDays(1)); date = date.plusDays(1)) {
+			LocalDate day = date;
+			contador = 0;
+			currentUser.getAllMessages().forEach(msgId -> {
+				contador += messageCatalog.getMessages(msgId).stream()
+						.filter(m -> (m.getTime().toLocalDate().getDayOfYear() == day.getDayOfYear())
+								&& m.getSpeaker().equals(currentUser.getName()))
+						.count();
+			});
+			result[it] = contador;
+			it++;
+		}
+		return result;
+	}
+
+	// Retreives data for the statistics
+	public int[] getDataMsgPerDay() {
+		int[] result = new int[24];
+		int it = 0;
+		for (LocalTime hour = LocalTime.now().with(LocalTime.MIN); hour
+				.isBefore(LocalTime.now().with(LocalTime.MAX).minusHours(1)); hour = hour.plusHours(1)) {
+			LocalTime hourOfDay = hour;
+			contador = 0;
+			currentUser.getAllMessages().forEach(msgId -> {
+				contador += messageCatalog.getMessages(msgId).stream()
+						.filter(m -> (m.getTime().toLocalTime().getHour() == hourOfDay.getHour())
+								&& m.getSpeaker().equals(currentUser.getName()))
+						.count();
+			});
+			result[it] = contador;
+			it++;
+		}
+		return result;
 	}
 }

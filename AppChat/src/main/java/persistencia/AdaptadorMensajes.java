@@ -35,7 +35,6 @@ public class AdaptadorMensajes implements DAOmensajes {
 		ArrayList<Entidad> eMessagesList = server.recuperarEntidades("messages");
 		for (Entidad eMessage : eMessagesList)
 			result.put(eMessage.getId(), getMessageList(eMessage.getId()));
-
 		return result;
 	}
 
@@ -95,7 +94,6 @@ public class AdaptadorMensajes implements DAOmensajes {
 					text = msgArr[0];
 				msg = new Mensaje(text, Integer.parseInt(msgArr[1]), msgArr[2]);
 				msg.setTime(LocalDateTime.parse(msgArr[3]));
-
 				result.add(msg);
 			}
 		}
