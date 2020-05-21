@@ -8,12 +8,14 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.IntStream;
-
 import javax.swing.BoxLayout;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
@@ -24,13 +26,12 @@ import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
 import org.knowm.xchart.style.Styler.LegendPosition;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.XChartPanel;
-
 import controlador.Controlador;
+import modelo.Grupo;
 
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.Box;
@@ -239,6 +240,35 @@ public class StatisticsView {
 		});
 
 		btnNewButton.addActionListener(e -> {
+			String path = "./Contacts/" + LocalDate.now().toString() + "/contactList.pdf";
+			File file = new File(path);
+			file.getParentFile().mkdirs();
+			PdfWriter writer = null;
+			try {
+				writer = new PdfWriter(path);
+			} catch (Exception e1) {
+			}
+			PdfDocument pdf = new PdfDocument(writer);
+			Document document = new Document(pdf);
+			try {
+				document.add(new Paragraph("Contact list"));
+				Controlador.getInstance().getCurrentContacts().stream().filter(c -> !(c instanceof Grupo))
+						.forEach(c -> {
+							document.add(new Paragraph("- Name: " + c.getName() + ", Phone: " + c.getPhone()));
+						});
+				Controlador.getInstance().getCurrentContacts().stream().filter(c -> (c instanceof Grupo)).forEach(c -> {
+					document.add(new Paragraph("- Group name: " + c.getName()));
+					((Grupo) c).getComponents().forEach(com -> {
+						document.add(new Paragraph("-Component name: " + com.getName() + ", Phone: " + com.getPhone()));
+					});
+				});
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+
+			document.close();
+			JOptionPane.showMessageDialog(new JFrame(), "Contacts exported succesfully.", "Statistics",
+					JOptionPane.INFORMATION_MESSAGE);
 		});
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(1000, 600));
