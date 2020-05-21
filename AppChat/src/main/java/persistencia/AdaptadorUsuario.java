@@ -34,6 +34,7 @@ public class AdaptadorUsuario implements DAOusuario {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 	}
 
+	@Override
 	public boolean registerUser(Usuario user) {
 		Entidad eUser;
 		try {
@@ -57,43 +58,13 @@ public class AdaptadorUsuario implements DAOusuario {
 		}
 	}
 
-	public boolean registerGroup(Grupo group) {
-		Entidad eGroup;
-		boolean exists = true;
-		try {
-			eGroup = server.recuperarEntidad(group.getId());
-		} catch (NullPointerException e) {
-			exists = false;
-		}
-		if (!exists) {
-			eGroup = new Entidad();
-			eGroup.setNombre("group");
-			eGroup.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("name", group.getName()),
-					new Propiedad("admin", Integer.toString(group.getAdmin())),
-					new Propiedad("picture", group.getPicture()),
-					new Propiedad("members", getAllContactIds(group.getComponents())))));
-			eGroup = server.registrarEntidad(eGroup);
-			group.setId(eGroup.getId());
-		}
-		return (!exists);
+	@Override
+	public void deleteUser(Usuario usuario) {
+		Entidad eUser = server.recuperarEntidad(usuario.getId());
+		server.borrarEntidad(eUser);
 	}
 
-	private String getAllContactIds(List<Contacto> list) {
-		String result = "";
-		for (Contacto c : list) {
-			result += c.getId() + " ";
-		}
-		return result.trim();
-	}
-
-	private String getAllMessageIds(List<Integer> list) {
-		String result = "";
-		for (int id : list) {
-			result += id + " ";
-		}
-		return result.trim();
-	}
-
+	@Override
 	public Usuario getUser(int id) {
 		Entidad eUser = null;
 		boolean exists = true;
@@ -133,6 +104,90 @@ public class AdaptadorUsuario implements DAOusuario {
 		return null;
 	}
 
+	@Override
+	public ArrayList<Usuario> getAllUsers() {
+		ArrayList<Usuario> userList = new ArrayList<Usuario>();
+		ArrayList<Entidad> eUserList = server.recuperarEntidades("user");
+		for (Entidad eUser : eUserList) {
+			userList.add(getUser(eUser.getId()));
+		}
+		return userList;
+	}
+
+	@Override
+	public void modifyUser(Usuario user) {
+		Entidad eUser;
+		eUser = server.recuperarEntidad(user.getId());
+		for (Propiedad p : eUser.getPropiedades()) {
+			if (p.getNombre().equals("picture")) {
+				p.setValor(user.getPicture());
+			} else if (p.getNombre().equals("quote")) {
+				p.setValor(user.getQuote());
+			} else if (p.getNombre().equals("contacts")) {
+				String contacts = getAllContactIds(user.getContacts());
+				p.setValor(contacts);
+			} else if (p.getNombre().equals("premium")) {
+				String premium = Boolean.toString(user.getPremium());
+				p.setValor(premium);
+			} else if (p.getNombre().equals("messages")) {
+				String messages = getAllMessageIds(user.getAllMessages());
+				p.setValor(messages);
+			}
+			server.modificarPropiedad(p);
+		}
+	}
+
+	@Override
+	public boolean registerGroup(Grupo group) {
+		Entidad eGroup;
+		try {
+			eGroup = server.recuperarEntidad(group.getId());
+			return false;
+		} catch (NullPointerException e) {
+			eGroup = new Entidad();
+			eGroup.setNombre("group");
+			eGroup.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(new Propiedad("name", group.getName()),
+					new Propiedad("admin", Integer.toString(group.getAdmin())),
+					new Propiedad("picture", group.getPicture()),
+					new Propiedad("members", getAllContactIds(group.getComponents())))));
+			eGroup = server.registrarEntidad(eGroup);
+			group.setId(eGroup.getId());
+			return true;
+		}
+	}
+
+	@Override
+	public void deleteGroup(Grupo group) {
+		Entidad eGroup = server.recuperarEntidad(group.getId());
+		server.borrarEntidad(eGroup);
+	}
+
+	@Override
+	public List<Grupo> getAllGroups() {
+		ArrayList<Grupo> groupList = new ArrayList<Grupo>();
+		ArrayList<Entidad> eGroupList = server.recuperarEntidades("group");
+		List<Contacto> lg = getAsContacts(eGroupList.stream().map(Entidad::getId).collect(Collectors.toList()));
+		groupList.addAll(lg.stream().map(contacto -> (Grupo) contacto).collect(Collectors.toList()));
+		return groupList;
+	}
+
+	@Override
+	public void modifyGroup(Grupo group) {
+		Entidad eGroup;
+		eGroup = server.recuperarEntidad(group.getId());
+		for (Propiedad p : eGroup.getPropiedades()) {
+			if (p.getNombre().equals("picture")) {
+				p.setValor(group.getPicture());
+			} else if (p.getNombre().equals("members")) {
+				String contacts = getAllContactIds(group.getComponents());
+				p.setValor(contacts);
+			}
+			server.modificarPropiedad(p);
+		}
+	}
+
+	// Includes both users and groups
+	@Override
 	public ArrayList<Contacto> getAsContacts(List<Integer> idList) {
 		ArrayList<Contacto> result = new ArrayList<Contacto>();
 		if (idList != null) {
@@ -164,61 +219,21 @@ public class AdaptadorUsuario implements DAOusuario {
 		return null;
 	}
 
-	@Override
-	public ArrayList<Usuario> getAllUsers() {
-		ArrayList<Usuario> userList = new ArrayList<Usuario>();
-		ArrayList<Entidad> eUserList = server.recuperarEntidades("user");
-		for (Entidad eUser : eUserList) {
-			userList.add(getUser(eUser.getId()));
+	// Supporting methods
+	private String getAllContactIds(List<Contacto> list) {
+		String result = "";
+		for (Contacto c : list) {
+			result += c.getId() + " ";
 		}
-		return userList;
+		return result.trim();
 	}
 
-	public void deleteUser(Usuario usuario) {
-
-	}
-
-	public void modifyUser(Usuario user) {
-		Entidad eUser;
-		eUser = server.recuperarEntidad(user.getId());
-		for (Propiedad p : eUser.getPropiedades()) {
-			if (p.getNombre().equals("picture")) {
-				p.setValor(user.getPicture());
-			} else if (p.getNombre().equals("quote")) {
-				p.setValor(user.getQuote());
-			} else if (p.getNombre().equals("contacts")) {
-				String contacts = getAllContactIds(user.getContacts());
-				p.setValor(contacts);
-			} else if (p.getNombre().equals("premium")) {
-				String premium = Boolean.toString(user.getPremium());
-				p.setValor(premium);
-			} else if (p.getNombre().equals("messages")) {
-				String messages = getAllMessageIds(user.getAllMessages());
-				p.setValor(messages);
-			}
-			server.modificarPropiedad(p);
+	private String getAllMessageIds(List<Integer> list) {
+		String result = "";
+		for (int id : list) {
+			result += id + " ";
 		}
-	}
-
-	@Override
-	public void modifyGroup(Grupo group) {
-		Entidad eGroup;
-		eGroup = server.recuperarEntidad(group.getId());
-		for (Propiedad p : eGroup.getPropiedades()) {
-			if (p.getNombre().equals("picture")) {
-				p.setValor(group.getPicture());
-			} else if (p.getNombre().equals("members")) {
-				String contacts = getAllContactIds(group.getComponents());
-				p.setValor(contacts);
-			}
-			server.modificarPropiedad(p);
-		}
-	}
-
-	@Override
-	public void deleteGroup(Grupo group) {
-		Entidad eGroup = server.recuperarEntidad(group.getId());
-		server.borrarEntidad(eGroup);
+		return result.trim();
 	}
 
 	public void deleteAll() {

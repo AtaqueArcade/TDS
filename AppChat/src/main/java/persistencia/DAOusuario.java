@@ -10,20 +10,22 @@ import modelo.Usuario;
 public interface DAOusuario {
 	public boolean registerUser(Usuario usuario);
 
+	public void deleteUser(Usuario usuario);
+
 	public Usuario getUser(int codigo) throws ParseException;
 
-	public List<Contacto> getAsContacts(List<Integer> idList);
-
 	public List<Usuario> getAllUsers();
-
-	public void deleteUser(Usuario usuario);
 
 	public void modifyUser(Usuario usuario);
 
 	public boolean registerGroup(Grupo group);
 
+	public void deleteGroup(Grupo gr);
+
+	public List<Grupo> getAllGroups();
+
 	public void modifyGroup(Grupo gr);
 
-	public void deleteGroup(Grupo gr);
+	public List<Contacto> getAsContacts(List<Integer> idList);
 
 }

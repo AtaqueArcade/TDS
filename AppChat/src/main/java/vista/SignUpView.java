@@ -2,17 +2,23 @@ package vista;
 
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.Box;
 import java.awt.Dimension;
+import java.text.ParseException;
+
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.border.LineBorder;
+import javax.swing.text.MaskFormatter;
+
 import com.toedter.calendar.JDateChooser;
 import controlador.Controlador;
 
@@ -90,7 +96,14 @@ public class SignUpView extends JPanel {
 		lblPhone.setForeground(Color.BLACK);
 		panel_15.add(lblPhone);
 
-		phoneTextField = new JTextField();
+		MaskFormatter mf1 = null;
+		try {
+			mf1 = new MaskFormatter("#########");
+		} catch (ParseException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		phoneTextField = new JFormattedTextField(mf1);
 		panel_15.add(phoneTextField);
 		phoneTextField.setColumns(12);
 
@@ -159,25 +172,32 @@ public class SignUpView extends JPanel {
 
 		btnSubmit.addActionListener(ev -> {
 			if (fieldCheck()) {
-				try {
-					if (Controlador.getInstance().register(nameTextField.getText().trim(),
-							birthdayDateChooser.getDate(), Integer.parseInt(phoneTextField.getText()),
-							userTextField.getText().trim(), passwordTextField.getText().trim())) {
-						JOptionPane.showMessageDialog(new JFrame(), "Registered succesfully!\n", "Sign up",
-								JOptionPane.INFORMATION_MESSAGE);
-						Ventana.frame.getContentPane().removeAll();
-						Ventana.frame.setContentPane(new LoginView());
-						Ventana.frame.revalidate();
-						Ventana.frame.repaint();
-					} else {
-						JOptionPane.showMessageDialog(new JFrame(),
-								"Error: username '" + nameTextField.getText().trim() + "' is not available.\n",
-								"Sign up", JOptionPane.ERROR_MESSAGE);
+				if (userTextField.getText().trim().length() < 6)
+					JOptionPane.showMessageDialog(new JFrame(), "Username must be at least 6 characters long.",
+							"Register", JOptionPane.ERROR_MESSAGE);
+				else if (passwordTextField.getText().trim().length() < 6)
+					JOptionPane.showMessageDialog(new JFrame(), "Password must be at least 6 characters long.",
+							"Register", JOptionPane.ERROR_MESSAGE);
+				else
+					try {
+						if (Controlador.getInstance().register(nameTextField.getText().trim(),
+								birthdayDateChooser.getDate(), Integer.parseInt(phoneTextField.getText()),
+								userTextField.getText().trim(), passwordTextField.getText().trim())) {
+							JOptionPane.showMessageDialog(new JFrame(), "Registered succesfully!\n", "Sign up",
+									JOptionPane.INFORMATION_MESSAGE);
+							Ventana.frame.getContentPane().removeAll();
+							Ventana.frame.setContentPane(new LoginView());
+							Ventana.frame.revalidate();
+							Ventana.frame.repaint();
+						} else {
+							JOptionPane.showMessageDialog(new JFrame(),
+									"Error: username '" + userTextField.getText().trim() + "' is not available.\n",
+									"Sign up", JOptionPane.ERROR_MESSAGE);
+						}
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
 			}
 		});
 
@@ -196,7 +216,7 @@ public class SignUpView extends JPanel {
 		lblNewLabel_1.setForeground(Color.BLACK);
 		panel_10.add(lblNewLabel_1);
 
-		passwordTextField = new JTextField();
+		passwordTextField = new JPasswordField();
 		panel_10.add(passwordTextField);
 		passwordTextField.setColumns(10);
 
@@ -213,7 +233,7 @@ public class SignUpView extends JPanel {
 		panel_16.setBackground(Color.GRAY);
 		panel_1.add(panel_16, BorderLayout.CENTER);
 
-		errorLabel = new JLabel("Please, complete all the fields to register!");
+		errorLabel = new JLabel("Please, complete all the fields to register.");
 		errorLabel.setForeground(Color.RED);
 		panel_16.add(errorLabel);
 		errorLabel.setVisible(false);

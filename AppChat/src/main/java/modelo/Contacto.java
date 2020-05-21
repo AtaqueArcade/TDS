@@ -1,5 +1,7 @@
 package modelo;
 
+import java.util.Objects;
+
 public abstract class Contacto {
 	private int id;
 	private String name;
@@ -42,4 +44,17 @@ public abstract class Contacto {
 	public abstract String getPhone();
 
 	public abstract void setPhone(int phone);
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
+		Contacto contact = (Contacto) o;
+		return Objects.equals(id, contact.id) && Objects.equals(name, contact.name)
+				&& Objects.equals(picture, contact.picture);
+	}
 }

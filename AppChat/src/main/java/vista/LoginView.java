@@ -129,7 +129,7 @@ public class LoginView extends JPanel {
 		panel_8.setBackground(Color.GRAY);
 		panel_5.add(panel_8, BorderLayout.CENTER);
 
-		errorLabel = new JLabel("Please, complete all the fields to register!");
+		errorLabel = new JLabel("Please, complete all the fields to log in.");
 		errorLabel.setForeground(Color.RED);
 		errorLabel.setBackground(Color.GRAY);
 		errorLabel.setVisible(false);

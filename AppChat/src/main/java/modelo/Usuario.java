@@ -148,6 +148,11 @@ public class Usuario {
 		return result;
 	}
 
+	public void removeMessages(Contacto contact, int msgId) {
+		contacts.entrySet().removeIf(e -> e.getKey().getId() == contact.getId());
+		contacts.put(contact, msgId);
+	}
+
 	public boolean getPremium() {
 		return premium;
 	}

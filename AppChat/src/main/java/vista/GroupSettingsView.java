@@ -235,16 +235,21 @@ public class GroupSettingsView {
 			public void actionPerformed(ActionEvent arg0) {
 				List<String> contactList = IntStream.range(0, listModel_2.size()).mapToObj(listModel_2::get)
 						.map(element -> (String) element).collect(Collectors.toList());
-				try {
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), contactList);
-					JOptionPane.showMessageDialog(new JFrame(),
-							"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n", "New group",
+				if (!textFieldGroupName.getText().trim().equals(""))
+					try {
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), contactList);
+						JOptionPane.showMessageDialog(new JFrame(),
+								"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n",
+								"New group", JOptionPane.INFORMATION_MESSAGE);
+						frame.dispose();
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ParseException
+							| UnsupportedLookAndFeelException e) {
+						e.printStackTrace();
+					}
+				else {
+					JOptionPane.showMessageDialog(new JFrame(), "Please, enter a valid group name", "New group",
 							JOptionPane.INFORMATION_MESSAGE);
-					frame.dispose();
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ParseException
-						| UnsupportedLookAndFeelException e) {
-					e.printStackTrace();
 				}
 			}
 		});
@@ -537,5 +542,6 @@ public class GroupSettingsView {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	}
 }

@@ -264,7 +264,7 @@ public class ContactSettingsView {
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (!arg0.getValueIsAdjusting()) {
 					int index = list_1.getSelectedIndex();
-					if (index > 0) {
+					if (index >= 0) {
 						label_1.setText(contacts.get(index).getName());
 						label_2.setText(contacts.get(index).getPhone());
 					}
@@ -309,7 +309,6 @@ public class ContactSettingsView {
 						listM.addElement(contacts.get(i).getName());
 					list_1.setModel(listM);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -333,5 +332,6 @@ public class ContactSettingsView {
 		}
 		tabbedPane.setBorder(null);
 		tabbedPane.setBackground(SystemColor.textInactiveText);
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	}
 }

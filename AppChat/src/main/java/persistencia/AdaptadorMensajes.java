@@ -30,15 +30,6 @@ public class AdaptadorMensajes implements DAOmensajes {
 	}
 
 	@Override
-	public HashMap<Integer, List<Mensaje>> getAllMessages() {
-		HashMap<Integer, List<Mensaje>> result = new HashMap<Integer, List<Mensaje>>();
-		ArrayList<Entidad> eMessagesList = server.recuperarEntidades("messages");
-		for (Entidad eMessage : eMessagesList)
-			result.put(eMessage.getId(), getMessageList(eMessage.getId()));
-		return result;
-	}
-
-	@Override
 	public int createMessageList() {
 		LinkedList<Mensaje> messages = new LinkedList<Mensaje>();
 		Entidad eMessage = new Entidad();
@@ -47,6 +38,12 @@ public class AdaptadorMensajes implements DAOmensajes {
 				new ArrayList<Propiedad>(Arrays.asList(new Propiedad("contents", parseMsgToString(messages)))));
 		eMessage = server.registrarEntidad(eMessage);
 		return eMessage.getId();
+	}
+
+	@Override
+	public void deleteMessageList(int id) {
+		Entidad eMessage = server.recuperarEntidad(id);
+		server.borrarEntidad(eMessage);
 	}
 
 	@Override
@@ -64,6 +61,15 @@ public class AdaptadorMensajes implements DAOmensajes {
 	}
 
 	@Override
+	public HashMap<Integer, List<Mensaje>> getAllMessages() {
+		HashMap<Integer, List<Mensaje>> result = new HashMap<Integer, List<Mensaje>>();
+		ArrayList<Entidad> eMessagesList = server.recuperarEntidades("messages");
+		for (Entidad eMessage : eMessagesList)
+			result.put(eMessage.getId(), getMessageList(eMessage.getId()));
+		return result;
+	}
+
+	@Override
 	public void modifyMessageList(int id, LinkedList<Mensaje> messageList) {
 		Entidad eMessage;
 		eMessage = server.recuperarEntidad(id);
@@ -75,12 +81,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 		}
 	}
 
-	@Override
-	public void deleteMessageList(int id) {
-		Entidad eMessage = server.recuperarEntidad(id);
-		server.borrarEntidad(eMessage);
-	}
-
+	// Supporting methods
 	private LinkedList<Mensaje> parseStringToMsg(String msgString) {
 		LinkedList<Mensaje> result = new LinkedList<Mensaje>();
 		if (!msgString.equals("")) {

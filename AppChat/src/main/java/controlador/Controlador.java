@@ -22,15 +22,12 @@ import modelo.Descuento;
 import modelo.Grupo;
 import modelo.Mensaje;
 import modelo.Usuario;
-import persistencia.DAOusuario;
-import persistencia.FactoriaDAO;
 
 public class Controlador {
 
 	private static Controlador instance;
-	private FactoriaDAO dao;
-	private DAOusuario userAdapter;
 	private CatalogoUsuarios userCatalog;
+	private CatalogoGrupos groupCatalog;
 	private CatalogoMensajes messageCatalog;
 	private Usuario currentUser;
 	private Contacto currentContact;
@@ -47,9 +44,8 @@ public class Controlador {
 
 	// Starts up all the catalogues
 	private void initialize() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		dao = FactoriaDAO.getInstance();
-		userAdapter = dao.getDAOusuario();
 		userCatalog = CatalogoUsuarios.getInstance();
+		groupCatalog = CatalogoGrupos.getInstance();
 		messageCatalog = CatalogoMensajes.getInstance();
 	}
 
@@ -57,10 +53,8 @@ public class Controlador {
 	public boolean register(String name, Date birthday, int phone, String username, String password) {
 		if (!userCatalog.isUser(username)) {
 			Usuario user = new Usuario(name, birthday, phone, username, password);
-			if (userAdapter.registerUser(user)) {
-				userCatalog.addUser(username, user);
+			if (userCatalog.addUser(user))
 				return true;
-			}
 		}
 		return false;
 	}
@@ -169,8 +163,9 @@ public class Controlador {
 		Grupo group = new Grupo(groupName, currentUser.getId(), contactList);
 		int msgId = messageCatalog.createMessage();
 		currentUser.addContact(group, msgId);
-		userAdapter.registerGroup(group);
+		groupCatalog.addGroup(group);
 		userCatalog.modifyUser(currentUser);
+		// Inserts the group in each of it's components
 		for (Contacto c : contactList) {
 			Usuario user = userCatalog.getUser(c.getId());
 			user.addContact(group, msgId);
@@ -197,16 +192,22 @@ public class Controlador {
 			List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
 					.collect(Collectors.toList());
 			gr.setComponents(contactList);
+			// Create the group in the new components
+			contactList.stream().filter(c -> !oldContacts.contains(c)).forEach(c -> {
+				Usuario user = userCatalog.getUser(c.getId());
+				user.addContact(gr, currentUser.getMessages(gr));
+				userCatalog.modifyUser(user);
+			});
+			// Delete the group in the deleted users
 			oldContacts.stream().filter(c -> !contactList.contains(c)).forEach(c -> {
 				Usuario u = userCatalog.getUser(c.getId());
 				u.removeContact(groupId);
 				userCatalog.modifyUser(u);
 			});
-			userAdapter.modifyGroup(gr);
+			groupCatalog.modifyGroup(gr);
 			return true;
 		}
 		return false;
-
 	}
 
 	// deletes the selected groups
@@ -227,7 +228,7 @@ public class Controlador {
 				});
 				currentUser.removeContact(groupId);
 				userCatalog.modifyUser(currentUser);
-				userAdapter.deleteGroup(gr);
+				groupCatalog.removeGroup(groupId);
 			}
 		}
 		return flag;
@@ -239,7 +240,7 @@ public class Controlador {
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
 		gr.setPicture(url);
-		userAdapter.modifyGroup(gr);
+		groupCatalog.modifyGroup(gr);
 	}
 
 	// Checks if usernames are already in the current user's contact list
@@ -302,10 +303,12 @@ public class Controlador {
 		return discount;
 	}
 
+	// Returns the current user's premium status
 	public boolean getCurrentUserPremium() {
 		return currentUser.getPremium();
 	}
 
+	// Sets the current user's premium status
 	public void setCurrentUserPremium() {
 		currentUser.setPremium(true);
 		userCatalog.modifyUser(currentUser);
@@ -349,8 +352,9 @@ public class Controlador {
 
 	// Returns the current message list
 	public List<Mensaje> getCurrentMessages() {
-		if ((currentContact != null) && (currentUser.getMessages(currentContact) != -1))
-			return messageCatalog.getMessages(currentUser.getMessages(currentContact));
+		if (currentContact != null && currentUser != null)
+			if (currentUser.getMessages(currentContact) != -1)
+				return messageCatalog.getMessages(currentUser.getMessages(currentContact));
 		return null;
 	}
 
@@ -361,9 +365,23 @@ public class Controlador {
 	}
 
 	// Deletes all messages from the current conversation
-	public void deleteMessages() {
-		messageCatalog.removeMessages(currentContact.getId());
+	public void deleteMessages() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		messageCatalog.removeMessages(currentUser.getMessages(currentContact));
+		int msgId = messageCatalog.createMessage();
+		currentUser.removeMessages(currentContact, msgId);
 		userCatalog.modifyUser(currentUser);
+		if (currentContact instanceof Grupo) {
+			for (Contacto c : ((Grupo) currentContact).getComponents()) {
+				Usuario user = userCatalog.getUser(c.getId());
+				user.removeMessages(currentContact, msgId);
+				userCatalog.modifyUser(user);
+			}
+		} else {
+			Usuario user = CatalogoUsuarios.getInstance().getUser(currentContact.getId());
+			Contacto c = getContact(currentUser.getUsername());
+			user.removeMessages(c, msgId);
+			userCatalog.modifyUser(user);
+		}
 	}
 
 	// Retreives data for the statistics

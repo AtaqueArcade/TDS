@@ -27,7 +27,7 @@ public class ToolBarView extends JPanel {
 	MultiLineLabel labelPhone;
 	private MultiLineLabel quoteLabel;
 	private ImageIcon imageContact;
-	private PopupFactory pf = new PopupFactory();
+	private PopupFactory pf;
 
 	public ToolBarView()
 			throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
@@ -119,6 +119,8 @@ public class ToolBarView extends JPanel {
 		labelPhone = new MultiLineLabel();
 		labelPhone.setText("[No contact selected]");
 		labelPhone.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+		pf = new PopupFactory();
 
 		profileSettingsJPanel = profileSettingsView(imageIcon);
 		toolbarMenuJPanel = toolbarMenuView();

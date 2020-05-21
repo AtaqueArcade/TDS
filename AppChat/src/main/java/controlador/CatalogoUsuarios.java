@@ -26,30 +26,29 @@ public class CatalogoUsuarios {
 	private CatalogoUsuarios() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		dao = FactoriaDAO.getInstance("persistencia.FactoriaDAOImp");
 		adaptadorUsuario = dao.getDAOusuario();
-		this.catalog = new HashMap<String, Usuario>();
-		List<Usuario> userList = adaptadorUsuario.getAllUsers();
-		for (Usuario user : userList) {
-			catalog.put(user.getUsername(), user);
-		}
+		updateAllUsers();
 	}
 
-	public boolean addUser(String username, Usuario user) {
-		return (catalog.put(username, user) != null);
+	public boolean addUser(Usuario user) {
+		if (!adaptadorUsuario.registerUser(user))
+			return false;
+		return (catalog.put(user.getUsername(), user) == null);
 	}
 
 	public boolean removeUser(String username) {
+		Usuario u = getUser(username);
+		if (u != null)
+			adaptadorUsuario.deleteUser(u);
 		return (catalog.remove(username) != null);
 	}
 
-	public boolean isUser(String username) {
-		return catalog.containsKey(username);
-	}
-
 	public Usuario getUser(String username) {
+		updateAllUsers();
 		return catalog.get(username);
 	}
 
 	public Usuario getUser(int id) {
+		updateAllUsers();
 		Entry<String, Usuario> entry = catalog.entrySet().stream().filter(e -> e.getValue().getId() == id).findFirst()
 				.get();
 		if (entry != null)
@@ -57,7 +56,20 @@ public class CatalogoUsuarios {
 		return null;
 	}
 
+	public void modifyUser(Usuario user) {
+		Usuario modifiedUser = this.getUser(user.getId());
+		modifiedUser = user;
+		catalog.put(modifiedUser.getUsername(), modifiedUser);
+		adaptadorUsuario.modifyUser(modifiedUser);
+	}
+
+	public boolean isUser(String username) {
+		updateAllUsers();
+		return catalog.containsKey(username);
+	}
+
 	public boolean match(String username, String password) {
+		updateAllUsers();
 		Usuario user = catalog.get(username);
 		if (user != null && password != null)
 			if (user.getPassword().equals(password))
@@ -66,14 +78,17 @@ public class CatalogoUsuarios {
 	}
 
 	public List<String> getByFilter(String filter) {
+		updateAllUsers();
 		List<String> result = catalog.keySet().stream().filter(username -> username.contains(filter))
 				.collect(Collectors.toList());
 		return result;
 	}
 
-	public void modifyUser(Usuario user) {
-		Usuario modifiedUser = this.getUser(user.getId());
-		modifiedUser = user;
-		adaptadorUsuario.modifyUser(modifiedUser);
+	private void updateAllUsers() {
+		this.catalog = new HashMap<String, Usuario>();
+		List<Usuario> userList = adaptadorUsuario.getAllUsers();
+		for (Usuario user : userList) {
+			catalog.put(user.getUsername(), user);
+		}
 	}
 }
