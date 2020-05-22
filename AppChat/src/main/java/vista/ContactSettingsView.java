@@ -5,12 +5,14 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.SystemColor;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,17 +27,18 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 
 import controlador.Controlador;
 import modelo.Contacto;
 import java.awt.Color;
+import pulsador.Luz;
 
 public class ContactSettingsView {
 	public ContactSettingsView() {
 	}
 
 	/**
-	 * @throws UnsupportedLookAndFeelException
 	 * @wbp.parser.entryPoint
 	 */
 	public void show() throws InstantiationException, IllegalAccessException, ClassNotFoundException,
@@ -162,7 +165,7 @@ public class ContactSettingsView {
 		panel.add(verticalStrut_8, BorderLayout.SOUTH);
 		JPanel panel2 = new JPanel();
 		panel2.setBackground(SystemColor.textInactiveText);
-		tabbedPane.addTab("Contact manager", null, panel2, "Hide, show or delete contacts on your list");
+		tabbedPane.addTab("Contact manager", null, panel2, "Manage your contacts");
 		panel2.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_3 = new JPanel();
@@ -172,32 +175,9 @@ public class ContactSettingsView {
 
 		Component verticalStrut_2 = Box.createVerticalStrut(20);
 		panel_3.add(verticalStrut_2);
-		JButton btnHide = new JButton("Hide");
-		btnHide.setFont(font);
-		btnHide.setContentAreaFilled(false);
-		btnHide.setOpaque(true);
-		btnHide.setBackground(SystemColor.textHighlight);
-		btnHide.setAlignmentX(Component.CENTER_ALIGNMENT);
-		panel_3.add(btnHide);
-		btnHide.setPreferredSize(new Dimension(100, 30));
-		btnHide.setMinimumSize(new Dimension(100, 30));
-		btnHide.setMaximumSize(new Dimension(100, 30));
 
 		Component verticalStrut_9 = Box.createVerticalStrut(5);
 		panel_3.add(verticalStrut_9);
-		JButton btnShow = new JButton("Show");
-		panel_3.add(btnShow);
-		btnShow.setFont(font);
-		btnShow.setContentAreaFilled(false);
-		btnShow.setOpaque(true);
-		btnShow.setBackground(SystemColor.textHighlight);
-		btnShow.setAlignmentX(Component.CENTER_ALIGNMENT);
-		btnShow.setPreferredSize(new Dimension(100, 30));
-		btnShow.setMinimumSize(new Dimension(100, 30));
-		btnShow.setMaximumSize(new Dimension(100, 30));
-
-		Component verticalStrut_10 = Box.createVerticalStrut(5);
-		panel_3.add(verticalStrut_10);
 		JButton btnDelete = new JButton("Delete");
 		panel_3.add(btnDelete);
 		btnDelete.setFont(font);
@@ -208,6 +188,37 @@ public class ContactSettingsView {
 		btnDelete.setPreferredSize(new Dimension(100, 30));
 		btnDelete.setMinimumSize(new Dimension(100, 30));
 		btnDelete.setMaximumSize(new Dimension(100, 30));
+
+		Component verticalStrut_10 = Box.createVerticalStrut(5);
+		panel_3.add(verticalStrut_10);
+
+		JPanel panel_5 = new JPanel();
+		panel_5.setBackground(SystemColor.textInactiveText);
+		panel_3.add(panel_5);
+
+		JLabel lblImport = new JLabel("Import .txt...");
+		lblImport.setForeground(Color.WHITE);
+		panel_5.add(lblImport);
+
+		Luz luz = new Luz();
+		luz.addEncendidoListener(e -> {
+			Object[] formats = { "Iphone", "Android v.1", "Android v.2" };
+			JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+			int returnValue = jfc.showOpenDialog(null);
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				int n = JOptionPane.showOptionDialog(null, "Select the file's format", "Import messages",
+						JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formats, formats[0]);
+				File selectedFile = jfc.getSelectedFile();
+				try {
+					Controlador.getInstance().importMessages(selectedFile.getAbsolutePath(), n);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		luz.setColor(SystemColor.textHighlight);
+		panel_5.add(luz);
 
 		Component horizontalStrut_1 = Box.createHorizontalStrut(120);
 		panel_3.add(horizontalStrut_1);
@@ -311,8 +322,8 @@ public class ContactSettingsView {
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
+				frame.dispose();
 			}
-			frame.dispose();
 		});
 
 		Component verticalStrut_5 = Box.createVerticalStrut(5);

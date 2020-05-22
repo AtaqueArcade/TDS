@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import TDS.AppChat.App;
+import cargador.CargadorMensajes;
+import cargador.MensajeEvent;
+import cargador.MensajeListener;
+import cargador.MensajeWhatsApp;
 import modelo.Contacto;
 import modelo.ContactoIndividual;
 import modelo.D1;
@@ -23,7 +28,7 @@ import modelo.Grupo;
 import modelo.Mensaje;
 import modelo.Usuario;
 
-public class Controlador {
+public class Controlador implements MensajeListener {
 
 	private static Controlador instance;
 	private CatalogoUsuarios userCatalog;
@@ -31,6 +36,7 @@ public class Controlador {
 	private CatalogoMensajes messageCatalog;
 	private Usuario currentUser;
 	private Contacto currentContact;
+	private CargadorMensajes cm;
 	private int contador;
 
 	public static Controlador getInstance()
@@ -70,7 +76,7 @@ public class Controlador {
 
 	// Resets the current user
 	public void logOut() {
-		// Close all opened windows and start the App again
+		// Close all opened windows and start up the App again
 		java.awt.Window win[] = java.awt.Window.getWindows();
 		for (int i = 0; i < win.length; i++) {
 			win[i].dispose();
@@ -117,6 +123,8 @@ public class Controlador {
 			if (currentUser.hasContact(c1.getId()))
 				return false;
 			int msgId = messageCatalog.createMessage();
+			// it also adds the currentUser as a contact in contactName's
+			// contact list
 			currentUser.addContact(c1, msgId);
 			userCatalog.modifyUser(currentUser);
 			Contacto c2 = getContact(currentUser.getUsername());
@@ -129,7 +137,7 @@ public class Controlador {
 
 	// Deletes the selected contacts from the current user's list
 	public boolean deleteContacts(List<Integer> contacts) {
-		// delete current contact
+		// deletes current contact on null invocation
 		if (contacts == null) {
 			messageCatalog.removeMessages(currentUser.getMessages(currentContact));
 			userCatalog.getUser(currentContact.getId()).removeContact(currentUser.getId());
@@ -138,7 +146,7 @@ public class Controlador {
 			currentContact = null;
 			return true;
 		}
-		// delete contact list
+		// deletes the given list otherwise
 		else {
 			if (contacts.contains(currentContact))
 				currentContact = null;
@@ -165,7 +173,7 @@ public class Controlador {
 		currentUser.addContact(group, msgId);
 		groupCatalog.addGroup(group);
 		userCatalog.modifyUser(currentUser);
-		// Inserts the group in each of it's components
+		// Inserts the group in each of it's components too
 		for (Contacto c : contactList) {
 			Usuario user = userCatalog.getUser(c.getId());
 			user.addContact(group, msgId);
@@ -210,7 +218,7 @@ public class Controlador {
 		return false;
 	}
 
-	// deletes the selected groups
+	// Deletes the selected groups after checking for permissions
 	public boolean deleteGroups(List<Integer> groupIds) {
 		boolean flag = currentUser.getContacts().stream()
 				.filter(c -> c instanceof Grupo && groupIds.contains(c.getId()))
@@ -234,7 +242,7 @@ public class Controlador {
 		return flag;
 	}
 
-	// Sets the selected group's picture
+	// Sets the given group's picture
 	public void setGroupPicture(Integer groupId, String url) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
@@ -353,12 +361,17 @@ public class Controlador {
 	// Returns the current message list
 	public List<Mensaje> getCurrentMessages() {
 		if (currentContact != null && currentUser != null)
-			if (currentUser.getMessages(currentContact) != -1)
+			try {
 				return messageCatalog.getMessages(currentUser.getMessages(currentContact));
+			} catch (NullPointerException e) {
+				// Can't stop the view's access while switching users,
+				// App will just try again after loading.
+				return null;
+			}
 		return null;
 	}
 
-	// Adds a message to the message list
+	// Adds a message with the current contact to the message list
 	public void addMessageToCurrent(String text, int emoji) {
 		Mensaje message = new Mensaje(text, emoji, getCurrentUserName());
 		messageCatalog.addMessage(currentUser.getMessages(currentContact), message);
@@ -451,6 +464,7 @@ public class Controlador {
 		return result;
 	}
 
+	// Retreives data for the statistics
 	public int[] getDataMsgSentLast30Days() {
 		int[] result = new int[30];
 		int it = 0;
@@ -488,5 +502,47 @@ public class Controlador {
 			it++;
 		}
 		return result;
+	}
+
+	// JavaBeans function. Calls the message parser
+	public void importMessages(String absolutePath, int n) {
+		if (cm == null) {
+			cm = new CargadorMensajes();
+			cm.addMensajeListener(this);
+		}
+		cm.setFichero(absolutePath, n);
+	}
+
+	// JavaBeans function. 'NuevosMensajes()' method
+	@Override
+	public void enteradoCambioMensaje(EventObject event) {
+		List<MensajeWhatsApp> newMsgs = ((MensajeEvent) event).getNewMensajes();
+		List<MensajeWhatsApp> oldMsgs = ((MensajeEvent) event).getOldMensajes();
+		// Makes no sense to identify the contact as the person's actual name!
+		// only barely works in 1 on 1 conversations, no way to identify groups
+		// also SimpleTextParser shoots an exception if given the wrong format!
+		// working with what I've been given
+		if (!newMsgs.equals(oldMsgs)) {
+			Optional<MensajeWhatsApp> WAmsg = newMsgs.stream()
+					.filter(msg -> !msg.getAutor().equals(currentUser.getName())).findFirst();
+			if (WAmsg != null) {
+				String contactName = WAmsg.get().getAutor();
+				Optional<Contacto> contact = currentUser.getContacts().stream()
+						.filter(c -> c.getName().equals(contactName)).findFirst();
+				if (contact.isPresent()) {
+					newMsgs.stream().forEach(msg -> {
+						String speaker = null;
+						if (msg.getAutor().equals(currentUser.getName()))
+							speaker = currentUser.getName();
+						else if (msg.getAutor().equals(contactName))
+							speaker = contactName;
+						if (speaker != null) {
+							Mensaje message = new Mensaje(msg.getTexto(), 0, speaker);
+							messageCatalog.addMessage(currentUser.getMessages(contact.get()), message);
+						}
+					});
+				}
+			}
+		}
 	}
 }

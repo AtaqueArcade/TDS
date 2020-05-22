@@ -200,7 +200,8 @@ public class ChatView extends JPanel {
 				if (!messages.equals(Controlador.getInstance().getCurrentMessages())) {
 					chat.removeAll();
 					messages.clear();
-					messages.addAll(Controlador.getInstance().getCurrentMessages());
+					if (Controlador.getInstance().getCurrentMessages() != null)
+						messages.addAll(Controlador.getInstance().getCurrentMessages());
 					for (Mensaje m : messages) {
 						BubbleText bubble;
 						int side = 1;

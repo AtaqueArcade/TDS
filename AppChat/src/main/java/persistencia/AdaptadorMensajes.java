@@ -85,11 +85,11 @@ public class AdaptadorMensajes implements DAOmensajes {
 	private LinkedList<Mensaje> parseStringToMsg(String msgString) {
 		LinkedList<Mensaje> result = new LinkedList<Mensaje>();
 		if (!msgString.equals("")) {
-			List<String> messages = Arrays.stream(msgString.split(";")).map(String::intern)
+			List<String> messages = Arrays.stream(msgString.split("<MESSAGE>")).map(String::intern)
 					.collect(Collectors.toList());
 			for (String mStr : messages) {
 				Mensaje msg = null;
-				String msgArr[] = mStr.split(",");
+				String msgArr[] = mStr.split("<FIELD>");
 				String text = null;
 				if (msgArr[0] != "")
 					text = msgArr[0];
@@ -105,20 +105,20 @@ public class AdaptadorMensajes implements DAOmensajes {
 		String result = "";
 		for (Mensaje m : messages) {
 			if (m.getText() == null)
-				result += ",";
+				result += "<FIELD>";
 			else
-				result += (m.getText() + ",");
-			result += (Integer.toString(m.getEmoticon()) + ",");
-			result += (m.getSpeaker() + ",");
-			result += (m.getTime().toString() + ";");
+				result += (m.getText() + "<FIELD>");
+			result += (Integer.toString(m.getEmoticon()) + "<FIELD>");
+			result += (m.getSpeaker() + "<FIELD>");
+			result += (m.getTime().toString() + "<MESSAGE>");
 		}
 		result = Optional.ofNullable(result).filter(sStr -> sStr.length() != 0)
-				.map(sStr -> sStr.substring(0, sStr.length() - 1)).orElse(result);
+				.map(sStr -> sStr.substring(0, sStr.length() - 9)).orElse(result);
 		return result;
 	}
 
 	public void deleteAll() {
-		ArrayList<Entidad> eMessageList = server.recuperarEntidades("message");
+		ArrayList<Entidad> eMessageList = server.recuperarEntidades("messages");
 		for (Entidad eMessage : eMessageList) {
 			server.borrarEntidad(eMessage);
 		}

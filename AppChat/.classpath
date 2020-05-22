@@ -27,5 +27,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="beans/Luz.jar"/>
+	<classpathentry kind="lib" path="beans/CargadorMensajes.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
