@@ -16,4 +16,6 @@ public interface DAOmensajes {
 	void modifyMessageList(int id, LinkedList<Mensaje> messageList);
 
 	void deleteMessageList(int id);
+
+	public void deleteAll();
 }

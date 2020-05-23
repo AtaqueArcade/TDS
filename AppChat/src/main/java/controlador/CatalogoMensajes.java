@@ -3,6 +3,8 @@ package controlador;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import modelo.AppChat_Constants;
 import modelo.Mensaje;
 import persistencia.DAOmensajes;
 import persistencia.FactoriaDAO;
@@ -22,7 +24,7 @@ public class CatalogoMensajes {
 	}
 
 	private CatalogoMensajes() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		dao = FactoriaDAO.getInstance("persistencia.FactoriaDAOImp");
+		dao = FactoriaDAO.getInstance(AppChat_Constants.DAO);
 		adaptadorMensajes = dao.getDAOmensajes();
 		this.catalog = new HashMap<Integer, List<Mensaje>>();
 		catalog = adaptadorMensajes.getAllMessages();

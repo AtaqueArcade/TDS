@@ -1,5 +1,7 @@
 package persistencia;
 
+import modelo.AppChat_Constants;
+
 public abstract class FactoriaDAO {
 	private static FactoriaDAO instance;
 
@@ -13,7 +15,7 @@ public abstract class FactoriaDAO {
 	public static FactoriaDAO getInstance()
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		if (instance == null)
-			return getInstance("persistencia.FactoriaDAOImp");
+			return getInstance(AppChat_Constants.DAO);
 		else
 			return instance;
 	}

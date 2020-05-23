@@ -2,6 +2,8 @@ package controlador;
 
 import java.util.HashMap;
 import java.util.List;
+
+import modelo.AppChat_Constants;
 import modelo.Grupo;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;
@@ -21,7 +23,7 @@ public class CatalogoGrupos {
 	}
 
 	private CatalogoGrupos() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		dao = FactoriaDAO.getInstance("persistencia.FactoriaDAOImp");
+		dao = FactoriaDAO.getInstance(AppChat_Constants.DAO);
 		adaptadorUsuario = dao.getDAOusuario();
 		updateAllGroups();
 	}

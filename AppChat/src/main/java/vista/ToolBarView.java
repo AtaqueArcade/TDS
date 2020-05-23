@@ -6,11 +6,11 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import controlador.Controlador;
+import modelo.AppChat_Constants;
 import modelo.D1;
 import modelo.D2;
 import modelo.Descuento;
 import modelo.Mensaje;
-import modelo.RefreshRate;
 import tds.BubbleText;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -197,7 +197,7 @@ public class ToolBarView extends JPanel {
 		rightPanel.add(btnDelete);
 
 		// UI updater
-		Timer timer = new Timer(RefreshRate.RATE, new ActionListener() {
+		Timer timer = new Timer(AppChat_Constants.RATE, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				String contactName = null;

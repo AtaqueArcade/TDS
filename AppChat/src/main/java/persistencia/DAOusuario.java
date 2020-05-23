@@ -28,4 +28,6 @@ public interface DAOusuario {
 
 	public List<Contacto> getAsContacts(List<Integer> idList);
 
+	public void deleteAll();
+
 }

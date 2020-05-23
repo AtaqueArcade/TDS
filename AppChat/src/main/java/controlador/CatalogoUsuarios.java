@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import modelo.AppChat_Constants;
 import modelo.Usuario;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;
@@ -24,7 +25,7 @@ public class CatalogoUsuarios {
 	}
 
 	private CatalogoUsuarios() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		dao = FactoriaDAO.getInstance("persistencia.FactoriaDAOImp");
+		dao = FactoriaDAO.getInstance(AppChat_Constants.DAO);
 		adaptadorUsuario = dao.getDAOusuario();
 		updateAllUsers();
 	}

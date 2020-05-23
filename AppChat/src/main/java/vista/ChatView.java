@@ -15,8 +15,8 @@ import javax.swing.JTextField;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.Timer;
+import modelo.AppChat_Constants;
 import modelo.Mensaje;
-import modelo.RefreshRate;
 import controlador.Controlador;
 import tds.BubbleText;
 import java.awt.Component;
@@ -118,7 +118,7 @@ public class ChatView extends JPanel {
 		Component horizontalStrut = Box.createHorizontalStrut(5);
 		add(horizontalStrut, BorderLayout.EAST);
 
-		Timer timer = new Timer(RefreshRate.RATE, new ActionListener() {
+		Timer timer = new Timer(AppChat_Constants.RATE, new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				setChat();
