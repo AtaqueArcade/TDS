@@ -772,10 +772,16 @@ public class ToolBarView extends JPanel {
 
 	private JPanel urlView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JPanel urlJPanel = new JPanel();
+		urlJPanel.setBackground(SystemColor.controlDkShadow);
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		urlJPanel.setBorder(blackline);
 		JTextField textField = new JTextField(Controlador.getInstance().getCurrentUserPicture());
 		JButton btnNewButton = new JButton("Change picture");
+		btnNewButton.setFont(font);
+		btnNewButton.setContentAreaFilled(false);
+		btnNewButton.setOpaque(true);
+		btnNewButton.setBackground(SystemColor.textHighlight);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -810,9 +816,15 @@ public class ToolBarView extends JPanel {
 
 	private JPanel quoteView() {
 		JPanel urlJPanel = new JPanel();
+		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		Border blackline = BorderFactory.createLineBorder(Color.black);
+		urlJPanel.setBackground(SystemColor.controlDkShadow);
 		urlJPanel.setBorder(blackline);
 		JButton btnNewButton = new JButton("Confirm");
+		btnNewButton.setFont(font);
+		btnNewButton.setContentAreaFilled(false);
+		btnNewButton.setOpaque(true);
+		btnNewButton.setBackground(SystemColor.textHighlight);
 		JTextField textField = new JTextField();
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
