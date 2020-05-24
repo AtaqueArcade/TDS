@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -431,13 +430,14 @@ public class Controlador implements MensajeListener {
 					if (result.size() < 4)
 						result.put(entry.getKey().getName(), messageCatalog.getMessages(entry.getValue()).size());
 					else {
-						Entry<String, Integer> lowest = result.entrySet().stream()
-								.sorted(Comparator
-										.comparingInt(each -> messageCatalog.getMessages(each.getValue()).size()))
-								.findFirst().get();
-						if (lowest.getValue() < messageCatalog.getMessages(entry.getValue()).size()) {
-							result.remove(lowest.getKey());
-							result.put(entry.getKey().getName(), entry.getValue());
+						Optional<Entry<String, Integer>> lowestOp = result.entrySet().stream()
+								.min((e1, e2) -> Integer.compare(e1.getValue(), e2.getValue()));
+						if (lowestOp != null) {
+							Entry<String, Integer> lowest = lowestOp.get();
+							if (lowest.getValue() < messageCatalog.getMessages(entry.getValue()).size()) {
+								result.remove(lowest.getKey());
+								result.put(entry.getKey().getName(), entry.getValue());
+							}
 						}
 					}
 				});

@@ -85,7 +85,7 @@ public class JUnitTest {
 	}
 
 	@Test
-	public void test_4_writeToGroups() {
+	public void test_5_writeToGroups() {
 		message = new Mensaje("Message added succesfully to group", 0, u1.getName());
 		list = adaptadorMensajes.getMessageList(u1.getMessages(u1.getContacts().get(1)));
 		list.add(message);
@@ -95,7 +95,7 @@ public class JUnitTest {
 	}
 
 	@Test
-	public void test_5_delete() {
+	public void test_6_delete() {
 		adaptadorUsuario.deleteAll();
 		adaptadorMensajes.deleteAll();
 		System.out.println("The database has been reset");
