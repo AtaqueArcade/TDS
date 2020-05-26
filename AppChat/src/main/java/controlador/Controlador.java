@@ -135,6 +135,7 @@ public class Controlador implements MensajeListener {
 	}
 
 	// Deletes the selected contacts from the current user's list
+	@SuppressWarnings("unlikely-arg-type")
 	public boolean deleteContacts(List<Integer> contacts) {
 		// deletes current contact on null invocation
 		if (contacts == null) {

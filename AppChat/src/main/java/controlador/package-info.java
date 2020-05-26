@@ -2,7 +2,7 @@
  * 
  */
 /**
- * @author Daniel Ibañez Molero
+ * @author Daniel Ibaï¿½ez Molero
  *
  */
 package controlador;
