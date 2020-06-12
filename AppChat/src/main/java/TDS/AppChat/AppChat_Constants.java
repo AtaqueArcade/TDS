@@ -1,4 +1,4 @@
-package modelo;
+package TDS.AppChat;
 
 public class AppChat_Constants {
 	//Refresh rate for the UI

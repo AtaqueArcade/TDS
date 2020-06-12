@@ -31,8 +31,9 @@ public class Controlador implements MensajeListener {
 
 	private static Controlador instance;
 	private CatalogoUsuarios userCatalog;
-	private CatalogoGrupos groupCatalog;
-	private CatalogoMensajes messageCatalog;
+	/*
+	 * private CatalogoGrupos groupCatalog; private CatalogoMensajes messageCatalog;
+	 */
 	private Usuario currentUser;
 	private Contacto currentContact;
 	private CargadorMensajes cm;
@@ -50,8 +51,6 @@ public class Controlador implements MensajeListener {
 	// Starts up all the catalogues
 	private void initialize() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		userCatalog = CatalogoUsuarios.getInstance();
-		groupCatalog = CatalogoGrupos.getInstance();
-		messageCatalog = CatalogoMensajes.getInstance();
 	}
 
 	// Registers a new user in the database
@@ -94,18 +93,6 @@ public class Controlador implements MensajeListener {
 	// Returns the picture of any user
 	public String getUserPicture(int id) {
 		return userCatalog.getUser(id).getPicture();
-	}
-
-	// Returns the username as a Contact if it's registered in the database
-	public Contacto getContact(String username)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		Contacto response;
-		Usuario user = CatalogoUsuarios.getInstance().getUser(username);
-		if (user != null) {
-			response = new ContactoIndividual(user.getId(), user.getName(), user.getPicture(), user.getPhone());
-			return response;
-		}
-		return null;
 	}
 
 	// Adds a contact to the current user
@@ -545,5 +532,18 @@ public class Controlador implements MensajeListener {
 				}
 			}
 		}
+	}
+
+	// Supporting methods
+	// Returns the username as a Contact if it's registered in the database
+	public Contacto getContact(String username)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		Contacto response;
+		Usuario user = CatalogoUsuarios.getInstance().getUser(username);
+		if (user != null) {
+			response = new ContactoIndividual(user.getId(), user.getName(), user.getPicture(), user.getPhone());
+			return response;
+		}
+		return null;
 	}
 }

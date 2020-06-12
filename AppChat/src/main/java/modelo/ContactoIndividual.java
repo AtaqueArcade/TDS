@@ -3,9 +3,8 @@ package modelo;
 public class ContactoIndividual extends Contacto {
 	private int phone;
 
-	public ContactoIndividual(int id, String name, String picture, int phone) {
-		super(id, name);
-		this.setPicture(picture);
+	public ContactoIndividual(int id, int msgId, int userId, String name, String picture, int phone) {
+		super(id, msgId, userId, name, picture);
 		this.setPhone(phone);
 		// TODO Auto-generated constructor stub
 	}

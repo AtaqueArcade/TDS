@@ -3,7 +3,7 @@ package controlador;
 import java.util.HashMap;
 import java.util.List;
 
-import modelo.AppChat_Constants;
+import TDS.AppChat.AppChat_Constants;
 import modelo.Grupo;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;

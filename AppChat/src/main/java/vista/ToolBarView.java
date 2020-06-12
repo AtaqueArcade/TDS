@@ -5,8 +5,9 @@ import java.net.URL;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+
+import TDS.AppChat.AppChat_Constants;
 import controlador.Controlador;
-import modelo.AppChat_Constants;
 import modelo.D1;
 import modelo.D2;
 import modelo.Descuento;
@@ -872,7 +873,6 @@ public class ToolBarView extends JPanel {
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 			try {
-				// TODO hacer en stream
 				for (Mensaje m : Controlador.getInstance().getCurrentMessages()) {
 					if (m.getText() != null && m.getText().contains(search)) {
 						BubbleText bubble = new BubbleText(chat, m.getText(), Color.LIGHT_GRAY, m.getSpeaker(),

@@ -15,7 +15,8 @@ import javax.swing.JTextField;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.Timer;
-import modelo.AppChat_Constants;
+
+import TDS.AppChat.AppChat_Constants;
 import modelo.Mensaje;
 import controlador.Controlador;
 import tds.BubbleText;

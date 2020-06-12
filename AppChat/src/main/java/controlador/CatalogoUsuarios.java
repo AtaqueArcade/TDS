@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import modelo.AppChat_Constants;
+import TDS.AppChat.AppChat_Constants;
 import modelo.Usuario;
 import persistencia.DAOusuario;
 import persistencia.FactoriaDAO;

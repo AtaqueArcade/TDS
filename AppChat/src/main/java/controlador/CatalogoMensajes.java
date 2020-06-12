@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import modelo.AppChat_Constants;
+import TDS.AppChat.AppChat_Constants;
 import modelo.Mensaje;
 import persistencia.DAOmensajes;
 import persistencia.FactoriaDAO;
