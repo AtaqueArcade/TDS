@@ -12,5 +12,4 @@ public interface DAOcontacto {
 	public void modifyContact(Contacto contact);
 
 	public void deleteAll();
-
 }

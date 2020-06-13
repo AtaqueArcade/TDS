@@ -9,8 +9,8 @@ public class Grupo extends Contacto {
 
 	public Grupo(int id, int msgId, int userId, String name, String picture, int admin, List<Contacto> components) {
 		super(id, msgId, userId, name, picture);
-		this.components = new LinkedList<Contacto>();
 		this.admin = admin;
+		this.components = new LinkedList<Contacto>();
 		if (components != null)
 			this.components.addAll(components);
 	}

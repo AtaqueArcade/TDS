@@ -7,13 +7,15 @@ public class Mensaje {
 	private String text;
 	private LocalDateTime time;
 	private int emoticon;
-	private String speaker;
+	private int speaker;
+	private boolean sentByUser;
 
-	public Mensaje(String text, int emoticon, String speaker) {
+	public Mensaje(String text, int emoticon, int speaker, boolean sentByUser) {
 		this.text = text;
 		this.time = LocalDateTime.now();
 		this.emoticon = emoticon;
 		this.speaker = speaker;
+		this.sentByUser = sentByUser;
 	}
 
 	public String getText() {
@@ -40,7 +42,7 @@ public class Mensaje {
 		this.emoticon = emoticon;
 	}
 
-	public void setSpeaker(String speaker) {
+	public void setSpeaker(int speaker) {
 		this.speaker = speaker;
 	}
 
@@ -48,8 +50,12 @@ public class Mensaje {
 		return time;
 	}
 
-	public String getSpeaker() {
+	public int getSpeaker() {
 		return speaker;
+	}
+
+	public boolean isSentByUser() {
+		return sentByUser;
 	}
 
 	@Override
@@ -62,6 +68,7 @@ public class Mensaje {
 			return false;
 		Mensaje mensaje = (Mensaje) o;
 		return Objects.equals(text, mensaje.text) && Objects.equals(time, mensaje.time)
-				&& Objects.equals(emoticon, mensaje.emoticon) && Objects.equals(speaker, mensaje.speaker);
+				&& Objects.equals(emoticon, mensaje.emoticon) && Objects.equals(speaker, mensaje.speaker)
+				&& Objects.equals(sentByUser, mensaje.sentByUser);
 	}
 }

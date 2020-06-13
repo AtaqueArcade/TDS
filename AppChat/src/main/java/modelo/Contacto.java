@@ -16,14 +16,6 @@ public abstract class Contacto {
 	private String picture;
 	private List<Mensaje> mensajes;
 
-	public Contacto(String name, int userId) {
-		id = Id.generateUniqueId();
-		msgId = Id.generateUniqueId();
-		this.name = name;
-		this.userId = userId;
-		this.mensajes = new LinkedList<Mensaje>();
-	}
-
 	public Contacto(int id, int msgId, int userId, String name, String picture) {
 		this.id = id;
 		this.msgId = msgId;
@@ -74,6 +66,10 @@ public abstract class Contacto {
 
 	public List<Mensaje> getMensajes() {
 		return mensajes;
+	}
+
+	public void setMensaje(List<Mensaje> mList) {
+		mensajes = mList;
 	}
 
 	public boolean addMensaje(Mensaje m) {

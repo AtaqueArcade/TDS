@@ -1,10 +1,9 @@
 package modelo;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class Usuario {
 	private int id;
@@ -16,7 +15,7 @@ public class Usuario {
 	private String picture;
 	private String quote;
 	private boolean premium;
-	private Map<Contacto, Integer> contacts;
+	private List<Contacto> contacts;
 
 	public Usuario(String name, Date birthday, int phone, String username, String password) {
 		id = Id.generateUniqueId();
@@ -27,11 +26,11 @@ public class Usuario {
 		this.password = password;
 		picture = null;
 		premium = false;
-		contacts = new HashMap<Contacto, Integer>();
+		contacts = new LinkedList<Contacto>();
 	}
 
 	public Usuario(int id, String name, Date birthday, int phone, String username, String password, String picture,
-			boolean premium, Map<Contacto, Integer> contacts, String quote) {
+			boolean premium, List<Contacto> contacts, String quote) {
 		this(name, birthday, phone, username, password);
 		this.id = id;
 		this.picture = picture;
@@ -89,12 +88,27 @@ public class Usuario {
 	}
 
 	public List<Contacto> getContacts() {
-		List<Contacto> result = new LinkedList<Contacto>(contacts.keySet());
-		return result;
+		return contacts;
 	}
 
-	public void setContacts(HashMap<Contacto, Integer> contacts) {
-		this.contacts = contacts;
+	public boolean addContact(Contacto contact) {
+		return contacts.add(contact);
+	}
+
+	public boolean removeContact(Contacto contact) {
+		if (contact instanceof Grupo) {
+			Optional<Contacto> group = contacts.stream().filter(c -> c.getMsgId() == contact.getMsgId()).findFirst();
+			if (!group.isPresent())
+				return false;
+			return contacts.remove(group.get());
+		}
+		return contacts.remove(contact);
+	}
+
+	public boolean hasContact(int contactId) {
+		if (!contacts.stream().anyMatch(c -> (c.getUserId() == contactId)))
+			return true;
+		return false;
 	}
 
 	public void setId(int id) {
@@ -119,38 +133,12 @@ public class Usuario {
 		return id;
 	}
 
-	public boolean addContact(Contacto contact, int msgId) {
-		return (contacts.put(contact, msgId) == null);
-	}
-
 	public void setQuote(String quote) {
 		this.quote = quote;
 	}
 
 	public String getQuote() {
 		return this.quote;
-	}
-
-	public boolean hasContact(int id) {
-		return contacts.entrySet().stream().anyMatch(e -> e.getKey().getId() == id);
-	}
-
-	public boolean removeContact(int contactId) {
-		return contacts.entrySet().removeIf(e -> e.getKey().getId() == contactId);
-	}
-
-	public Integer getMessages(Contacto contact) {
-		return contacts.get(contact);
-	}
-
-	public List<Integer> getAllMessages() {
-		List<Integer> result = new LinkedList<Integer>(contacts.values());
-		return result;
-	}
-
-	public void removeMessages(Contacto contact, int msgId) {
-		contacts.entrySet().removeIf(e -> e.getKey().getId() == contact.getId());
-		contacts.put(contact, msgId);
 	}
 
 	public boolean getPremium() {

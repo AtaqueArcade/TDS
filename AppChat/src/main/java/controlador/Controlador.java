@@ -24,16 +24,20 @@ import modelo.D1;
 import modelo.D2;
 import modelo.Descuento;
 import modelo.Grupo;
+import modelo.Id;
 import modelo.Mensaje;
 import modelo.Usuario;
+import persistencia.AdaptadorContacto;
+import persistencia.AdaptadorMensajes;
+import persistencia.DAOcontacto;
+import persistencia.DAOmensajes;
 
 public class Controlador implements MensajeListener {
 
 	private static Controlador instance;
 	private CatalogoUsuarios userCatalog;
-	/*
-	 * private CatalogoGrupos groupCatalog; private CatalogoMensajes messageCatalog;
-	 */
+	private DAOcontacto contactDAO;
+	private DAOmensajes messageDAO;
 	private Usuario currentUser;
 	private Contacto currentContact;
 	private CargadorMensajes cm;
@@ -51,6 +55,8 @@ public class Controlador implements MensajeListener {
 	// Starts up all the catalogues
 	private void initialize() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		userCatalog = CatalogoUsuarios.getInstance();
+		contactDAO = AdaptadorContacto.getInstance();
+		messageDAO = AdaptadorMensajes.getInstance();
 	}
 
 	// Registers a new user in the database
@@ -95,75 +101,114 @@ public class Controlador implements MensajeListener {
 		return userCatalog.getUser(id).getPicture();
 	}
 
-	// Adds a contact to the current user
-	public boolean addContact(String contactName)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		Usuario user = null;
+	// Adds a contact to a user
+	public boolean addContact(Usuario user1, String contactName) {
+		if (user1 == null && currentUser != null)
+			user1 = currentUser;
+		else
+			return false;
+		Usuario user2 = null;
 		try {
-			user = CatalogoUsuarios.getInstance().getUser(contactName);
+			user2 = CatalogoUsuarios.getInstance().getUser(contactName);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		if (user != null) {
-			Contacto c1 = getContact(contactName);
-			if (currentUser.hasContact(c1.getId()))
+		if (user2 != null) {
+			if (user1.hasContact(user2.getId()))
 				return false;
-			int msgId = messageCatalog.createMessage();
-			// it also adds the currentUser as a contact in contactName's
-			// contact list
-			currentUser.addContact(c1, msgId);
-			userCatalog.modifyUser(currentUser);
-			Contacto c2 = getContact(currentUser.getUsername());
-			user.addContact(c2, msgId);
-			userCatalog.modifyUser(user);
+			int msgId = messageDAO.createMessageList();
+			List<Mensaje> messageList = messageDAO.getMessageList(msgId);
+			// adds user2 as a contact in user1
+			int newId = Id.generateUniqueId();
+			Contacto contact1 = new ContactoIndividual(newId, msgId, user2.getId(), user2.getName(), user2.getPicture(),
+					user2.getPhone());
+			contact1.setMensaje(messageList);
+			contactDAO.registerContact(contact1);
+			user1.addContact(contact1);
+			userCatalog.modifyUser(user1);
+			// adds the user1 as a contact in user2
+			newId = Id.generateUniqueId();
+			msgId = messageDAO.createMessageList();
+			Contacto contact2 = new ContactoIndividual(newId, msgId, user1.getId(), user1.getName(), user1.getPicture(),
+					user1.getPhone());
+			contact2.setMensaje(messageList);
+			contactDAO.registerContact(contact2);
+			user2.addContact(contact2);
+			userCatalog.modifyUser(user2);
 			return true;
 		}
 		return false;
 	}
 
-	// Deletes the selected contacts from the current user's list
-	@SuppressWarnings("unlikely-arg-type")
-	public boolean deleteContacts(List<Integer> contacts) {
+	// Deletes the selected contact from the current user's list
+	public boolean deleteContact(Contacto contact) {
 		// deletes current contact on null invocation
-		if (contacts == null) {
-			messageCatalog.removeMessages(currentUser.getMessages(currentContact));
-			userCatalog.getUser(currentContact.getId()).removeContact(currentUser.getId());
-			currentUser.removeContact(currentContact.getId());
-			userCatalog.modifyUser(currentUser);
+		if (contact == null) {
+			if (currentContact == null)
+				return false;
+			contact = currentContact;
 			currentContact = null;
-			return true;
 		}
-		// deletes the given list otherwise
-		else {
-			if (contacts.contains(currentContact))
-				currentContact = null;
-			currentUser.getContacts().stream()
-					.filter(c -> contacts.contains(c.getId()) && (userCatalog.getUser(c.getId()) != null))
-					.forEach(c -> {
-						messageCatalog.removeMessages(currentUser.getMessages(c));
-						userCatalog.getUser(c.getId()).removeContact(currentUser.getId());
-						userCatalog.modifyUser(userCatalog.getUser(c.getId()));
-					});
-			contacts.forEach(id -> currentUser.removeContact(id));
-			userCatalog.modifyUser(currentUser);
-			return true;
-		}
+		Usuario user = userCatalog.getUser(contact.getUserId());
+		Optional<Contacto> result = user.getContacts().stream().filter(c -> c.getUserId() == currentUser.getId())
+				.findFirst();
+		if (!result.isPresent())
+			return false;
+		messageDAO.deleteMessageList(contact.getMsgId());
+		contactDAO.deleteContact(result.get());
+		contactDAO.deleteContact(contact);
+		user.removeContact(result.get());
+		currentUser.removeContact(contact);
+		userCatalog.modifyUser(user);
+		userCatalog.modifyUser(currentUser);
+		return true;
+	}
+
+	// Deletes the selected contacts from the current user's list
+	public boolean deleteContact(List<Contacto> contacts) {
+		if (contacts == null)
+			return false;
+		if (contacts.contains(currentContact))
+			currentContact = null;
+		currentUser.getContacts().stream().filter(
+				c -> contacts.stream().anyMatch(contact -> contact.getId() == c.getId()) && !(c instanceof Grupo))
+				.forEach(c -> {
+					deleteContact(c);
+				});
+		return true;
 	}
 
 	// Adds a group contact to the current user
-	public boolean addContact(String groupName, List<String> userNames)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException {
-		List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
+	public boolean addContact(String groupName, List<String> userNames) {
+		List<Contacto> contactList1 = currentUser.getContacts().stream()
+				.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
 				.collect(Collectors.toList());
-		Grupo group = new Grupo(groupName, currentUser.getId(), contactList);
-		int msgId = messageCatalog.createMessage();
-		currentUser.addContact(group, msgId);
-		groupCatalog.addGroup(group);
+		int newId = Id.generateUniqueId();
+		int msgId = messageDAO.createMessageList();
+		List<Mensaje> msgList = messageDAO.getMessageList(msgId);
+		Contacto group1 = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), contactList1);
+		group1.setMensaje(msgList);
+		contactDAO.registerContact(group1);
+		currentUser.addContact(group1);
 		userCatalog.modifyUser(currentUser);
-		// Inserts the group in each of it's components too
-		for (Contacto c : contactList) {
-			Usuario user = userCatalog.getUser(c.getId());
-			user.addContact(group, msgId);
+
+		// Inserts the group in each of it's components. If the users don't have any of
+		// the group components as a contact already, they will be added
+
+		for (Contacto contact : contactList1) {
+			Usuario user = userCatalog.getUser(contact.getUserId());
+			// Add missing components as contacts to the other users
+			contactList1.stream().filter(c -> !user.hasContact(c.getUserId())).forEach(c -> {
+				addContact(user, userCatalog.getUser(c.getUserId()).getUsername());
+			});
+			List<Contacto> contactList2 = user.getContacts().stream()
+					.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
+					.collect(Collectors.toList());
+			newId = Id.generateUniqueId();
+			Contacto group2 = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), contactList2);
+			group2.setMensaje(msgList);
+			contactDAO.registerContact(group2);
+			user.addContact(group2);
 			userCatalog.modifyUser(user);
 		}
 		return true;
@@ -177,56 +222,85 @@ public class Controlador implements MensajeListener {
 		return gr.getComponents().stream().map(c -> c.getName()).collect(Collectors.toList());
 	}
 
+	// TODO
 	// Edits the given group if the current user created it
 	public boolean editGroup(int groupId, List<String> userNames) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
-		Grupo gr = (Grupo) g.get();
-		List<Contacto> oldContacts = gr.getComponents();
-		if (gr != null && (gr.getAdmin() == currentUser.getId())) {
-			List<Contacto> contactList = currentUser.getContacts().stream().filter(c -> userNames.contains(c.getName()))
-					.collect(Collectors.toList());
-			gr.setComponents(contactList);
-			// Create the group in the new components
-			contactList.stream().filter(c -> !oldContacts.contains(c)).forEach(c -> {
-				Usuario user = userCatalog.getUser(c.getId());
-				user.addContact(gr, currentUser.getMessages(gr));
-				userCatalog.modifyUser(user);
-			});
-			// Delete the group in the deleted users
-			oldContacts.stream().filter(c -> !contactList.contains(c)).forEach(c -> {
-				Usuario u = userCatalog.getUser(c.getId());
-				u.removeContact(groupId);
-				userCatalog.modifyUser(u);
-			});
-			groupCatalog.modifyGroup(gr);
-			return true;
+		if (g.isPresent()) {
+			Grupo gr = (Grupo) g.get();
+			List<Contacto> oldContacts = gr.getComponents();
+			if (gr.getAdmin() == currentUser.getId()) {
+				List<Contacto> contactList = currentUser.getContacts().stream()
+						.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
+						.collect(Collectors.toList());
+				gr.setComponents(contactList);
+				// Add missing components as contacts to the other users
+				contactList.stream().filter(c -> !oldContacts.contains(c)).forEach(c -> {
+					Usuario user = userCatalog.getUser(c.getId());
+					int newId = Id.generateUniqueId();
+					contactList.stream().filter(c2 -> !user.hasContact(c2.getUserId())).forEach(c2 -> {
+						addContact(user, userCatalog.getUser(c2.getUserId()).getUsername());
+					});
+					List<Contacto> contactList2 = user.getContacts().stream()
+							.filter(c2 -> userNames.contains(userCatalog.getUser(c2.getUserId()).getUsername()))
+							.collect(Collectors.toList());
+					Contacto group2 = new Grupo(newId, gr.getMsgId(), 0, gr.getName(), gr.getPicture(),
+							currentUser.getId(), contactList2);
+					group2.setMensaje(gr.getMensajes());
+					contactDAO.registerContact(group2);
+					user.addContact(group2);
+					userCatalog.modifyUser(user);
+				});
+				// Delete the group in the deleted users
+				oldContacts.stream().filter(c -> !contactList.contains(c)).forEach(c -> {
+					Usuario user = userCatalog.getUser(c.getId());
+					user.removeContact(gr);
+					userCatalog.modifyUser(user);
+				});
+				// Update all group versions
+				contactList.stream().forEach(c -> {
+					Usuario user = userCatalog.getUser(c.getId());
+					user.getContacts().stream()
+							.filter(contact -> contact instanceof Grupo && (contact.getMsgId() == gr.getMsgId()))
+							.forEach(group -> {
+								contactDAO.modifyContact(group);
+							});
+				});
+				return true;
+			}
 		}
 		return false;
 	}
 
 	// Deletes the selected groups after checking for permissions
 	public boolean deleteGroups(List<Integer> groupIds) {
-		boolean flag = currentUser.getContacts().stream()
-				.filter(c -> c instanceof Grupo && groupIds.contains(c.getId()))
-				.allMatch(c -> ((Grupo) c).getAdmin() == currentUser.getId());
-		if (flag) {
+		if (currentUser.getContacts().stream().filter(c -> c instanceof Grupo && groupIds.contains(c.getId()))
+				.allMatch(c -> ((Grupo) c).getAdmin() == currentUser.getId())) {
 			for (int groupId : groupIds) {
 				Optional<Contacto> g = currentUser.getContacts().stream()
 						.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 				Grupo gr = (Grupo) g.get();
-				List<Contacto> oldContacts = gr.getComponents();
-				oldContacts.stream().forEach(c -> {
-					Usuario u = userCatalog.getUser(c.getId());
-					u.removeContact(groupId);
-					userCatalog.modifyUser(u);
+				List<Contacto> memberList = gr.getComponents();
+
+				// Update all group versions
+				memberList.stream().forEach(c -> {
+					Usuario user = userCatalog.getUser(c.getId());
+					Optional<Contacto> group = user.getContacts().stream()
+							.filter(contact -> contact instanceof Grupo && (contact.getMsgId() == gr.getMsgId()))
+							.findFirst();
+					contactDAO.deleteContact(group.get());
+					user.removeContact(group.get());
+					userCatalog.modifyUser(user);
 				});
-				currentUser.removeContact(groupId);
+				messageDAO.deleteMessageList(gr.getMsgId());
+				contactDAO.deleteContact(gr);
+				currentUser.removeContact(gr);
 				userCatalog.modifyUser(currentUser);
-				groupCatalog.removeGroup(groupId);
 			}
+			return true;
 		}
-		return flag;
+		return false;
 	}
 
 	// Sets the given group's picture
@@ -235,7 +309,17 @@ public class Controlador implements MensajeListener {
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
 		gr.setPicture(url);
-		groupCatalog.modifyGroup(gr);
+		contactDAO.modifyContact(gr);
+		// Update all group versions
+		gr.getComponents().stream().forEach(c -> {
+			Usuario user = userCatalog.getUser(c.getId());
+			user.getContacts().stream()
+					.filter(contact -> contact instanceof Grupo && (contact.getMsgId() == gr.getMsgId()))
+					.forEach(group -> {
+						gr.setPicture(url);
+						contactDAO.modifyContact(group);
+					});
+		});
 	}
 
 	// Checks if usernames are already in the current user's contact list
@@ -280,7 +364,7 @@ public class Controlador implements MensajeListener {
 	}
 
 	// Get current user's discount
-	public Descuento getDiscount() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public Descuento getDiscount() {
 		Descuento discount = null;
 		Calendar c = Calendar.getInstance();
 		int month = c.get(Calendar.MONTH);
@@ -288,9 +372,9 @@ public class Controlador implements MensajeListener {
 			discount = new D2();
 		else {
 			int total = 0;
-			for (int msgId : currentUser.getAllMessages())
-				for (Mensaje msg : CatalogoMensajes.getInstance().getMessages(msgId))
-					if (msg.getSpeaker().equals(currentUser.getName()))
+			for (int msgId : currentUser.getContacts().stream().map(Contacto::getMsgId).collect(Collectors.toList()))
+				for (Mensaje msg : messageDAO.getMessageList(msgId))
+					if (msg.getSpeaker() == currentUser.getId())
 						total++;
 			if (total >= 100)
 				discount = new D1();
@@ -349,7 +433,7 @@ public class Controlador implements MensajeListener {
 	public List<Mensaje> getCurrentMessages() {
 		if (currentContact != null && currentUser != null)
 			try {
-				return messageCatalog.getMessages(currentUser.getMessages(currentContact));
+				return currentContact.getMensajes();
 			} catch (NullPointerException e) {
 				// Can't stop the view's access while switching users,
 				// App will just try again after loading.
@@ -360,13 +444,15 @@ public class Controlador implements MensajeListener {
 
 	// Adds a message with the current contact to the message list
 	public void addMessageToCurrent(String text, int emoji) {
-		Mensaje message = new Mensaje(text, emoji, getCurrentUserName());
-		messageCatalog.addMessage(currentUser.getMessages(currentContact), message);
+		Mensaje message = new Mensaje(text, emoji, currentUser.getId(), true);
+		currentContact.addMensaje(message);
+		// TODO CONTINUAR
+		messageCatalog.addMessage(currentUser.getMessageList(currentContact), message);
 	}
 
 	// Deletes all messages from the current conversation
 	public void deleteMessages() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		messageCatalog.removeMessages(currentUser.getMessages(currentContact));
+		messageCatalog.removeMessages(currentUser.getMessageList(currentContact));
 		int msgId = messageCatalog.createMessage();
 		currentUser.removeMessages(currentContact, msgId);
 		userCatalog.modifyUser(currentUser);
@@ -526,24 +612,11 @@ public class Controlador implements MensajeListener {
 							speaker = contactName;
 						if (speaker != null) {
 							Mensaje message = new Mensaje(msg.getTexto(), 0, speaker);
-							messageCatalog.addMessage(currentUser.getMessages(contact.get()), message);
+							messageCatalog.addMessage(currentUser.getMessageList(contact.get()), message);
 						}
 					});
 				}
 			}
 		}
-	}
-
-	// Supporting methods
-	// Returns the username as a Contact if it's registered in the database
-	public Contacto getContact(String username)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		Contacto response;
-		Usuario user = CatalogoUsuarios.getInstance().getUser(username);
-		if (user != null) {
-			response = new ContactoIndividual(user.getId(), user.getName(), user.getPicture(), user.getPhone());
-			return response;
-		}
-		return null;
 	}
 }
