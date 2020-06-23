@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.awt.SystemColor;
 
 public class ContactView extends JPanel {
@@ -42,18 +40,18 @@ public class ContactView extends JPanel {
 		Map<String, Integer> contacts = Controlador.getInstance().getCurrentContacts();
 		list = new JList<String>();
 		listModel = new DefaultListModel<String>();
+		List<Integer> idList = new LinkedList<Integer>();
 		contacts.entrySet().stream().forEach(e -> {
 			listModel.addElement(e.getKey());
+			idList.add(e.getValue());
 		});
-		List<Map.Entry<String, Integer>> entryList = new LinkedList<>();
-		List<Integer> idList = entryList.stream().map(Entry::getValue).collect(Collectors.toList());
 		list.setModel(listModel);
 		imageMap = createImageMap(contacts);
 		list.setBackground(SystemColor.controlDkShadow);
 		list.setCellRenderer(new ListRenderer());
 		list.addMouseListener(new MouseAdapter() {
-			@SuppressWarnings("unchecked")
 			public void mouseClicked(MouseEvent evt) {
+				@SuppressWarnings("unchecked")
 				JList<String> list = (JList<String>) evt.getSource();
 				int index = list.locationToIndex(evt.getPoint());
 				if (index >= 0 && index <= list.getModel().getSize()) {
@@ -61,7 +59,6 @@ public class ContactView extends JPanel {
 					try {
 						Controlador.getInstance().setCurrentChat(id);
 					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -77,9 +74,11 @@ public class ContactView extends JPanel {
 				try {
 					DefaultListModel<String> newListModel = new DefaultListModel<String>();
 					Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
-					updatedContacts.entrySet().stream().forEach(entry -> {
-						newListModel.addElement(entry.getKey());
-					});
+					if (updatedContacts != null) {
+						updatedContacts.entrySet().stream().forEach(entry -> {
+							newListModel.addElement(entry.getKey());
+						});
+					}
 					List<?> elements1 = Arrays.asList(newListModel.toArray());
 					List<?> elements2 = Arrays.asList(listModel.toArray());
 					if (!elements1.equals(elements2)) {
@@ -118,23 +117,25 @@ public class ContactView extends JPanel {
 
 	private Map<String, ImageIcon> createImageMap(Map<String, Integer> contacts) {
 		Map<String, ImageIcon> map = new HashMap<>();
-		contacts.entrySet().stream().forEach(e -> {
-			ImageIcon imageIcon = null;
-			try {
-				String picture;
-				picture = Controlador.getInstance().getContactPicture(e.getValue());
-				if (picture == null)
-					picture = "https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png";
-				imageIcon = new ImageIcon(new URL(picture));
-			} catch (MalformedURLException | InstantiationException | IllegalAccessException
-					| ClassNotFoundException exception) {
-				exception.printStackTrace();
-			}
-			Image image = imageIcon.getImage();
-			Image newimg = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
-			imageIcon = new ImageIcon(newimg);
-			map.put(e.getKey(), imageIcon);
-		});
+		if (contacts != null) {
+			contacts.entrySet().stream().forEach(e -> {
+				ImageIcon imageIcon = null;
+				try {
+					String picture;
+					picture = Controlador.getInstance().getContactPicture(e.getValue());
+					if (picture == null)
+						picture = "https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png";
+					imageIcon = new ImageIcon(new URL(picture));
+				} catch (MalformedURLException | InstantiationException | IllegalAccessException
+						| ClassNotFoundException exception) {
+					exception.printStackTrace();
+				}
+				Image image = imageIcon.getImage();
+				Image newimg = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
+				imageIcon = new ImageIcon(newimg);
+				map.put(e.getKey(), imageIcon);
+			});
+		}
 		return map;
 	}
 }

@@ -106,7 +106,7 @@ public class Usuario {
 	}
 
 	public boolean hasContact(int contactId) {
-		if (!contacts.stream().anyMatch(c -> (c.getUserId() == contactId)))
+		if (contacts.stream().anyMatch(c -> (c.getUserId() == contactId)))
 			return true;
 		return false;
 	}

@@ -79,6 +79,8 @@ public class Controlador implements MensajeListener {
 	// Resets the current user
 	public void logOut() {
 		// Close all opened windows and start up the App again
+		currentUser = null;
+		currentContact = null;
 		java.awt.Window win[] = java.awt.Window.getWindows();
 		for (int i = 0; i < win.length; i++) {
 			win[i].dispose();
@@ -123,6 +125,7 @@ public class Controlador implements MensajeListener {
 			contact1.setMessages(messageList);
 			contactDAO.registerContact(contact1);
 			user1.addContact(contact1);
+
 			userCatalog.modifyUser(user1);
 			// adds the user1 as a contact in user2
 			newId = Id.generateUniqueId();
@@ -397,15 +400,6 @@ public class Controlador implements MensajeListener {
 		userCatalog.modifyUser(currentUser);
 	}
 
-	// Returns the current user's contact information
-	public Map<String, Integer> getCurrentContacts() {
-		HashMap<String, Integer> result = new HashMap<String, Integer>();
-		currentUser.getContacts().stream().forEach(contact -> {
-			result.put(contact.getName(), contact.getId());
-		});
-		return result;
-	}
-
 	// Points out if there's a contact selected
 	public boolean isContactSelected() {
 		return (currentContact != null);
@@ -490,6 +484,21 @@ public class Controlador implements MensajeListener {
 				return null;
 			}
 		return null;
+	}
+
+	// Returns the current user's contact information
+	public Map<String, Integer> getCurrentContacts() {
+		HashMap<String, Integer> result = new HashMap<String, Integer>();
+		try {
+			currentUser.getContacts().stream().forEach(contact -> {
+				result.put(contact.getName(), contact.getId());
+			});
+		} catch (NullPointerException e) {
+			// Can't stop the view's access while switching users,
+			// App will just try again after loading.
+			return null;
+		}
+		return result;
 	}
 
 	// Adds a message to a contact's message list

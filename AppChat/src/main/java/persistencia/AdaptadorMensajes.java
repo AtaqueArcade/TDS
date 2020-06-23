@@ -27,6 +27,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 
 	private AdaptadorMensajes() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
+		deleteAll();
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class AdaptadorUsuario implements DAOusuario {
 	private AdaptadorUsuario() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 		contactDAO = AdaptadorContacto.getInstance();
+		deleteAll();
 	}
 
 	@Override
@@ -141,10 +143,10 @@ public class AdaptadorUsuario implements DAOusuario {
 	}
 
 	private List<Contacto> getStringAsContacts(String idString) {
-		List<Contacto> result = null;
+		List<Contacto> result = new LinkedList<Contacto>();
 		if (idString != null && !idString.isEmpty())
-			result = Arrays.stream(idString.split(" ")).<Contacto>map(id -> contactDAO.getContact(Integer.valueOf(id)))
-					.collect(Collectors.toList());
+			result.addAll(Arrays.stream(idString.split(" "))
+					.<Contacto>map(id -> contactDAO.getContact(Integer.valueOf(id))).collect(Collectors.toList()));
 		return result;
 
 	}

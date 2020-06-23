@@ -53,7 +53,6 @@ public class ContactSettingsView {
 		panel.setBackground(SystemColor.textInactiveText);
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("New contact", null, panel, "Add new contacts to your contact list");
-		tabbedPane.setForeground(Color.WHITE);
 		panel.setLayout(new BorderLayout(0, 0));
 
 		JPanel panel_1 = new JPanel();

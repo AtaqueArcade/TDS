@@ -9,6 +9,7 @@ import beans.Propiedad;
 import modelo.Contacto;
 import modelo.ContactoIndividual;
 import modelo.Grupo;
+import modelo.Mensaje;
 import tds.driver.FactoriaServicioPersistencia;
 import tds.driver.ServicioPersistencia;
 
@@ -25,6 +26,7 @@ public class AdaptadorContacto implements DAOcontacto {
 
 	private AdaptadorContacto() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
+		deleteAll();
 	}
 
 	@Override
@@ -47,6 +49,7 @@ public class AdaptadorContacto implements DAOcontacto {
 				eContact.setPropiedades(new ArrayList<Propiedad>(Arrays.asList(
 						new Propiedad("msgId", Integer.toString(contact.getMsgId())), new Propiedad("userId", ""),
 						new Propiedad("name", contact.getName()), new Propiedad("picture", contact.getPicture()),
+						new Propiedad("admin", Integer.toString(((Grupo) contact).getAdmin())),
 						new Propiedad("members", getMembersAsString(((Grupo) contact).getComponents())))));
 			}
 			eContact = server.registrarEntidad(eContact);
@@ -81,15 +84,16 @@ public class AdaptadorContacto implements DAOcontacto {
 				userId = Integer.parseInt(server.recuperarPropiedadEntidad(eContact, "userId"));
 			String name = server.recuperarPropiedadEntidad(eContact, "name");
 			String picture = server.recuperarPropiedadEntidad(eContact, "picture");
+			List<Mensaje> msgList = AdaptadorMensajes.getInstance().getMessageList(msgId);
 			if (userId != 0) { // single
 				int phone = Integer.parseInt(server.recuperarPropiedadEntidad(eContact, "phone"));
 				result = new ContactoIndividual(eContact.getId(), msgId, userId, name, picture, phone);
 			} else { // group
-
 				List<Contacto> members = getStringAsMembers(server.recuperarPropiedadEntidad(eContact, "members"));
 				int admin = Integer.parseInt(server.recuperarPropiedadEntidad(eContact, "admin"));
 				result = new Grupo(eContact.getId(), msgId, userId, name, picture, admin, members);
 			}
+			result.setMessages(msgList);
 		}
 		return result;
 	}
