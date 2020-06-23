@@ -99,7 +99,7 @@ public class ChatView extends JPanel {
 			try {
 				if (!inputTextField.getText().equals("") && Controlador.getInstance().isContactSelected()) {
 					try {
-						Controlador.getInstance().addMessageToCurrent(inputTextField.getText(), 0);
+						Controlador.getInstance().addMessage(inputTextField.getText(), 0, true, null);
 						inputTextField.setText("");
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -145,7 +145,7 @@ public class ChatView extends JPanel {
 				int n = currentemoji;
 				x.addActionListener(e -> {
 					try {
-						Controlador.getInstance().addMessageToCurrent(null, n);
+						Controlador.getInstance().addMessage(null, n, true, null);
 						poEmoji.hide();
 						btnEmoji.setEnabled(true);
 					} catch (Exception e2) {
@@ -165,7 +165,7 @@ public class ChatView extends JPanel {
 					int n = currentemoji;
 					y.addActionListener(e -> {
 						try {
-							Controlador.getInstance().addMessageToCurrent(null, n);
+							Controlador.getInstance().addMessage(null, n, true, null);
 							poEmoji.hide();
 							btnEmoji.setEnabled(true);
 						} catch (Exception e2) {
@@ -207,14 +207,16 @@ public class ChatView extends JPanel {
 						BubbleText bubble;
 						int side = 1;
 						Color color = Color.LIGHT_GRAY;
-						if (m.getSpeaker().equals(Controlador.getInstance().getCurrentUserName())) {
+						if (Controlador.getInstance().isCurrentUser(m.getSpeaker())) {
 							side = 0;
 							color = SystemColor.controlHighlight;
 						}
 						if (m.getEmoticon() == 0)
-							bubble = new BubbleText(chat, m.getText(), color, m.getSpeaker(), side);
+							bubble = new BubbleText(chat, m.getText(), color,
+									Controlador.getInstance().getName(m.getSpeaker()), side);
 						else
-							bubble = new BubbleText(chat, m.getEmoticon(), color, m.getSpeaker(), side, 18);
+							bubble = new BubbleText(chat, m.getEmoticon(), color,
+									Controlador.getInstance().getName(m.getSpeaker()), side, 18);
 						chat.add(bubble);
 					}
 					revalidate();

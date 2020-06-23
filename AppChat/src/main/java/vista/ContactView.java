@@ -18,13 +18,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.Timer;
 import controlador.Controlador;
-import modelo.Contacto;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.awt.SystemColor;
 
 public class ContactView extends JPanel {
@@ -32,29 +34,32 @@ public class ContactView extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final int DELAY = 1000;
 	private Map<String, ImageIcon> imageMap;
-	private DefaultListModel<Contacto> listModel;
-	private JList<Contacto> list;
+	private DefaultListModel<String> listModel;
+	private JList<String> list;
 
 	public ContactView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		super(new BorderLayout());
-		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
-		list = new JList<Contacto>();
-		listModel = new DefaultListModel<Contacto>();
-		for (int i = 0; i < contacts.size(); i++)
-			listModel.addElement(contacts.get(i));
+		Map<String, Integer> contacts = Controlador.getInstance().getCurrentContacts();
+		list = new JList<String>();
+		listModel = new DefaultListModel<String>();
+		contacts.entrySet().stream().forEach(e -> {
+			listModel.addElement(e.getKey());
+		});
+		List<Map.Entry<String, Integer>> entryList = new LinkedList<>();
+		List<Integer> idList = entryList.stream().map(Entry::getValue).collect(Collectors.toList());
 		list.setModel(listModel);
 		imageMap = createImageMap(contacts);
 		list.setBackground(SystemColor.controlDkShadow);
 		list.setCellRenderer(new ListRenderer());
 		list.addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("unchecked")
 			public void mouseClicked(MouseEvent evt) {
-				@SuppressWarnings("unchecked")
-				JList<Contacto> list = (JList<Contacto>) evt.getSource();
+				JList<String> list = (JList<String>) evt.getSource();
 				int index = list.locationToIndex(evt.getPoint());
 				if (index >= 0 && index <= list.getModel().getSize()) {
-					Contacto c = (Contacto) list.getModel().getElementAt(index);
+					int id = idList.get(index);
 					try {
-						Controlador.getInstance().setCurrentChat(c);
+						Controlador.getInstance().setCurrentChat(id);
 					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -62,7 +67,6 @@ public class ContactView extends JPanel {
 				}
 			}
 		});
-
 		JScrollPane scroll = new JScrollPane(list);
 		scroll.setPreferredSize(new Dimension(250, 400));
 		this.add(scroll);
@@ -71,10 +75,11 @@ public class ContactView extends JPanel {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
-					DefaultListModel<Contacto> newListModel = new DefaultListModel<Contacto>();
-					List<Contacto> updatedContacts = Controlador.getInstance().getCurrentContacts();
-					for (int i = 0; i < updatedContacts.size(); i++)
-						newListModel.addElement(updatedContacts.get(i));
+					DefaultListModel<String> newListModel = new DefaultListModel<String>();
+					Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
+					updatedContacts.entrySet().stream().forEach(entry -> {
+						newListModel.addElement(entry.getKey());
+					});
 					List<?> elements1 = Arrays.asList(newListModel.toArray());
 					List<?> elements2 = Arrays.asList(listModel.toArray());
 					if (!elements1.equals(elements2)) {
@@ -85,7 +90,6 @@ public class ContactView extends JPanel {
 						repaint();
 					}
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -101,10 +105,9 @@ public class ContactView extends JPanel {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 				boolean cellHasFocus) {
-			Contacto c = (Contacto) value;
-			JLabel label = (JLabel) super.getListCellRendererComponent(list, c.getName(), index, isSelected,
-					cellHasFocus);
-			label.setIcon(imageMap.get(c.getName()));
+			String c = (String) value;
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, c, index, isSelected, cellHasFocus);
+			label.setIcon(imageMap.get(c));
 			label.setHorizontalTextPosition(JLabel.RIGHT);
 			label.setIconTextGap(20);
 			label.setFont(font);
@@ -113,24 +116,25 @@ public class ContactView extends JPanel {
 
 	}
 
-	private Map<String, ImageIcon> createImageMap(List<Contacto> contacts) {
+	private Map<String, ImageIcon> createImageMap(Map<String, Integer> contacts) {
 		Map<String, ImageIcon> map = new HashMap<>();
-		ImageIcon imageIcon = null;
-		for (Contacto c : contacts) {
+		contacts.entrySet().stream().forEach(e -> {
+			ImageIcon imageIcon = null;
 			try {
-				String picture = c.getPicture();
+				String picture;
+				picture = Controlador.getInstance().getContactPicture(e.getValue());
 				if (picture == null)
 					picture = "https://cdn2.iconfinder.com/data/icons/ecommerce-tiny-line/64/profile_ecommerce_shop-512.png";
 				imageIcon = new ImageIcon(new URL(picture));
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (MalformedURLException | InstantiationException | IllegalAccessException
+					| ClassNotFoundException exception) {
+				exception.printStackTrace();
 			}
 			Image image = imageIcon.getImage();
 			Image newimg = image.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
 			imageIcon = new ImageIcon(newimg);
-			map.put(c.getName(), imageIcon);
-		}
+			map.put(e.getKey(), imageIcon);
+		});
 		return map;
 	}
 }

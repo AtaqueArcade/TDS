@@ -13,7 +13,7 @@ public interface DAOmensajes {
 
 	public LinkedList<Mensaje> getMessageList(int id);
 
-	void modifyMessageList(int id, LinkedList<Mensaje> messageList);
+	void modifyMessageList(int id, List<Mensaje> messageList);
 
 	void deleteMessageList(int id);
 

@@ -70,7 +70,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 	}
 
 	@Override
-	public void modifyMessageList(int id, LinkedList<Mensaje> messageList) {
+	public void modifyMessageList(int id, List<Mensaje> messageList) {
 		Entidad eMessage;
 		eMessage = server.recuperarEntidad(id);
 		for (Propiedad p : eMessage.getPropiedades()) {
@@ -104,7 +104,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 		return result;
 	}
 
-	private String parseMsgToString(LinkedList<Mensaje> messages) {
+	private String parseMsgToString(List<Mensaje> messages) {
 		String result = "";
 		for (Mensaje m : messages) {
 			if (m.getText() == null)

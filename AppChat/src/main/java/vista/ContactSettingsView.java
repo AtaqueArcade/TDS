@@ -8,6 +8,7 @@ import java.awt.SystemColor;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -30,7 +31,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 
 import controlador.Controlador;
-import modelo.Contacto;
 import java.awt.Color;
 import pulsador.Luz;
 
@@ -138,7 +138,7 @@ public class ContactSettingsView {
 				noContactIsRepeated = Controlador.getInstance().checkContactList(selections);
 				if (noContactIsRepeated) {
 					for (String username : selections) {
-						Controlador.getInstance().addContact(username);
+						Controlador.getInstance().addContact(null, username);
 					}
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					JOptionPane.showMessageDialog(new JFrame(),
@@ -260,14 +260,14 @@ public class ContactSettingsView {
 		Component verticalStrut_long = Box.createVerticalStrut(250);
 		panel_4.add(verticalStrut_long);
 
-		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
+		Map<String, Integer> contacts = Controlador.getInstance().getCurrentContacts();
 		JList<String> list_1 = new JList<String>();
 		LinkedList<Integer> idList = new LinkedList<Integer>();
 		DefaultListModel<String> listModel_1 = new DefaultListModel<String>();
-		for (Contacto c : contacts) {
-			listModel_1.addElement(c.getName());
-			idList.add(c.getId());
-		}
+		contacts.entrySet().stream().forEach(e -> {
+			listModel_1.addElement(e.getKey());
+			idList.add(e.getValue());
+		});
 		list_1.setModel(listModel_1);
 		list_1.addListSelectionListener(new ListSelectionListener() {
 
@@ -276,8 +276,12 @@ public class ContactSettingsView {
 				if (!arg0.getValueIsAdjusting()) {
 					int index = list_1.getSelectedIndex();
 					if (index >= 0) {
-						label_1.setText(contacts.get(index).getName());
-						label_2.setText(contacts.get(index).getPhone());
+						try {
+							label_1.setText(Controlador.getInstance().getContactName(idList.get(index)));
+							label_2.setText(Controlador.getInstance().getContactPhone(idList.get(index)));
+						} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -288,7 +292,11 @@ public class ContactSettingsView {
 			public void stateChanged(ChangeEvent e) {
 				DefaultListModel<String> listModel_1 = new DefaultListModel<String>();
 				for (int i = 0; i < contacts.size(); i++)
-					listModel_1.addElement(contacts.get(i).getName());
+					try {
+						listModel_1.addElement(Controlador.getInstance().getContactName(idList.get(i)));
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
 				list_1.setModel(listModel_1);
 			}
 		});
@@ -310,14 +318,14 @@ public class ContactSettingsView {
 				}
 			} else {
 				try {
-					if (Controlador.getInstance().deleteContacts(result)) {
+					if (Controlador.getInstance().deleteContact(result)) {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						JOptionPane.showMessageDialog(new JFrame(), "Selected contacts deleted succesfully.\n",
 								"Delete contacts", JOptionPane.INFORMATION_MESSAGE);
 					}
 					DefaultListModel<String> listM = new DefaultListModel<String>();
 					for (int i = 0; i < contacts.size(); i++)
-						listM.addElement(contacts.get(i).getName());
+						listM.addElement(Controlador.getInstance().getContactName(idList.get(i)));
 					list_1.setModel(listM);
 				} catch (Exception e1) {
 					e1.printStackTrace();

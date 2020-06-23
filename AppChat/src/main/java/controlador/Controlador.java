@@ -1,6 +1,5 @@
 package controlador;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import TDS.AppChat.App;
 import cargador.CargadorMensajes;
 import cargador.MensajeEvent;
@@ -122,7 +120,7 @@ public class Controlador implements MensajeListener {
 			int newId = Id.generateUniqueId();
 			Contacto contact1 = new ContactoIndividual(newId, msgId, user2.getId(), user2.getName(), user2.getPicture(),
 					user2.getPhone());
-			contact1.setMensaje(messageList);
+			contact1.setMessages(messageList);
 			contactDAO.registerContact(contact1);
 			user1.addContact(contact1);
 			userCatalog.modifyUser(user1);
@@ -131,7 +129,7 @@ public class Controlador implements MensajeListener {
 			msgId = messageDAO.createMessageList();
 			Contacto contact2 = new ContactoIndividual(newId, msgId, user1.getId(), user1.getName(), user1.getPicture(),
 					user1.getPhone());
-			contact2.setMensaje(messageList);
+			contact2.setMessages(messageList);
 			contactDAO.registerContact(contact2);
 			user2.addContact(contact2);
 			userCatalog.modifyUser(user2);
@@ -165,9 +163,11 @@ public class Controlador implements MensajeListener {
 	}
 
 	// Deletes the selected contacts from the current user's list
-	public boolean deleteContact(List<Contacto> contacts) {
-		if (contacts == null)
+	public boolean deleteContact(List<Integer> ids) {
+		if (ids == null || ids.size() == 0)
 			return false;
+		List<Contacto> contacts = currentUser.getContacts().stream().filter(c -> ids.contains(c.getId()))
+				.collect(Collectors.toList());
 		if (contacts.contains(currentContact))
 			currentContact = null;
 		currentUser.getContacts().stream().filter(
@@ -187,7 +187,7 @@ public class Controlador implements MensajeListener {
 		int msgId = messageDAO.createMessageList();
 		List<Mensaje> msgList = messageDAO.getMessageList(msgId);
 		Contacto group1 = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), contactList1);
-		group1.setMensaje(msgList);
+		group1.setMessages(msgList);
 		contactDAO.registerContact(group1);
 		currentUser.addContact(group1);
 		userCatalog.modifyUser(currentUser);
@@ -206,7 +206,7 @@ public class Controlador implements MensajeListener {
 					.collect(Collectors.toList());
 			newId = Id.generateUniqueId();
 			Contacto group2 = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), contactList2);
-			group2.setMensaje(msgList);
+			group2.setMessages(msgList);
 			contactDAO.registerContact(group2);
 			user.addContact(group2);
 			userCatalog.modifyUser(user);
@@ -214,12 +214,12 @@ public class Controlador implements MensajeListener {
 		return true;
 	}
 
-	// Returns a list of the selected group's components
-	public List<String> getGroupComponents(int groupId) {
+	// Returns a list of information of the selected group's components
+	public Map<String, String> getGroupComponents(int groupId) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		Grupo gr = (Grupo) g.get();
-		return gr.getComponents().stream().map(c -> c.getName()).collect(Collectors.toList());
+		return gr.getComponents().stream().collect(Collectors.toMap(Contacto::getName, Contacto::getPhone));
 	}
 
 	// TODO
@@ -247,7 +247,7 @@ public class Controlador implements MensajeListener {
 							.collect(Collectors.toList());
 					Contacto group2 = new Grupo(newId, gr.getMsgId(), 0, gr.getName(), gr.getPicture(),
 							currentUser.getId(), contactList2);
-					group2.setMensaje(gr.getMensajes());
+					group2.setMessages(gr.getMessages());
 					contactDAO.registerContact(group2);
 					user.addContact(group2);
 					userCatalog.modifyUser(user);
@@ -333,6 +333,10 @@ public class Controlador implements MensajeListener {
 		return flag;
 	}
 
+	public boolean isCurrentUser(int id) {
+		return (currentUser.getId() == id);
+	}
+
 	// Returns the current user's name
 	public String getCurrentUserName() {
 		return currentUser.getName();
@@ -393,9 +397,13 @@ public class Controlador implements MensajeListener {
 		userCatalog.modifyUser(currentUser);
 	}
 
-	// Returns the current user's contact list
-	public List<Contacto> getCurrentContacts() {
-		return currentUser.getContacts();
+	// Returns the current user's contact information
+	public Map<String, Integer> getCurrentContacts() {
+		HashMap<String, Integer> result = new HashMap<String, Integer>();
+		currentUser.getContacts().stream().forEach(contact -> {
+			result.put(contact.getName(), contact.getId());
+		});
+		return result;
 	}
 
 	// Points out if there's a contact selected
@@ -404,36 +412,78 @@ public class Controlador implements MensajeListener {
 	}
 
 	// Changes all the chat assets to the selected contact in the user's list
-	public void setCurrentChat(Contacto contact) {
-		currentContact = contact;
+	public void setCurrentChat(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (contact.isPresent())
+			currentContact = contact.get();
 	}
 
-	// Returns the current contact's name
-	public String getCurrentContactName() {
-		if (currentContact == null)
-			return null;
-		return currentContact.getName();
+	// Returns the contact's name
+	public String getContactName(Integer id) {
+		// On 0 invocation the current contact's will be returned
+		if (id == 0) {
+			if (currentContact == null)
+				return null;
+			return currentContact.getName();
+		}
+		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (result.isPresent())
+			return result.get().getName();
+		return null;
 	}
 
-	// Returns the current contact's phone
-	public String getCurrentContactPhone() {
-		if (currentContact == null)
-			return null;
-		return currentContact.getPhone();
+	// Returns the contact's phone
+	public String getContactPhone(Integer id) {
+		// On 0 invocation the current contact's will be returned
+		if (id == 0) {
+			if (currentContact == null)
+				return null;
+			return currentContact.getPhone();
+		}
+		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (result.isPresent())
+			return result.get().getPhone();
+		return null;
 	}
 
-	// Returns the current contact's picture
-	public String getCurrentContactPicture() {
-		if (currentContact == null)
-			return null;
-		return currentContact.getPicture();
+	// Returns the contact's phone
+	public String getContactPicture(Integer id) {
+		// On 0 invocation the current contact's will be returned
+		if (id == 0) {
+			if (currentContact == null)
+				return null;
+			return currentContact.getPicture();
+		}
+		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (result.isPresent())
+			return result.get().getPicture();
+		return null;
+	}
+
+	public boolean isContactoIndividual(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (contact.isPresent())
+			return contact.get() instanceof ContactoIndividual;
+		return false;
+	}
+
+	public boolean isGrupo(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (contact.isPresent())
+			return contact.get() instanceof Grupo;
+		return false;
+	}
+
+	// Returns a user's name
+	public String getName(int id) {
+		return userCatalog.getUser(id).getName();
 	}
 
 	// Returns the current message list
 	public List<Mensaje> getCurrentMessages() {
 		if (currentContact != null && currentUser != null)
 			try {
-				return currentContact.getMensajes();
+				return currentContact.getMessages();
 			} catch (NullPointerException e) {
 				// Can't stop the view's access while switching users,
 				// App will just try again after loading.
@@ -442,31 +492,82 @@ public class Controlador implements MensajeListener {
 		return null;
 	}
 
-	// Adds a message with the current contact to the message list
-	public void addMessageToCurrent(String text, int emoji) {
-		Mensaje message = new Mensaje(text, emoji, currentUser.getId(), true);
-		currentContact.addMensaje(message);
-		// TODO CONTINUAR
-		messageCatalog.addMessage(currentUser.getMessageList(currentContact), message);
+	// Adds a message to a contact's message list
+	public void addMessage(String text, int emoji, boolean sent, Contacto con) {
+		// If null is passed in con, msg will be added to the current contact
+		Contacto contact;
+		if (con == null)
+			contact = currentContact;
+		else
+			contact = con;
+		Mensaje message1 = new Mensaje(text, emoji, currentUser.getId(), sent);
+		contact.addMessage(message1);
+		messageDAO.modifyMessageList(contact.getMsgId(), contact.getMessages());
+		contactDAO.modifyContact(contact);
+
+		if (contact instanceof Grupo) {
+			((Grupo) contact).getComponents().stream().forEach(c -> {
+				Usuario user = userCatalog.getUser(c.getId());
+				user.getContacts().stream().filter(groupInsideContact -> groupInsideContact instanceof Grupo
+						&& (groupInsideContact.getMsgId() == contact.getMsgId())).forEach(group -> {
+							Mensaje message2 = new Mensaje(text, emoji, currentUser.getId(), !sent);
+							group.addMessage(message2);
+							messageDAO.modifyMessageList(group.getMsgId(), group.getMessages());
+							contactDAO.modifyContact(group);
+						});
+			});
+		} else {
+			Usuario user = userCatalog.getUser(contact.getUserId());
+			Optional<Contacto> result = user.getContacts().stream().filter(c -> c.getUserId() == currentUser.getId())
+					.findFirst();
+			if (!result.isPresent())
+				return;
+			Mensaje message2 = new Mensaje(text, emoji, currentUser.getId(), !sent);
+			result.get().addMessage(message2);
+			messageDAO.modifyMessageList(result.get().getMsgId(), result.get().getMessages());
+			contactDAO.modifyContact(result.get());
+		}
 	}
 
 	// Deletes all messages from the current conversation
-	public void deleteMessages() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		messageCatalog.removeMessages(currentUser.getMessageList(currentContact));
-		int msgId = messageCatalog.createMessage();
-		currentUser.removeMessages(currentContact, msgId);
-		userCatalog.modifyUser(currentUser);
+	public void deleteMessages() {
+		messageDAO.deleteMessageList(currentContact.getMsgId());
+		currentContact.removeMessages();
+		int msgId1 = messageDAO.createMessageList();
+		currentContact.setMessages(messageDAO.getMessageList(msgId1));
+		currentContact.setMsgId(msgId1);
+		messageDAO.modifyMessageList(currentContact.getMsgId(), currentContact.getMessages());
+		contactDAO.modifyContact(currentContact);
+
 		if (currentContact instanceof Grupo) {
-			for (Contacto c : ((Grupo) currentContact).getComponents()) {
+			((Grupo) currentContact).getComponents().stream().forEach(c -> {
 				Usuario user = userCatalog.getUser(c.getId());
-				user.removeMessages(currentContact, msgId);
-				userCatalog.modifyUser(user);
-			}
+				user.getContacts().stream().filter(
+						contact -> contact instanceof Grupo && (contact.getMsgId() == currentContact.getMsgId()))
+						.forEach(group -> {
+
+							messageDAO.deleteMessageList(group.getMsgId());
+							group.removeMessages();
+							int msgId2 = messageDAO.createMessageList();
+							group.setMessages(messageDAO.getMessageList(msgId2));
+							group.setMsgId(msgId2);
+							messageDAO.modifyMessageList(group.getMsgId(), group.getMessages());
+							contactDAO.modifyContact(group);
+						});
+			});
 		} else {
-			Usuario user = CatalogoUsuarios.getInstance().getUser(currentContact.getId());
-			Contacto c = getContact(currentUser.getUsername());
-			user.removeMessages(c, msgId);
-			userCatalog.modifyUser(user);
+			Usuario user = userCatalog.getUser(currentContact.getUserId());
+			Optional<Contacto> result = user.getContacts().stream().filter(c -> c.getUserId() == currentUser.getId())
+					.findFirst();
+			if (!result.isPresent())
+				return;
+			messageDAO.deleteMessageList(result.get().getMsgId());
+			result.get().removeMessages();
+			int msgId2 = messageDAO.createMessageList();
+			result.get().setMessages(messageDAO.getMessageList(msgId2));
+			result.get().setMsgId(msgId2);
+			messageDAO.modifyMessageList(result.get().getMsgId(), result.get().getMessages());
+			contactDAO.modifyContact(result.get());
 		}
 	}
 
@@ -477,20 +578,14 @@ public class Controlador implements MensajeListener {
 
 	// Retreives data for the statistics
 	public int getDataMessagesSent() {
-		int contador = 0;
-		for (int msgId : currentUser.getAllMessages()) {
-			contador += messageCatalog.getMessages(msgId).stream()
-					.filter(m -> m.getSpeaker().equals(currentUser.getName())).count();
-		}
-		return contador;
+		return currentContact.getMsgsByUser(currentUser.getId());
 	}
 
 	// Retreives data for the statistics
 	public int getDataMessagesReceived() {
 		int contador = 0;
-		for (int msgId : currentUser.getAllMessages()) {
-			contador += messageCatalog.getMessages(msgId).stream()
-					.filter(m -> !m.getSpeaker().equals(currentUser.getName())).count();
+		for (Contacto c : currentUser.getContacts()) {
+			contador += (c.getMessages().size() - c.getMsgsByUser(currentUser.getId()));
 		}
 		return contador;
 	}
@@ -498,23 +593,21 @@ public class Controlador implements MensajeListener {
 	// Retreives data for the statistics
 	public Map<String, Integer> getDataBestContacts() {
 		HashMap<String, Integer> result = new HashMap<String, Integer>();
-		IntStream.range(0, currentUser.getContacts().size()).boxed()
-				.collect(Collectors.toMap(currentUser.getContacts()::get, currentUser.getAllMessages()::get)).entrySet()
-				.forEach(entry -> {
-					if (result.size() < 4)
-						result.put(entry.getKey().getName(), messageCatalog.getMessages(entry.getValue()).size());
-					else {
-						Optional<Entry<String, Integer>> lowestOp = result.entrySet().stream()
-								.min((e1, e2) -> Integer.compare(e1.getValue(), e2.getValue()));
-						if (lowestOp != null) {
-							Entry<String, Integer> lowest = lowestOp.get();
-							if (lowest.getValue() < messageCatalog.getMessages(entry.getValue()).size()) {
-								result.remove(lowest.getKey());
-								result.put(entry.getKey().getName(), entry.getValue());
-							}
-						}
+		currentUser.getContacts().stream().forEach(contact -> {
+			if (result.size() < 4)
+				result.put(contact.getName(), contact.getMessages().size());
+			else {
+				Optional<Entry<String, Integer>> lowestOp = result.entrySet().stream()
+						.min((e1, e2) -> Integer.compare(e1.getValue(), e2.getValue()));
+				if (lowestOp != null) {
+					Entry<String, Integer> lowest = lowestOp.get();
+					if (lowest.getValue() < contact.getMessages().size()) {
+						result.remove(lowest.getKey());
+						result.put(contact.getName(), contact.getMessages().size());
 					}
-				});
+				}
+			}
+		});
 		return result;
 	}
 
@@ -526,10 +619,10 @@ public class Controlador implements MensajeListener {
 				.isBefore(LocalDate.now().plusDays(1)); date = date.plusDays(1)) {
 			LocalDate day = date;
 			contador = 0;
-			currentUser.getAllMessages().forEach(msgId -> {
-				contador += messageCatalog.getMessages(msgId).stream()
+			currentUser.getContacts().forEach(contacto -> {
+				contador += contacto.getMessages().stream()
 						.filter(m -> (m.getTime().toLocalDate().getDayOfYear() == day.getDayOfYear())
-								&& !m.getSpeaker().equals(currentUser.getName()))
+								&& !(m.getSpeaker() == currentUser.getId()))
 						.count();
 			});
 			result[it] = contador;
@@ -546,10 +639,10 @@ public class Controlador implements MensajeListener {
 				.isBefore(LocalDate.now().plusDays(1)); date = date.plusDays(1)) {
 			LocalDate day = date;
 			contador = 0;
-			currentUser.getAllMessages().forEach(msgId -> {
-				contador += messageCatalog.getMessages(msgId).stream()
+			currentUser.getContacts().forEach(contact -> {
+				contador += contact.getMessages().stream()
 						.filter(m -> (m.getTime().toLocalDate().getDayOfYear() == day.getDayOfYear())
-								&& m.getSpeaker().equals(currentUser.getName()))
+								&& (m.getSpeaker() == currentUser.getId()))
 						.count();
 			});
 			result[it] = contador;
@@ -566,10 +659,10 @@ public class Controlador implements MensajeListener {
 				.isBefore(LocalTime.now().with(LocalTime.MAX).minusHours(1)); hour = hour.plusHours(1)) {
 			LocalTime hourOfDay = hour;
 			contador = 0;
-			currentUser.getAllMessages().forEach(msgId -> {
-				contador += messageCatalog.getMessages(msgId).stream()
+			currentUser.getContacts().forEach(contact -> {
+				contador += contact.getMessages().stream()
 						.filter(m -> (m.getTime().toLocalTime().getHour() == hourOfDay.getHour())
-								&& m.getSpeaker().equals(currentUser.getName()))
+								&& (m.getSpeaker() == currentUser.getId()))
 						.count();
 			});
 			result[it] = contador;
@@ -593,9 +686,6 @@ public class Controlador implements MensajeListener {
 		List<MensajeWhatsApp> newMsgs = ((MensajeEvent) event).getNewMensajes();
 		List<MensajeWhatsApp> oldMsgs = ((MensajeEvent) event).getOldMensajes();
 		// Makes no sense to identify the contact as the person's actual name!
-		// only barely works in 1 on 1 conversations, no way to identify groups
-		// also SimpleTextParser shoots an exception if given the wrong format!
-		// working with what I've been given
 		if (!newMsgs.equals(oldMsgs)) {
 			Optional<MensajeWhatsApp> WAmsg = newMsgs.stream()
 					.filter(msg -> !msg.getAutor().equals(currentUser.getName())).findFirst();
@@ -605,14 +695,17 @@ public class Controlador implements MensajeListener {
 						.filter(c -> c.getName().equals(contactName)).findFirst();
 				if (contact.isPresent()) {
 					newMsgs.stream().forEach(msg -> {
-						String speaker = null;
-						if (msg.getAutor().equals(currentUser.getName()))
-							speaker = currentUser.getName();
-						else if (msg.getAutor().equals(contactName))
-							speaker = contactName;
-						if (speaker != null) {
-							Mensaje message = new Mensaje(msg.getTexto(), 0, speaker);
-							messageCatalog.addMessage(currentUser.getMessageList(contact.get()), message);
+						int speakerId = 0;
+						boolean sent = false;
+						if (msg.getAutor().equals(currentUser.getName())) {
+							speakerId = currentUser.getId();
+							sent = true;
+						} else if (msg.getAutor().equals(contactName)) {
+							speakerId = contact.get().getId();
+							sent = false;
+						}
+						if (speakerId != 0) {
+							addMessage(msg.getTexto(), 0, sent, contact.get());
 						}
 					});
 				}

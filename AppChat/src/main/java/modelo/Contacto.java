@@ -14,7 +14,7 @@ public abstract class Contacto {
 
 	private String name;
 	private String picture;
-	private List<Mensaje> mensajes;
+	private List<Mensaje> messages;
 
 	public Contacto(int id, int msgId, int userId, String name, String picture) {
 		this.id = id;
@@ -64,20 +64,20 @@ public abstract class Contacto {
 		this.picture = picture;
 	}
 
-	public List<Mensaje> getMensajes() {
-		return mensajes;
+	public List<Mensaje> getMessages() {
+		return messages;
 	}
 
-	public void setMensaje(List<Mensaje> mList) {
-		mensajes = mList;
+	public void setMessages(List<Mensaje> mList) {
+		messages = mList;
 	}
 
-	public boolean addMensaje(Mensaje m) {
-		return mensajes.add(m);
+	public boolean addMessage(Mensaje m) {
+		return messages.add(m);
 	}
 
-	public void removeMensajes() {
-		mensajes = new LinkedList<Mensaje>();
+	public void removeMessages() {
+		messages = new LinkedList<Mensaje>();
 	}
 
 	public abstract String getPhone();
@@ -95,6 +95,10 @@ public abstract class Contacto {
 		Contacto contact = (Contacto) o;
 		return Objects.equals(id, contact.id) && Objects.equals(msgId, contact.msgId)
 				&& Objects.equals(name, contact.name) && Objects.equals(picture, contact.picture)
-				&& Objects.equals(mensajes, contact.mensajes);
+				&& Objects.equals(messages, contact.messages);
+	}
+
+	public int getMsgsByUser(int idUser) {
+		return (int) messages.stream().filter(msg -> msg.getSpeaker() == idUser).count();
 	}
 }

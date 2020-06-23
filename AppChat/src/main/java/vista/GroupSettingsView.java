@@ -7,9 +7,10 @@ import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.swing.BorderFactory;
@@ -34,9 +35,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import controlador.Controlador;
-import modelo.Contacto;
-import modelo.ContactoIndividual;
-import modelo.Grupo;
 import java.awt.Color;
 import java.awt.SystemColor;
 
@@ -46,18 +44,11 @@ public class GroupSettingsView {
 	public GroupSettingsView() {
 	}
 
-	/**
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws UnsupportedLookAndFeelException
-	 * @wbp.parser.entryPoint
-	 */
 	public void show() throws InstantiationException, IllegalAccessException, ClassNotFoundException,
 			UnsupportedLookAndFeelException {
 		Font font = new Font("Open Sans", Font.PLAIN, 12);
 		UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-		List<Contacto> contacts = Controlador.getInstance().getCurrentContacts();
+		Map<String, Integer> contacts = Controlador.getInstance().getCurrentContacts();
 		JTextField textFieldGroupName;
 		JFrame frame = new JFrame("Group settings");
 		frame.getContentPane().setBackground(Color.DARK_GRAY);
@@ -104,10 +95,14 @@ public class GroupSettingsView {
 
 		JList<String> list = new JList<String>();
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
-		for (int i = 0; i < contacts.size(); i++) {
-			if (contacts.get(i) instanceof ContactoIndividual)
-				listModel.addElement(contacts.get(i).getName());
-		}
+		contacts.entrySet().stream().forEach(e -> {
+			try {
+				if (Controlador.getInstance().isContactoIndividual(e.getValue()))
+					listModel.addElement(e.getKey());
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
+		});
 		list.setModel(listModel);
 		JPanel panel_5 = new JPanel();
 		panel_5.setBackground(SystemColor.textInactiveText);
@@ -243,7 +238,7 @@ public class GroupSettingsView {
 								"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n",
 								"New group", JOptionPane.INFORMATION_MESSAGE);
 						frame.dispose();
-					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ParseException
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException
 							| UnsupportedLookAndFeelException e) {
 						e.printStackTrace();
 					}
@@ -261,12 +256,16 @@ public class GroupSettingsView {
 		JList<String> list2 = new JList<String>();
 		DefaultListModel<String> listModel2 = new DefaultListModel<String>();
 		LinkedList<Integer> idList = new LinkedList<Integer>();
-		for (int i = 0; i < contacts.size(); i++) {
-			if (contacts.get(i) instanceof Grupo) {
-				listModel2.addElement(contacts.get(i).getName());
-				idList.add(contacts.get(i).getId());
+		contacts.entrySet().stream().forEach(e -> {
+			try {
+				if (Controlador.getInstance().isGrupo(e.getValue())) {
+					listModel2.addElement(e.getKey());
+					idList.add(e.getValue());
+				}
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+				e1.printStackTrace();
 			}
-		}
+		});
 		list2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list2.setModel(listModel2);
 		JPanel panel_6 = new JPanel();
@@ -301,25 +300,31 @@ public class GroupSettingsView {
 		DefaultListModel<String> listModel3 = new DefaultListModel<String>();
 		DefaultListModel<String> listModel_3 = new DefaultListModel<String>();
 		list2.addListSelectionListener(e -> {
-			List<String> contactList = null;
 			try {
-				contactList = Controlador.getInstance().getGroupComponents(idList.get(list2.getSelectedIndex()));
+				List<String> contactList = Controlador.getInstance()
+						.getGroupComponents(idList.get(list2.getSelectedIndex())).entrySet().stream().map(Entry::getKey)
+						.collect(Collectors.toList());
+				listModel3.clear();
+				for (int i = 0; i < contactList.size(); i++) {
+					listModel3.addElement(contactList.get(i));
+				}
+				list3.setModel(listModel3);
+				listModel_3.clear();
+				contacts.entrySet().stream().forEach(entry -> {
+					try {
+						if (Controlador.getInstance().isContactoIndividual(entry.getValue())
+								&& !contactList.contains(entry.getKey()))
+							listModel_3.addElement(entry.getKey());
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
+				});
+				list.setModel(listModel);
+				contacts2.setModel(listModel_3);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			listModel3.clear();
-			for (int i = 0; i < contactList.size(); i++) {
-				listModel3.addElement(contactList.get(i));
-			}
-			list3.setModel(listModel3);
-			listModel_3.clear();
-			for (int i = 0; i < contacts.size(); i++) {
-				if (contacts.get(i) instanceof ContactoIndividual && !contactList.contains(contacts.get(i).getName()))
-					listModel_3.addElement(contacts.get(i).getName());
-			}
-			list.setModel(listModel);
-			contacts2.setModel(listModel_3);
 		});
 		JScrollPane scrollPane_1 = new JScrollPane(contacts2);
 		scrollPane_1.setPreferredSize(new Dimension(100, 70));

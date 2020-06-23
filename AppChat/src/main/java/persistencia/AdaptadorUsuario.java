@@ -18,6 +18,7 @@ import tds.driver.ServicioPersistencia;
 public class AdaptadorUsuario implements DAOusuario {
 	private static ServicioPersistencia server;
 	private static AdaptadorUsuario instance;
+	private DAOcontacto contactDAO;
 
 	public static AdaptadorUsuario getInstance() {
 		if (instance == null)
@@ -28,6 +29,7 @@ public class AdaptadorUsuario implements DAOusuario {
 
 	private AdaptadorUsuario() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
+		contactDAO = AdaptadorContacto.getInstance();
 	}
 
 	@Override
@@ -83,20 +85,12 @@ public class AdaptadorUsuario implements DAOusuario {
 			String picture = server.recuperarPropiedadEntidad(eUser, "picture");
 			boolean premium = Boolean.parseBoolean(server.recuperarPropiedadEntidad(eUser, "premium"));
 			String quote = server.recuperarPropiedadEntidad(eUser, "quote");
-			String idListString = server.recuperarPropiedadEntidad(eUser, "contacts");
-			List<Integer> idList = new ArrayList<Integer>();
-			if (!idListString.equals(""))
-				idList = Arrays.stream(idListString.split(" ")).map(Integer::valueOf).collect(Collectors.toList());
+			String idList = server.recuperarPropiedadEntidad(eUser, "contacts");
 			List<Contacto> contacts = getStringAsContacts(idList);
 			Usuario user = new Usuario(id, name, birthday, phone, username, password, picture, premium, contacts,
 					quote);
 			return user;
 		}
-		return null;
-	}
-
-	private List<Contacto> getStringAsContacts(List<Integer> idList) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -147,10 +141,11 @@ public class AdaptadorUsuario implements DAOusuario {
 	}
 
 	private List<Contacto> getStringAsContacts(String idString) {
-		/*
-		 * List<Contacto> result = null; if (!idString.equals("")) result =
-		 * Arrays.stream(idString.split(" ")).map(id -> getContact(Integer.valueOf(id)))
-		 * .collect(Collectors.toList()); return result;
-		 */
+		List<Contacto> result = null;
+		if (idString != null && !idString.isEmpty())
+			result = Arrays.stream(idString.split(" ")).<Contacto>map(id -> contactDAO.getContact(Integer.valueOf(id)))
+					.collect(Collectors.toList());
+		return result;
+
 	}
 }

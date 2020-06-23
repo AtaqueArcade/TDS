@@ -27,8 +27,6 @@ import org.knowm.xchart.style.Styler.LegendPosition;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.XChartPanel;
 import controlador.Controlador;
-import modelo.Grupo;
-
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -252,15 +250,28 @@ public class StatisticsView {
 			Document document = new Document(pdf);
 			try {
 				document.add(new Paragraph("Contact list"));
-				Controlador.getInstance().getCurrentContacts().stream().filter(c -> !(c instanceof Grupo))
-						.forEach(c -> {
-							document.add(new Paragraph("- Name: " + c.getName() + ", Phone: " + c.getPhone()));
-						});
-				Controlador.getInstance().getCurrentContacts().stream().filter(c -> (c instanceof Grupo)).forEach(c -> {
-					document.add(new Paragraph("- Group name: " + c.getName()));
-					((Grupo) c).getComponents().forEach(com -> {
-						document.add(new Paragraph("-Component name: " + com.getName() + ", Phone: " + com.getPhone()));
-					});
+				Controlador.getInstance().getCurrentContacts().entrySet().stream().forEach(entry -> {
+					try {
+						if (Controlador.getInstance().isContactoIndividual(entry.getValue()))
+							document.add(new Paragraph("- Name: " + entry.getKey() + ", Phone: "
+									+ Controlador.getInstance().getContactPhone(entry.getValue())));
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
+				});
+				Controlador.getInstance().getCurrentContacts().entrySet().stream().forEach(entry -> {
+					try {
+						if (Controlador.getInstance().isGrupo(entry.getValue())) {
+							document.add(new Paragraph("- Group name: " + entry.getKey()));
+							Controlador.getInstance().getGroupComponents(entry.getValue()).entrySet().stream()
+									.forEach(com -> {
+										document.add(new Paragraph(
+												"-Component name: " + com.getKey() + ", Phone: " + com.getValue()));
+									});
+						}
+					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
 				});
 			} catch (Exception e1) {
 				e1.printStackTrace();
