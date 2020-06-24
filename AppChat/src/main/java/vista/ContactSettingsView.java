@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.HeadlessException;
 import java.awt.SystemColor;
 import java.io.File;
 import java.util.LinkedList;
@@ -192,10 +193,6 @@ public class ContactSettingsView {
 		panel_3.add(verticalStrut_9);
 
 		JButton btnChangeName = new JButton("Set alias");
-		btnChangeName.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
 		btnChangeName.setFont(font);
 		btnChangeName.setContentAreaFilled(false);
 		btnChangeName.setOpaque(true);
@@ -343,7 +340,6 @@ public class ContactSettingsView {
 							"Please, select any amount of contacts to be deleted.\n", "Delete contacts",
 							JOptionPane.ERROR_MESSAGE);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			} else {
@@ -379,6 +375,40 @@ public class ContactSettingsView {
 		for (int i = 0; i < 2; i++) {
 			tabbedPane.setBackgroundAt(i, SystemColor.controlDkShadow);
 		}
+
+		btnChangeName.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (!nameChangeTextField.getText().isEmpty()) {
+					int[] arr = list_1.getSelectedIndices();
+					LinkedList<Integer> result = new LinkedList<Integer>();
+					for (int i : arr)
+						result.add(idList.get(i));
+
+					if (result.size() != 1) {
+						try {
+							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+							JOptionPane.showMessageDialog(new JFrame(), "Please, select one contact.\n",
+									"Delete contacts", JOptionPane.ERROR_MESSAGE);
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+					} else {
+						try {
+							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+							if (Controlador.getInstance().changeContactName(result.getFirst(),
+									nameChangeTextField.getText().trim()))
+								JOptionPane.showMessageDialog(new JFrame(), "Name changed succesfully.\n",
+										"Delete contacts", JOptionPane.OK_OPTION);
+						} catch (HeadlessException | InstantiationException | IllegalAccessException
+								| ClassNotFoundException | UnsupportedLookAndFeelException e1) {
+							e1.printStackTrace();
+						}
+					}
+					nameChangeTextField.setText("");
+				}
+			}
+		});
+
 		tabbedPane.setBorder(null);
 		tabbedPane.setBackground(SystemColor.textInactiveText);
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

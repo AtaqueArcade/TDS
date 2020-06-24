@@ -97,11 +97,6 @@ public class Controlador implements MensajeListener {
 		return usernames;
 	}
 
-	// Returns the picture of any user
-	public String getUserPicture(int id) {
-		return userCatalog.getUser(id).getPicture();
-	}
-
 	// Adds a contact to a user
 	public boolean addContact(Usuario user1, String contactName) {
 		if (user1 == null && currentUser != null)
@@ -225,7 +220,6 @@ public class Controlador implements MensajeListener {
 		return gr.getComponents().stream().collect(Collectors.toMap(Contacto::getName, Contacto::getPhone));
 	}
 
-	// TODO
 	// Edits the given group if the current user created it
 	public boolean editGroup(int groupId, List<String> userNames) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
@@ -288,7 +282,7 @@ public class Controlador implements MensajeListener {
 
 				// Update all group versions
 				memberList.stream().forEach(c -> {
-					Usuario user = userCatalog.getUser(c.getId());
+					Usuario user = userCatalog.getUser(c.getUserId());
 					Optional<Contacto> group = user.getContacts().stream()
 							.filter(contact -> contact instanceof Grupo && (contact.getMsgId() == gr.getMsgId()))
 							.findFirst();
@@ -336,6 +330,7 @@ public class Controlador implements MensajeListener {
 		return flag;
 	}
 
+	// Checks if the given Id belongs to the current user
 	public boolean isCurrentUser(int id) {
 		return (currentUser.getId() == id);
 	}
@@ -370,6 +365,17 @@ public class Controlador implements MensajeListener {
 		userCatalog.modifyUser(currentUser);
 	}
 
+	// Returns the current user's premium status
+	public boolean getCurrentUserPremium() {
+		return currentUser.getPremium();
+	}
+
+	// Sets the current user's premium status
+	public void setCurrentUserPremium() {
+		currentUser.setPremium(true);
+		userCatalog.modifyUser(currentUser);
+	}
+
 	// Get current user's discount
 	public Descuento getDiscount() {
 		Descuento discount = null;
@@ -389,104 +395,9 @@ public class Controlador implements MensajeListener {
 		return discount;
 	}
 
-	// Returns the current user's premium status
-	public boolean getCurrentUserPremium() {
-		return currentUser.getPremium();
-	}
-
-	// Sets the current user's premium status
-	public void setCurrentUserPremium() {
-		currentUser.setPremium(true);
-		userCatalog.modifyUser(currentUser);
-	}
-
 	// Points out if there's a contact selected
 	public boolean isContactSelected() {
 		return (currentContact != null);
-	}
-
-	// Changes all the chat assets to the selected contact in the user's list
-	public void setCurrentChat(int id) {
-		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (contact.isPresent())
-			currentContact = contact.get();
-	}
-
-	// Returns the contact's name
-	public String getContactName(Integer id) {
-		// On 0 invocation the current contact's will be returned
-		if (id == 0) {
-			if (currentContact == null)
-				return null;
-			return currentContact.getName();
-		}
-		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (result.isPresent())
-			return result.get().getName();
-		return null;
-	}
-
-	// Returns the contact's phone
-	public String getContactPhone(Integer id) {
-		// On 0 invocation the current contact's will be returned
-		if (id == 0) {
-			if (currentContact == null)
-				return null;
-			return currentContact.getPhone();
-		}
-		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (result.isPresent())
-			return result.get().getPhone();
-		return null;
-	}
-
-	// Returns the contact's phone
-	public String getContactPicture(Integer id) {
-		// On 0 invocation the current contact's will be returned
-		if (id == 0) {
-			if (currentContact == null)
-				return null;
-			return currentContact.getPicture();
-		}
-		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (result.isPresent())
-			return result.get().getPicture();
-		return null;
-	}
-
-	public boolean isContactoIndividual(int id) {
-		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (contact.isPresent())
-			return contact.get() instanceof ContactoIndividual;
-		return false;
-	}
-
-	public boolean isGrupo(int id) {
-		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (contact.isPresent())
-			return contact.get() instanceof Grupo;
-		return false;
-	}
-
-	// Returns a user's name
-	public String getName(int id) {
-		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
-		if (contact.isPresent())
-			return contact.get().getName();
-		return userCatalog.getUser(id).getName();
-	}
-
-	// Returns the current message list
-	public List<Mensaje> getCurrentMessages() {
-		if (currentContact != null && currentUser != null)
-			try {
-				return currentContact.getMessages();
-			} catch (NullPointerException e) {
-				// Can't stop the view's access while switching users,
-				// App will just try again after loading.
-				return null;
-			}
-		return null;
 	}
 
 	// Returns the current user's contact information
@@ -504,8 +415,109 @@ public class Controlador implements MensajeListener {
 		return result;
 	}
 
+	// Changes all the chat assets to the selected contact in the user's list
+	public void setCurrentChat(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (contact.isPresent())
+			currentContact = contact.get();
+	}
+
+	// Checks the current contact's class
+	public boolean isContactoIndividual(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (contact.isPresent())
+			return contact.get() instanceof ContactoIndividual;
+		return false;
+	}
+
+	// Checks the current contact's class
+	public boolean isGrupo(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (contact.isPresent())
+			return contact.get() instanceof Grupo;
+		return false;
+	}
+
+	// Returns a contact's name based on it's user id. Needed for group chat
+	// messages, where the contact isn't always in the current user's contact list
+	public String getName(int id) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getUserId() == id).findFirst();
+		if (contact.isPresent())
+			return contact.get().getName();
+		return userCatalog.getUser(id).getName();
+	}
+
+	// Returns the contact's name based on it's contact id. Needed for contact
+	// lists, where the only information available for the view is the contact's Id
+	public String getContactName(Integer id) {
+		// On 0 invocation the current contact's will be returned
+		if (id == 0) {
+			if (currentContact == null)
+				return null;
+			return currentContact.getName();
+		}
+		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (result.isPresent())
+			return result.get().getName();
+		return null;
+	}
+
+	// Changes the selected contact's alias for the current user
+	public boolean changeContactName(Integer id, String name) {
+		Optional<Contacto> contact = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (!contact.isPresent())
+			return false;
+		if (contact.get() instanceof Grupo)
+			return false;
+		contact.get().setName(name);
+		contactDAO.modifyContact(contact.get());
+		userCatalog.modifyUser(currentUser);
+		return true;
+	}
+
+	// Returns the contact's phone
+	public String getContactPhone(Integer id) {
+		// On 0 invocation the current contact's will be returned
+		if (id == 0) {
+			if (currentContact == null)
+				return null;
+			return currentContact.getPhone();
+		}
+		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (result.isPresent())
+			return result.get().getPhone();
+		return null;
+	}
+
+	// Returns the contact's picture
+	public String getContactPicture(Integer id) {
+		// On 0 invocation the current contact's will be returned
+		if (id == 0) {
+			if (currentContact == null)
+				return null;
+			return currentContact.getPicture();
+		}
+		Optional<Contacto> result = currentUser.getContacts().stream().filter(c -> c.getId() == id).findFirst();
+		if (result.isPresent())
+			return result.get().getPicture();
+		return null;
+	}
+
+	// Returns the current message list
+	public List<Mensaje> getCurrentMessages() {
+		if (currentContact != null && currentUser != null)
+			try {
+				return currentContact.getMessages();
+			} catch (NullPointerException e) {
+				// Can't stop the view's access while switching users,
+				// App will just try again after loading.
+				return null;
+			}
+		return null;
+	}
+
 	// Adds a message to a contact's message list
-	public void addMessage(String text, int emoji, boolean sent, Contacto con) {
+	public void addMessage(String text, int emoji, Contacto con) {
 		// If null is passed in con, msg will be added to the current contact
 		Contacto contact;
 		if (con == null)
@@ -516,7 +528,7 @@ public class Controlador implements MensajeListener {
 		contact.addMessage(message1);
 		messageDAO.modifyMessageList(contact.getMsgId(), contact.getMessages());
 		contactDAO.modifyContact(contact);
-		// Groups share the message list.
+		// Groups share the message list, only single contacts has to be updated
 		if (contact instanceof ContactoIndividual) {
 			Usuario user = userCatalog.getUser(contact.getUserId());
 			Optional<Contacto> result = user.getContacts().stream().filter(c -> c.getUserId() == currentUser.getId())
@@ -535,6 +547,7 @@ public class Controlador implements MensajeListener {
 		messageDAO.modifyMessageList(currentContact.getMsgId(), new LinkedList<Mensaje>());
 		currentContact.removeMessages();
 		contactDAO.modifyContact(currentContact);
+		// Groups share the message list, only single contacts has to be updated
 		if (currentContact instanceof ContactoIndividual) {
 			Usuario user = userCatalog.getUser(currentContact.getUserId());
 			Optional<Contacto> result = user.getContacts().stream().filter(c -> c.getUserId() == currentUser.getId())
@@ -672,16 +685,12 @@ public class Controlador implements MensajeListener {
 				if (contact.isPresent()) {
 					newMsgs.stream().forEach(msg -> {
 						int speakerId = 0;
-						boolean sent = false;
-						if (msg.getAutor().equals(currentUser.getName())) {
+						if (msg.getAutor().equals(currentUser.getName()))
 							speakerId = currentUser.getId();
-							sent = true;
-						} else if (msg.getAutor().equals(contactName)) {
+						else if (msg.getAutor().equals(contactName))
 							speakerId = contact.get().getId();
-							sent = false;
-						}
 						if (speakerId != 0) {
-							addMessage(msg.getTexto(), 0, sent, contact.get());
+							addMessage(msg.getTexto(), 0, contact.get());
 						}
 					});
 				}

@@ -99,7 +99,7 @@ public class ChatView extends JPanel {
 			try {
 				if (!inputTextField.getText().equals("") && Controlador.getInstance().isContactSelected()) {
 					try {
-						Controlador.getInstance().addMessage(inputTextField.getText(), 0, true, null);
+						Controlador.getInstance().addMessage(inputTextField.getText(), 0, null);
 						inputTextField.setText("");
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -145,7 +145,7 @@ public class ChatView extends JPanel {
 				int n = currentemoji;
 				x.addActionListener(e -> {
 					try {
-						Controlador.getInstance().addMessage(null, n, true, null);
+						Controlador.getInstance().addMessage(null, n, null);
 						poEmoji.hide();
 						btnEmoji.setEnabled(true);
 					} catch (Exception e2) {
@@ -165,7 +165,7 @@ public class ChatView extends JPanel {
 					int n = currentemoji;
 					y.addActionListener(e -> {
 						try {
-							Controlador.getInstance().addMessage(null, n, true, null);
+							Controlador.getInstance().addMessage(null, n, null);
 							poEmoji.hide();
 							btnEmoji.setEnabled(true);
 						} catch (Exception e2) {

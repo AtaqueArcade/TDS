@@ -102,13 +102,13 @@ public class AdaptadorContacto implements DAOcontacto {
 		Entidad eContact = server.recuperarEntidad(contact.getId());
 		if (contact instanceof ContactoIndividual) {
 			for (Propiedad p : eContact.getPropiedades()) {
-				if (p.getNombre().equals("nombre"))
+				if (p.getNombre().equals("name"))
 					p.setValor(contact.getName());
 				server.modificarPropiedad(p);
 			}
 		} else { // instance of Grupo
 			for (Propiedad p : eContact.getPropiedades()) {
-				if (p.getNombre().equals("nombre"))
+				if (p.getNombre().equals("name"))
 					p.setValor(contact.getName());
 				else if (p.getNombre().equals("picture"))
 					p.setValor(contact.getPicture());
