@@ -27,7 +27,6 @@ public class AdaptadorMensajes implements DAOmensajes {
 
 	private AdaptadorMensajes() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
-		deleteAll();
 	}
 
 	@Override
@@ -43,6 +42,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 
 	@Override
 	public void deleteMessageList(int id) {
+		// Just empties the list
 		Entidad eMessage = server.recuperarEntidad(id);
 		server.borrarEntidad(eMessage);
 	}
@@ -94,10 +94,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 				String text = null;
 				if (msgArr[0] != "")
 					text = msgArr[0];
-				boolean sentByUser = false;
-				if (msgArr[3].equals("true"))
-					sentByUser = true;
-				msg = new Mensaje(text, Integer.parseInt(msgArr[1]), Integer.parseInt(msgArr[2]), sentByUser);
+				msg = new Mensaje(text, Integer.parseInt(msgArr[1]), Integer.parseInt(msgArr[2]));
 				msg.setTime(LocalDateTime.parse(msgArr[3]));
 				result.add(msg);
 			}
@@ -114,11 +111,7 @@ public class AdaptadorMensajes implements DAOmensajes {
 				result += (m.getText() + "<FIELD>");
 			result += (Integer.toString(m.getEmoticon()) + "<FIELD>");
 			result += (Integer.toString(m.getSpeaker()) + "<FIELD>");
-			result += (m.getTime().toString() + "<FIELD>");
-			if (m.isSentByUser())
-				result += ("true" + "<MESSAGE>");
-			else
-				result += ("false" + "<MESSAGE>");
+			result += (m.getTime().toString() + "<MESSAGE>");
 		}
 		result = Optional.ofNullable(result).filter(sStr -> sStr.length() != 0)
 				.map(sStr -> sStr.substring(0, sStr.length() - 9)).orElse(result);

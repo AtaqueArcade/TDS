@@ -31,7 +31,6 @@ public class AdaptadorUsuario implements DAOusuario {
 	private AdaptadorUsuario() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
 		contactDAO = AdaptadorContacto.getInstance();
-		deleteAll();
 	}
 
 	@Override

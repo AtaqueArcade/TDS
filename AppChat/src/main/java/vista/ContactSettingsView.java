@@ -33,8 +33,12 @@ import javax.swing.filechooser.FileSystemView;
 import controlador.Controlador;
 import java.awt.Color;
 import pulsador.Luz;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ContactSettingsView {
+	private JTextField nameChangeTextField;
+
 	public ContactSettingsView() {
 	}
 
@@ -60,8 +64,8 @@ public class ContactSettingsView {
 		panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.Y_AXIS));
 		panel.add(panel_1, BorderLayout.WEST);
 
-		Component verticalStrut_3 = Box.createVerticalStrut(15);
-		panel_1.add(verticalStrut_3);
+		Component verticalStrut_2_1 = Box.createVerticalStrut(20);
+		panel_1.add(verticalStrut_2_1);
 		JTextField textField = new JTextField();
 
 		textField.setPreferredSize(new Dimension(100, 20));
@@ -70,13 +74,14 @@ public class ContactSettingsView {
 		panel_1.add(textField);
 		textField.setColumns(10);
 
+		Component verticalStrut_9_1 = Box.createVerticalStrut(5);
+		panel_1.add(verticalStrut_9_1);
+
 		JButton btnSearch = new JButton("Search");
 		btnSearch.setFont(font);
 		btnSearch.setContentAreaFilled(false);
 		btnSearch.setOpaque(true);
 		btnSearch.setBackground(SystemColor.textHighlight);
-		Component verticalStrut_4 = Box.createVerticalStrut(10);
-		panel_1.add(verticalStrut_4);
 		btnSearch.setPreferredSize(new Dimension(100, 30));
 		btnSearch.setMinimumSize(new Dimension(100, 30));
 		btnSearch.setMaximumSize(new Dimension(100, 30));
@@ -175,8 +180,34 @@ public class ContactSettingsView {
 		Component verticalStrut_2 = Box.createVerticalStrut(20);
 		panel_3.add(verticalStrut_2);
 
+		nameChangeTextField = new JTextField();
+		nameChangeTextField.setToolTipText("Enter a new Alias for the selected contact");
+		nameChangeTextField.setPreferredSize(new Dimension(100, 20));
+		nameChangeTextField.setMinimumSize(new Dimension(100, 20));
+		nameChangeTextField.setMaximumSize(new Dimension(100, 20));
+		nameChangeTextField.setColumns(10);
+		panel_3.add(nameChangeTextField);
+
 		Component verticalStrut_9 = Box.createVerticalStrut(5);
 		panel_3.add(verticalStrut_9);
+
+		JButton btnChangeName = new JButton("Set alias");
+		btnChangeName.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		btnChangeName.setFont(font);
+		btnChangeName.setContentAreaFilled(false);
+		btnChangeName.setOpaque(true);
+		btnChangeName.setBackground(SystemColor.textHighlight);
+		btnChangeName.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnChangeName.setPreferredSize(new Dimension(100, 30));
+		btnChangeName.setMinimumSize(new Dimension(100, 30));
+		btnChangeName.setMaximumSize(new Dimension(100, 30));
+		panel_3.add(btnChangeName);
+
+		Component verticalStrut_4_1 = Box.createVerticalStrut(10);
+		panel_3.add(verticalStrut_4_1);
 		JButton btnDelete = new JButton("Delete");
 		panel_3.add(btnDelete);
 		btnDelete.setFont(font);

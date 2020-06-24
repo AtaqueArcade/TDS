@@ -3,6 +3,7 @@ package controlador;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import TDS.AppChat.AppChat_Constants;
@@ -50,10 +51,10 @@ public class CatalogoUsuarios {
 
 	public Usuario getUser(int id) {
 		updateAllUsers();
-		Entry<String, Usuario> entry = catalog.entrySet().stream().filter(e -> e.getValue().getId() == id).findFirst()
-				.get();
-		if (entry != null)
-			return entry.getValue();
+		Optional<Entry<String, Usuario>> entry = catalog.entrySet().stream().filter(e -> e.getValue().getId() == id)
+				.findFirst();
+		if (entry.isPresent())
+			return entry.get().getValue();
 		return null;
 	}
 

@@ -26,7 +26,6 @@ public class AdaptadorContacto implements DAOcontacto {
 
 	private AdaptadorContacto() {
 		server = FactoriaServicioPersistencia.getInstance().getServicioPersistencia();
-		deleteAll();
 	}
 
 	@Override

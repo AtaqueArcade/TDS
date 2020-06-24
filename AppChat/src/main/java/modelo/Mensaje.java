@@ -8,14 +8,12 @@ public class Mensaje {
 	private LocalDateTime time;
 	private int emoticon;
 	private int speaker;
-	private boolean sentByUser;
 
-	public Mensaje(String text, int emoticon, int speaker, boolean sentByUser) {
+	public Mensaje(String text, int emoticon, int speaker) {
 		this.text = text;
 		this.time = LocalDateTime.now();
 		this.emoticon = emoticon;
 		this.speaker = speaker;
-		this.sentByUser = sentByUser;
 	}
 
 	public String getText() {
@@ -54,8 +52,8 @@ public class Mensaje {
 		return speaker;
 	}
 
-	public boolean isSentByUser() {
-		return sentByUser;
+	public boolean isSentByUser(int id) {
+		return speaker == id;
 	}
 
 	@Override
@@ -68,7 +66,6 @@ public class Mensaje {
 			return false;
 		Mensaje mensaje = (Mensaje) o;
 		return Objects.equals(text, mensaje.text) && Objects.equals(time, mensaje.time)
-				&& Objects.equals(emoticon, mensaje.emoticon) && Objects.equals(speaker, mensaje.speaker)
-				&& Objects.equals(sentByUser, mensaje.sentByUser);
+				&& Objects.equals(emoticon, mensaje.emoticon) && Objects.equals(speaker, mensaje.speaker);
 	}
 }

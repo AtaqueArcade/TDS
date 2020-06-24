@@ -33,6 +33,7 @@ public class ContactView extends JPanel {
 	private static final int DELAY = 1000;
 	private Map<String, ImageIcon> imageMap;
 	private DefaultListModel<String> listModel;
+	private List<Integer> idList;
 	private JList<String> list;
 
 	public ContactView() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
@@ -40,7 +41,7 @@ public class ContactView extends JPanel {
 		Map<String, Integer> contacts = Controlador.getInstance().getCurrentContacts();
 		list = new JList<String>();
 		listModel = new DefaultListModel<String>();
-		List<Integer> idList = new LinkedList<Integer>();
+		idList = new LinkedList<Integer>();
 		contacts.entrySet().stream().forEach(e -> {
 			listModel.addElement(e.getKey());
 			idList.add(e.getValue());
@@ -72,21 +73,27 @@ public class ContactView extends JPanel {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
-					DefaultListModel<String> newListModel = new DefaultListModel<String>();
-					Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
-					if (updatedContacts != null) {
-						updatedContacts.entrySet().stream().forEach(entry -> {
-							newListModel.addElement(entry.getKey());
-						});
-					}
-					List<?> elements1 = Arrays.asList(newListModel.toArray());
-					List<?> elements2 = Arrays.asList(listModel.toArray());
-					if (!elements1.equals(elements2)) {
-						listModel.clear();
-						listModel = newListModel;
-						list.setModel(listModel);
-						imageMap = createImageMap(updatedContacts);
-						repaint();
+					if (Controlador.getInstance().isContactSelected()) {
+						DefaultListModel<String> newListModel = new DefaultListModel<String>();
+						Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
+						if (updatedContacts != null) {
+							updatedContacts.entrySet().stream().forEach(entry -> {
+								newListModel.addElement(entry.getKey());
+							});
+						}
+						List<?> elements1 = Arrays.asList(newListModel.toArray());
+						List<?> elements2 = Arrays.asList(listModel.toArray());
+						if (!elements1.equals(elements2)) {
+							listModel.clear();
+							listModel = newListModel;
+							list.setModel(listModel);
+							idList = new LinkedList<Integer>();
+							updatedContacts.entrySet().stream().forEach(entry -> {
+								idList.add(entry.getValue());
+							});
+							imageMap = createImageMap(updatedContacts);
+							repaint();
+						}
 					}
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
 					e1.printStackTrace();
