@@ -3,7 +3,6 @@ package modelo;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 public class Usuario {
 	private int id;
@@ -96,12 +95,6 @@ public class Usuario {
 	}
 
 	public boolean removeContact(Contacto contact) {
-		if (contact instanceof Grupo) {
-			Optional<Contacto> group = contacts.stream().filter(c -> c.getMsgId() == contact.getMsgId()).findFirst();
-			if (!group.isPresent())
-				return false;
-			return contacts.remove(group.get());
-		}
 		return contacts.remove(contact);
 	}
 

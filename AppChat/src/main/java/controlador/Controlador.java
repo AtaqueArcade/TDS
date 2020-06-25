@@ -179,36 +179,23 @@ public class Controlador implements MensajeListener {
 
 	// Adds a group contact to the current user
 	public boolean addContact(String groupName, List<String> userNames) {
-		List<Contacto> components1 = currentUser.getContacts().stream().filter(c -> c instanceof ContactoIndividual)
+		List<Contacto> components = currentUser.getContacts().stream().filter(c -> c instanceof ContactoIndividual)
 				.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
 				.collect(Collectors.toList());
 		int newId = Id.generateUniqueId();
 		int msgId = messageDAO.createMessageList();
-		List<Mensaje> msgList = messageDAO.getMessageList(msgId);
-		Contacto group1 = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), components1);
-		group1.setMessages(msgList);
-		contactDAO.registerContact(group1);
-		currentUser.addContact(group1);
+		Contacto group = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), components);
+		group.setMessages(messageDAO.getMessageList(msgId));
+		currentUser.addContact(group);
 		userCatalog.modifyUser(currentUser);
 
-		// Inserts the group in each of it's components. If the users don't have any of
-		// the group components as a contact already, they will be added
-		for (Contacto contact : components1) {
-			Usuario user = userCatalog.getUser(contact.getUserId());
-			// Add missing components as contacts to the other users
-			components1.stream().filter(c -> !user.hasContact(c.getUserId())).forEach(c -> {
-				addContact(user, userCatalog.getUser(c.getUserId()).getUsername());
-			});
-			List<Contacto> components2 = user.getContacts().stream().filter(c -> c instanceof ContactoIndividual)
-					.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
-					.collect(Collectors.toList());
-			newId = Id.generateUniqueId();
-			Contacto group2 = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), components2);
-			group2.setMessages(msgList);
-			contactDAO.registerContact(group2);
-			user.addContact(group2);
+		// Inserts the group in each of it's components
+		components.stream().forEach(component -> {
+			Usuario user = userCatalog.getUser(component.getUserId());
+			user.addContact(group);
 			userCatalog.modifyUser(user);
-		}
+		});
+		contactDAO.registerContact(group);
 		return true;
 	}
 
@@ -225,45 +212,28 @@ public class Controlador implements MensajeListener {
 		Optional<Contacto> g = currentUser.getContacts().stream()
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		if (g.isPresent()) {
-			Grupo gr = (Grupo) g.get();
-			List<Contacto> oldContacts = gr.getComponents();
-			if (gr.getAdmin() == currentUser.getId()) {
-				List<Contacto> contactList = currentUser.getContacts().stream()
+			Grupo group = (Grupo) g.get();
+			if (group.getAdmin() == currentUser.getId()) {
+				List<Contacto> oldContacts = group.getComponents();
+				List<Contacto> newContacts = currentUser.getContacts().stream()
+						.filter(c -> c instanceof ContactoIndividual)
 						.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
 						.collect(Collectors.toList());
-				gr.setComponents(contactList);
-				// Add missing components as contacts to the other users
-				contactList.stream().filter(c -> !oldContacts.contains(c)).forEach(c -> {
-					Usuario user = userCatalog.getUser(c.getId());
-					int newId = Id.generateUniqueId();
-					contactList.stream().filter(c2 -> !user.hasContact(c2.getUserId())).forEach(c2 -> {
-						addContact(user, userCatalog.getUser(c2.getUserId()).getUsername());
-					});
-					List<Contacto> contactList2 = user.getContacts().stream()
-							.filter(c2 -> userNames.contains(userCatalog.getUser(c2.getUserId()).getUsername()))
-							.collect(Collectors.toList());
-					Contacto group2 = new Grupo(newId, gr.getMsgId(), 0, gr.getName(), gr.getPicture(),
-							currentUser.getId(), contactList2);
-					group2.setMessages(gr.getMessages());
-					contactDAO.registerContact(group2);
-					user.addContact(group2);
+				group.setComponents(newContacts);
+
+				// Delete the old group in all the contacts
+				oldContacts.stream().forEach(c -> {
+					Usuario user = userCatalog.getUser(c.getUserId());
+					user.removeContact(group);
 					userCatalog.modifyUser(user);
 				});
-				// Delete the group in the deleted users
-				oldContacts.stream().filter(c -> !contactList.contains(c)).forEach(c -> {
-					Usuario user = userCatalog.getUser(c.getId());
-					user.removeContact(gr);
+				// Inserts the group in each of it's components
+				newContacts.stream().forEach(component -> {
+					Usuario user = userCatalog.getUser(component.getUserId());
+					user.addContact(group);
 					userCatalog.modifyUser(user);
 				});
-				// Update all group versions
-				contactList.stream().forEach(c -> {
-					Usuario user = userCatalog.getUser(c.getId());
-					user.getContacts().stream()
-							.filter(contact -> contact instanceof Grupo && (contact.getMsgId() == gr.getMsgId()))
-							.forEach(group -> {
-								contactDAO.modifyContact(group);
-							});
-				});
+				contactDAO.modifyContact(group);
 				return true;
 			}
 		}
@@ -277,23 +247,17 @@ public class Controlador implements MensajeListener {
 			for (int groupId : groupIds) {
 				Optional<Contacto> g = currentUser.getContacts().stream()
 						.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
-				Grupo gr = (Grupo) g.get();
-				List<Contacto> memberList = gr.getComponents();
-
-				// Update all group versions
-				memberList.stream().forEach(c -> {
+				Grupo group = (Grupo) g.get();
+				currentUser.removeContact(group);
+				userCatalog.modifyUser(currentUser);
+				// Deletes the group in all the contacts
+				group.getComponents().stream().forEach(c -> {
 					Usuario user = userCatalog.getUser(c.getUserId());
-					Optional<Contacto> group = user.getContacts().stream()
-							.filter(contact -> contact instanceof Grupo && (contact.getMsgId() == gr.getMsgId()))
-							.findFirst();
-					contactDAO.deleteContact(group.get());
-					user.removeContact(group.get());
+					user.removeContact(group);
 					userCatalog.modifyUser(user);
 				});
-				messageDAO.deleteMessageList(gr.getMsgId());
-				contactDAO.deleteContact(gr);
-				currentUser.removeContact(gr);
-				userCatalog.modifyUser(currentUser);
+				messageDAO.deleteMessageList(group.getMsgId());
+				contactDAO.deleteContact(group);
 			}
 			return true;
 		}
@@ -524,8 +488,8 @@ public class Controlador implements MensajeListener {
 			contact = currentContact;
 		else
 			contact = con;
-		Mensaje message1 = new Mensaje(text, emoji, currentUser.getId());
-		contact.addMessage(message1);
+		Mensaje message = new Mensaje(text, emoji, currentUser.getId());
+		contact.addMessage(message);
 		messageDAO.modifyMessageList(contact.getMsgId(), contact.getMessages());
 		contactDAO.modifyContact(contact);
 		// Groups share the message list, only single contacts has to be updated

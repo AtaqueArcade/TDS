@@ -74,20 +74,18 @@ public class ContactView extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				try {
 					if (Controlador.getInstance().isContactSelected()) {
-						DefaultListModel<String> newListModel = new DefaultListModel<String>();
 						Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
-						if (updatedContacts != null) {
-							updatedContacts.entrySet().stream().forEach(entry -> {
-								newListModel.addElement(entry.getKey());
-							});
-						}
+						DefaultListModel<String> newListModel = new DefaultListModel<String>();
+						updatedContacts.entrySet().stream().forEach(entry -> {
+							newListModel.addElement(entry.getKey());
+						});
 						List<?> elements1 = Arrays.asList(newListModel.toArray());
 						List<?> elements2 = Arrays.asList(listModel.toArray());
 						if (!elements1.equals(elements2)) {
 							listModel.clear();
 							listModel = newListModel;
 							list.setModel(listModel);
-							idList = new LinkedList<Integer>();
+							idList.clear();
 							updatedContacts.entrySet().stream().forEach(entry -> {
 								idList.add(entry.getValue());
 							});

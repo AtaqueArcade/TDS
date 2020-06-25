@@ -230,7 +230,7 @@ public class GroupSettingsView {
 			public void actionPerformed(ActionEvent arg0) {
 				List<String> contactList = IntStream.range(0, listModel_2.size()).mapToObj(listModel_2::get)
 						.map(element -> (String) element).collect(Collectors.toList());
-				if (!textFieldGroupName.getText().trim().equals(""))
+				if (!textFieldGroupName.getText().trim().isEmpty())
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), contactList);

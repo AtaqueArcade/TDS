@@ -123,6 +123,7 @@ public class AdaptadorUsuario implements DAOusuario {
 			}
 			server.modificarPropiedad(p);
 		}
+		user = getUser(user.getId());
 	}
 
 	public void deleteAll() {
@@ -136,7 +137,8 @@ public class AdaptadorUsuario implements DAOusuario {
 	private String getContactsAsString(List<Contacto> contacts) {
 		String result = "";
 		for (Contacto c : contacts) {
-			result += c.getId() + " ";
+			if (c != null)
+				result += c.getId() + " ";
 		}
 		return result.trim();
 	}
