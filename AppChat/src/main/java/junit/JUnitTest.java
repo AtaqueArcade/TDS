@@ -105,8 +105,8 @@ public class JUnitTest {
 	@Test
 	public void test_6_createGroup() {
 		try {
-			List<String> l = new LinkedList<String>();
-			l.add(u2.getUsername());
+			List<Integer> l = new LinkedList<Integer>();
+			l.add(u1.getContacts().get(0).getId());
 			if (Controlador.getInstance().addContact("groupName", l))
 				System.out.println("Group created succesfully");
 			Controlador.getInstance().setCurrentChat(Controlador.getInstance().getCurrentContacts().get("groupName"));

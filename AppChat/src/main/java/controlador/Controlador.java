@@ -175,9 +175,8 @@ public class Controlador implements MensajeListener {
 	}
 
 	// Adds a group contact to the current user
-	public boolean addContact(String groupName, List<String> userNames) {
-		List<Contacto> components = currentUser.getContacts().stream().filter(c -> c instanceof ContactoIndividual)
-				.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
+	public boolean addContact(String groupName, List<Integer> ids) {
+		List<Contacto> components = currentUser.getContacts().stream().filter(c -> ids.contains(c.getId()))
 				.collect(Collectors.toList());
 		int newId = Id.generateUniqueId();
 		int msgId = messageDAO.createMessageList();
@@ -208,16 +207,14 @@ public class Controlador implements MensajeListener {
 	}
 
 	// Edits the given group if the current user created it
-	public boolean editGroup(int groupId, List<String> userNames) {
+	public boolean editGroup(int groupId, List<Integer> ids) {
 		Optional<Contacto> g = currentUser.getContacts().stream()
 				.filter(c -> ((c.getId() == groupId) && c instanceof Grupo)).findFirst();
 		if (g.isPresent()) {
 			Grupo group = (Grupo) g.get();
 			if (group.getAdmin() == currentUser.getId()) {
 				List<Contacto> oldContacts = group.getComponents();
-				List<Contacto> newContacts = currentUser.getContacts().stream()
-						.filter(c -> c instanceof ContactoIndividual)
-						.filter(c -> userNames.contains(userCatalog.getUser(c.getUserId()).getUsername()))
+				List<Contacto> newContacts = currentUser.getContacts().stream().filter(c -> ids.contains(c.getId()))
 						.collect(Collectors.toList());
 				group.setComponents(newContacts);
 

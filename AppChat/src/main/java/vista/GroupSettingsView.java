@@ -233,7 +233,11 @@ public class GroupSettingsView {
 				if (!textFieldGroupName.getText().trim().isEmpty())
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), contactList);
+						LinkedList<Integer> ids = new LinkedList<Integer>();
+						contactList.stream().forEach(c -> {
+							ids.add(contacts.get(c));
+						});
+						Controlador.getInstance().addContact(textFieldGroupName.getText().trim(), ids);
 						JOptionPane.showMessageDialog(new JFrame(),
 								"Group [" + textFieldGroupName.getText().trim() + "] created succesfully!\n",
 								"New group", JOptionPane.INFORMATION_MESSAGE);
@@ -474,10 +478,13 @@ public class GroupSettingsView {
 			public void actionPerformed(ActionEvent arg0) {
 				if (list2.getSelectedIndex() >= 0) {
 					try {
-
 						List<String> contactList = IntStream.range(0, listModel3.size()).mapToObj(listModel3::get)
 								.map(element -> (String) element).collect(Collectors.toList());
-						if (Controlador.getInstance().editGroup(idList.get(list2.getSelectedIndex()), contactList)) {
+						LinkedList<Integer> ids = new LinkedList<Integer>();
+						contactList.stream().forEach(c -> {
+							ids.add(contacts.get(c));
+						});
+						if (Controlador.getInstance().editGroup(idList.get(list2.getSelectedIndex()), ids)) {
 							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 							JOptionPane.showMessageDialog(new JFrame(),
 									"Group [" + list2.getSelectedValuesList().get(0) + "] edited succesfully!\n",

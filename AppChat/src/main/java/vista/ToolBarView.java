@@ -44,7 +44,7 @@ public class ToolBarView extends JPanel {
 	private Popup poProfileSettings, poToolbarMenu, poCurrentContact, poSearch, poDelete, poURL, poQuote;
 	private JPanel profileSettingsJPanel, toolbarMenuJPanel, currentContactJPanel, searchJPanel, deleteJPanel,
 			urlJPanel, quoteJPanel;
-	private JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete;
+	private JButton btnProfile, btnMenu, btnContact, btnGlass, btnDelete, btnQuote, btnChangeYourPicture;
 	private JLabel lblCurrentPicture, lblUserName, lblContactPicture;
 	MultiLineLabel labelPhone;
 	private MultiLineLabel quoteLabel;
@@ -338,7 +338,7 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut_X2 = Box.createVerticalStrut(10);
 		panel_2.add(verticalStrut_X2);
 		font = new Font("Open Sans", Font.PLAIN, 12);
-		JButton btnChangeYourPicture = new JButton("Change picture");
+		btnChangeYourPicture = new JButton("Change picture");
 		btnChangeYourPicture.setFont(font);
 		btnChangeYourPicture.setContentAreaFilled(false);
 		btnChangeYourPicture.setOpaque(true);
@@ -347,6 +347,7 @@ public class ToolBarView extends JPanel {
 			poURL = pf.getPopup(this, urlJPanel, (int) btnChangeYourPicture.getLocationOnScreen().getX() + 20,
 					(int) btnChangeYourPicture.getLocationOnScreen().getY() + 20);
 			poURL.show();
+			btnChangeYourPicture.setEnabled(false);
 		});
 		btnChangeYourPicture.setPreferredSize(new Dimension(140, 30));
 		btnChangeYourPicture.setMinimumSize(new Dimension(140, 30));
@@ -361,11 +362,12 @@ public class ToolBarView extends JPanel {
 		Component verticalStrut_2 = Box.createVerticalStrut(10);
 		profileSettingsView.add(verticalStrut_2);
 
-		JButton btnQuote = new JButton("Change quote");
+		btnQuote = new JButton("Change quote");
 		btnQuote.addActionListener(a -> {
 			poQuote = pf.getPopup(this, quoteJPanel, (int) btnQuote.getLocationOnScreen().getX() + 20,
 					(int) btnQuote.getLocationOnScreen().getY() + 20);
 			poQuote.show();
+			btnQuote.setEnabled(false);
 		});
 		btnQuote.setFont(font);
 		btnQuote.setContentAreaFilled(false);
@@ -836,6 +838,7 @@ public class ToolBarView extends JPanel {
 				lblCurrentPicture.setIcon(imageIcon);
 				lblCurrentPicture.repaint();
 				poURL.hide();
+				btnChangeYourPicture.setEnabled(true);
 			}
 		});
 		urlJPanel.add(btnNewButton, BorderLayout.EAST);
@@ -865,6 +868,7 @@ public class ToolBarView extends JPanel {
 					quoteLabel.setText(textField.getText().trim());
 					quoteLabel.paintImmediately(quoteLabel.getVisibleRect());
 					quoteLabel.repaint();
+					btnQuote.setEnabled(true);
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

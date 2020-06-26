@@ -5,6 +5,8 @@ import java.net.MalformedURLException;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+import controlador.CatalogoUsuarios;
+
 public class Ventana {
 	public static JFrame frame;
 
