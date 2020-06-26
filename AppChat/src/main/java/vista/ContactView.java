@@ -73,28 +73,28 @@ public class ContactView extends JPanel {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
-					if (Controlador.getInstance().isContactSelected()) {
-						Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
-						DefaultListModel<String> newListModel = new DefaultListModel<String>();
+					Map<String, Integer> updatedContacts = Controlador.getInstance().getCurrentContacts();
+					DefaultListModel<String> newListModel = new DefaultListModel<String>();
+					updatedContacts.entrySet().stream().forEach(entry -> {
+						newListModel.addElement(entry.getKey());
+					});
+					List<?> elements1 = Arrays.asList(newListModel.toArray());
+					List<?> elements2 = Arrays.asList(listModel.toArray());
+					if (!elements1.equals(elements2)) {
+						listModel.clear();
+						listModel = newListModel;
+						list.setModel(listModel);
+						idList.clear();
 						updatedContacts.entrySet().stream().forEach(entry -> {
-							newListModel.addElement(entry.getKey());
+							idList.add(entry.getValue());
 						});
-						List<?> elements1 = Arrays.asList(newListModel.toArray());
-						List<?> elements2 = Arrays.asList(listModel.toArray());
-						if (!elements1.equals(elements2)) {
-							listModel.clear();
-							listModel = newListModel;
-							list.setModel(listModel);
-							idList.clear();
-							updatedContacts.entrySet().stream().forEach(entry -> {
-								idList.add(entry.getValue());
-							});
-							imageMap = createImageMap(updatedContacts);
-							repaint();
-						}
+						imageMap = createImageMap(updatedContacts);
+						repaint();
 					}
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
 					e1.printStackTrace();
+				} catch (NullPointerException e2) {
+					// Will retry after login
 				}
 			}
 		});

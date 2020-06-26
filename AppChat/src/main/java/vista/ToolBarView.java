@@ -224,62 +224,74 @@ public class ToolBarView extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				String contactName = null;
 				try {
-					contactName = Controlador.getInstance().getContactName(0);
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
-					e1.printStackTrace();
-				}
-				if (contactName != null && !btnContact.getText().equals(contactName)) {
-					btnContact.setText(contactName);
-					lblUserName.setText(contactName);
-					String pictureContacto = null;
-					try {
-						pictureContacto = Controlador.getInstance().getContactPicture(0);
-					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e2) {
-						e2.printStackTrace();
-					}
-					if (pictureContacto != null) {
-						try {
-							imageContact = new ImageIcon(new URL(pictureContacto));
+					if (Controlador.getInstance().isContactSelected()) {
+						contactName = Controlador.getInstance().getContactName(0);
+						if (contactName != null && !btnContact.getText().equals(contactName)) {
+							btnContact.setText(contactName);
+							lblUserName.setText(contactName);
+							String pictureContacto = null;
+							pictureContacto = Controlador.getInstance().getContactPicture(0);
 
-						} catch (MalformedURLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							if (pictureContacto != null)
+								imageContact = new ImageIcon(new URL(pictureContacto));
+							else
+								imageContact = new ImageIcon(new URL("https://i.imgur.com/NPRQMwe.png"));
+
+							Image image = imageContact.getImage();
+							Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+							imageContact = new ImageIcon(newimg);
+
+							newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+							imageContact = new ImageIcon(newimg);
+							lblContactPicture.setIcon(imageContact);
+							BufferedImage bi = new BufferedImage(imageContact.getIconWidth() + 0,
+									imageContact.getIconHeight() + 0, BufferedImage.TYPE_INT_ARGB);
+							Graphics2D g = bi.createGraphics();
+							g.setColor(SystemColor.textHighlight);
+							g.drawImage(imageContact.getImage(), 1, 1, null);
+							g.setStroke(stroke);
+							g.drawRect(0, 0, bi.getWidth() - 1, bi.getHeight() - 1);
+							imageContact = new ImageIcon(bi);
+
+							btnContact.setIcon(imageContact);
+
+							btnContact.repaint();
+							lblContactPicture.repaint();
+
+							labelPhone.setText(Controlador.getInstance().getContactPhone(0));
+							labelPhone.repaint();
+
 						}
 					} else {
-						try {
+						if (!lblUserName.getText().equals("No one selected")) {
+							lblUserName.setText("No one selected");
+							labelPhone.setText("[No contact selected]");
+
 							imageContact = new ImageIcon(new URL("https://i.imgur.com/NPRQMwe.png"));
-						} catch (MalformedURLException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							Image image = imageContact.getImage();
+							Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+							imageContact = new ImageIcon(newimg);
+
+							newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+							imageContact = new ImageIcon(newimg);
+							lblContactPicture.setIcon(imageContact);
+							BufferedImage bi = new BufferedImage(imageContact.getIconWidth() + 0,
+									imageContact.getIconHeight() + 0, BufferedImage.TYPE_INT_ARGB);
+							Graphics2D g = bi.createGraphics();
+							g.setColor(SystemColor.textHighlight);
+							g.drawImage(imageContact.getImage(), 1, 1, null);
+							g.setStroke(stroke);
+							g.drawRect(0, 0, bi.getWidth() - 1, bi.getHeight() - 1);
+							imageContact = new ImageIcon(bi);
+							btnContact.setIcon(imageContact);
+							btnContact.setText("No chat selected");
+							btnContact.repaint();
 						}
 					}
-					Image image = imageContact.getImage();
-					Image newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
-					imageContact = new ImageIcon(newimg);
-
-					newimg = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
-					imageContact = new ImageIcon(newimg);
-					lblContactPicture.setIcon(imageContact);
-					BufferedImage bi = new BufferedImage(imageContact.getIconWidth() + 0,
-							imageContact.getIconHeight() + 0, BufferedImage.TYPE_INT_ARGB);
-					Graphics2D g = bi.createGraphics();
-					g.setColor(SystemColor.textHighlight);
-					g.drawImage(imageContact.getImage(), 1, 1, null);
-					g.setStroke(stroke);
-					g.drawRect(0, 0, bi.getWidth() - 1, bi.getHeight() - 1);
-					imageContact = new ImageIcon(bi);
-
-					btnContact.setIcon(imageContact);
-
-					btnContact.repaint();
-					lblContactPicture.repaint();
-					try {
-						labelPhone.setText(Controlador.getInstance().getContactPhone(0));
-						labelPhone.repaint();
-					} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException
+						| MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});

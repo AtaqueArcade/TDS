@@ -72,10 +72,6 @@ public abstract class Contacto {
 		messages = mList;
 	}
 
-	public boolean addMessage(Mensaje m) {
-		return messages.add(m);
-	}
-
 	public void removeMessages() {
 		messages = new LinkedList<Mensaje>();
 	}

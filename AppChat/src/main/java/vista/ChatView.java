@@ -99,7 +99,7 @@ public class ChatView extends JPanel {
 			try {
 				if (!inputTextField.getText().equals("") && Controlador.getInstance().isContactSelected()) {
 					try {
-						Controlador.getInstance().addMessage(inputTextField.getText(), 0, null);
+						Controlador.getInstance().addMessage(inputTextField.getText(), -1, null);
 						inputTextField.setText("");
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -211,7 +211,7 @@ public class ChatView extends JPanel {
 							side = 0;
 							color = SystemColor.controlHighlight;
 						}
-						if (m.getEmoticon() == 0)
+						if (m.getEmoticon() == -1)
 							bubble = new BubbleText(chat, m.getText(), color,
 									Controlador.getInstance().getName(m.getSpeaker()), side);
 						else

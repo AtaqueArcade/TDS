@@ -99,10 +99,11 @@ public class Controlador implements MensajeListener {
 
 	// Adds a contact to a user
 	public boolean addContact(Usuario user1, String contactName) {
-		if (user1 == null && currentUser != null)
-			user1 = currentUser;
-		else
-			return false;
+		if (user1 == null)
+			if (currentUser != null)
+				user1 = currentUser;
+			else
+				return false;
 		Usuario user2 = null;
 		try {
 			user2 = CatalogoUsuarios.getInstance().getUser(contactName);
@@ -121,11 +122,9 @@ public class Controlador implements MensajeListener {
 			contact1.setMessages(messageList);
 			contactDAO.registerContact(contact1);
 			user1.addContact(contact1);
-
 			userCatalog.modifyUser(user1);
 			// adds the user1 as a contact in user2
 			newId = Id.generateUniqueId();
-			msgId = messageDAO.createMessageList();
 			Contacto contact2 = new ContactoIndividual(newId, msgId, user1.getId(), user1.getName(), user1.getPicture(),
 					user1.getPhone());
 			contact2.setMessages(messageList);
@@ -165,15 +164,13 @@ public class Controlador implements MensajeListener {
 	public boolean deleteContact(List<Integer> ids) {
 		if (ids == null || ids.size() == 0)
 			return false;
-		List<Contacto> contacts = currentUser.getContacts().stream().filter(c -> ids.contains(c.getId()))
-				.collect(Collectors.toList());
-		if (contacts.contains(currentContact))
+		if (ids.contains(currentContact.getId()))
 			currentContact = null;
-		currentUser.getContacts().stream().filter(
-				c -> contacts.stream().anyMatch(contact -> contact.getId() == c.getId()) && !(c instanceof Grupo))
-				.forEach(c -> {
-					deleteContact(c);
-				});
+		List<Contacto> contacts = currentUser.getContacts().stream()
+				.filter(c -> ids.contains(c.getId()) && (c instanceof ContactoIndividual)).collect(Collectors.toList());
+		contacts.stream().forEach(c -> {
+			deleteContact(c);
+		});
 		return true;
 	}
 
@@ -186,6 +183,9 @@ public class Controlador implements MensajeListener {
 		int msgId = messageDAO.createMessageList();
 		Contacto group = new Grupo(newId, msgId, 0, groupName, null, currentUser.getId(), components);
 		group.setMessages(messageDAO.getMessageList(msgId));
+
+		// adds the group as a contact in currentUser
+		contactDAO.registerContact(group);
 		currentUser.addContact(group);
 		userCatalog.modifyUser(currentUser);
 
@@ -366,6 +366,7 @@ public class Controlador implements MensajeListener {
 
 	// Returns the current user's contact information
 	public Map<String, Integer> getCurrentContacts() {
+		currentUser = userCatalog.getUser(currentUser.getId());
 		HashMap<String, Integer> result = new HashMap<String, Integer>();
 		try {
 			currentUser.getContacts().stream().forEach(contact -> {
@@ -471,6 +472,7 @@ public class Controlador implements MensajeListener {
 	public List<Mensaje> getCurrentMessages() {
 		if (currentContact != null && currentUser != null)
 			try {
+				currentContact = contactDAO.getContact(currentContact.getId());
 				return currentContact.getMessages();
 			} catch (NullPointerException e) {
 				// Can't stop the view's access while switching users,
@@ -485,24 +487,22 @@ public class Controlador implements MensajeListener {
 		// If null is passed in con, msg will be added to the current contact
 		Contacto contact;
 		if (con == null)
-			contact = currentContact;
+			contact = contactDAO.getContact(currentContact.getId());
 		else
-			contact = con;
+			contact = contactDAO.getContact(con.getId());
 		Mensaje message = new Mensaje(text, emoji, currentUser.getId());
-		contact.addMessage(message);
-		messageDAO.modifyMessageList(contact.getMsgId(), contact.getMessages());
-		contactDAO.modifyContact(contact);
-		// Groups share the message list, only single contacts has to be updated
+		List<Mensaje> msgList = contact.getMessages();
+		msgList.add(message);
+		messageDAO.modifyMessageList(contact.getMsgId(), msgList);
+		contact.setMessages(msgList);
+		// Groups share the same contact, only single contacts have to be updated
 		if (contact instanceof ContactoIndividual) {
 			Usuario user = userCatalog.getUser(contact.getUserId());
 			Optional<Contacto> result = user.getContacts().stream().filter(c -> c.getUserId() == currentUser.getId())
 					.findFirst();
 			if (!result.isPresent())
 				return;
-			Mensaje message2 = new Mensaje(text, emoji, currentUser.getId());
-			result.get().addMessage(message2);
-			messageDAO.modifyMessageList(result.get().getMsgId(), result.get().getMessages());
-			contactDAO.modifyContact(result.get());
+			result.get().setMessages(msgList);
 		}
 	}
 
