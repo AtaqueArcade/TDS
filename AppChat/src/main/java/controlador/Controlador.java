@@ -528,7 +528,11 @@ public class Controlador implements MensajeListener {
 
 	// Retreives data for the statistics
 	public int getDataMessagesSent() {
-		return currentContact.getMsgsByUser(currentUser.getId());
+		int contador = 0;
+		for (Contacto c : currentUser.getContacts()) {
+			contador += (c.getMsgsByUser(currentUser.getId()));
+		}
+		return contador;
 	}
 
 	// Retreives data for the statistics
